@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>InvoiceFlow | Create Account</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+/* Dynamic SaaS background */
+
+body{
+margin:0;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+background:linear-gradient(270deg,#6366f1,#06b6d4,#10b981,#f59e0b);
+background-size:800% 800%;
+animation:gradientMove 16s ease infinite;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+/* Background animation */
+
+@keyframes gradientMove{
+0%{background-position:0% 50%;}
+50%{background-position:100% 50%;}
+100%{background-position:0% 50%;}
+}
+
+/* Main container */
+
+.container{
+background:rgba(255,255,255,0.95);
+padding:45px;
+width:360px;
+border-radius:14px;
+box-shadow:0 25px 60px rgba(0,0,0,0.2);
+text-align:center;
+backdrop-filter:blur(6px);
+}
+
+/* Top bar */
+
+.top-bar{
+display:flex;
+justify-content:flex-end;
+margin-bottom:15px;
+}
+
+/* Language selector */
+
+#languageSelect{
+padding:6px 10px;
+border-radius:6px;
+border:1px solid #e5e7eb;
+font-size:13px;
+cursor:pointer;
+background:white;
+}
+
+/* Title */
+
+h2{
+margin-top:10px;
+margin-bottom:25px;
+font-weight:600;
+color:#111827;
+}
+
+/* Inputs */
+
+.container input{
+width:100%;
+padding:12px;
+margin-bottom:14px;
+border-radius:8px;
+border:1px solid #e5e7eb;
+font-size:14px;
+transition:all 0.2s ease;
+}
+
+/* Input focus */
+
+.container input:focus{
+outline:none;
+border-color:#6366f1;
+box-shadow:0 0 0 3px rgba(99,102,241,0.15);
+}
+
+/* Register button */
+
+#registerBtn{
+width:100%;
+padding:13px;
+border:none;
+border-radius:8px;
+background:linear-gradient(135deg,#6366f1,#4f46e5);
+color:white;
+font-size:15px;
+font-weight:600;
+cursor:pointer;
+transition:all 0.25s ease;
+}
+
+/* Button hover */
+
+#registerBtn:hover{
+transform:translateY(-2px);
+box-shadow:0 10px 25px rgba(79,70,229,0.35);
+}
+
+/* Links */
+
+.links{
+margin-top:18px;
+font-size:14px;
+color:#6b7280;
+}
+
+/* Login link */
+
+.links a{
+color:#4f46e5;
+text-decoration:none;
+font-weight:500;
+margin-left:5px;
+}
+
+.links a:hover{
+text-decoration:underline;
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+  <div class="top-bar">
+    <select id="languageSelect" onchange="changeLanguage()">
+      <option value="en">English</option>
+      <option value="fr">Français</option>
+      <option value="es">Español</option>
+    </select>
+  </div>
+
+  <h2 id="registerTitle">Create Your Account</h2>
+
+<input id="email" type="email" placeholder="Business Email">
+
+<input id="password" type="password" placeholder="Create Password">
+
+<label style="font-size:13px;">
+<input type="checkbox" onclick="togglePassword()"> Show Password
+</label>
+
+<button id="registerBtn" onclick="register()">Create Account</button>
+
+  <div class="links">
+    <span id="haveAccountText">Already have an account?</span>
+    <a href="/login.html" id="loginLinkText">Login</a>
+  </div>
+
+</div>
+
+<script>
+const translations = {
+  en: {
+    registerTitle: "Create Your Account",
+    emailPlaceholder: "Business Email",
+    passwordPlaceholder: "Create Password",
+    registerBtn: "Create Account",
+    haveAccountText: "Already have an account?",
+    loginLinkText: "Login"
+  },
+  fr: {
+    registerTitle: "Créer votre compte",
+    emailPlaceholder: "Adresse e-mail professionnelle",
+    passwordPlaceholder: "Créer un mot de passe",
+    registerBtn: "Créer un compte",
+    haveAccountText: "Vous avez déjà un compte ?",
+    loginLinkText: "Connexion"
+  },
+  es: {
+    registerTitle: "Crea tu cuenta",
+    emailPlaceholder: "Correo electrónico empresarial",
+    passwordPlaceholder: "Crear contraseña",
+    registerBtn: "Crear cuenta",
+    haveAccountText: "¿Ya tienes una cuenta?",
+    loginLinkText: "Iniciar sesión"
+  }
+};
+
+function changeLanguage() {
+  const lang = document.getElementById("languageSelect").value;
+  localStorage.setItem("language", lang);
+  applyLanguage(lang);
+}
+
+function applyLanguage(lang) {
+  const t = translations[lang];
+  document.getElementById("registerTitle").innerText = t.registerTitle;
+  document.getElementById("email").placeholder = t.emailPlaceholder;
+  document.getElementById("password").placeholder = t.passwordPlaceholder;
+  document.getElementById("registerBtn").innerText = t.registerBtn;
+  document.getElementById("haveAccountText").innerText = t.haveAccountText;
+  document.getElementById("loginLinkText").innerText = t.loginLinkText;
+}
+
+async function register() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  if (!email || !password) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  const res = await fetch("/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password })
+  });
+
+  const data = await res.json();
+
+  if (res.ok) {
+    alert("Account created successfully");
+    window.location.href = "/login.html";
+  } else {
+    alert(data.error || "Registration failed");
+  }
+}
+
+const savedLang = localStorage.getItem("language") || "en";
+document.getElementById("languageSelect").value = savedLang;
+applyLanguage(savedLang);
+</script>
+
+<script>
+
+function register(){
+/* your register code */
+}
+
+function togglePassword(){
+
+const password = document.getElementById("password");
+
+if(password.type === "password"){
+password.type = "text";
+}else{
+password.type = "password";
+}
+
+}
+
+</script>
+
+
+</body>
+</html>

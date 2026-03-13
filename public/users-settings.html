@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Users & Roles</title>
+
+<style>
+
+/* Dynamic animated SaaS background */
+
+body{
+margin:0;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+}
+
+@keyframes gradientMove{
+0%{background-position:0% 50%}
+50%{background-position:100% 50%}
+100%{background-position:0% 50%}
+}
+
+/* Page layout */
+
+.page{
+padding:40px;
+display:flex;
+justify-content:center;
+}
+
+/* Card container */
+
+.page-header{
+background:white;
+padding:35px;
+border-radius:14px;
+width:900px;
+box-shadow:0 25px 60px rgba(0,0,0,0.15);
+}
+
+/* Header */
+
+h2{
+margin:0 0 20px 0;
+color:#111827;
+font-weight:600;
+}
+
+/* Invite button */
+
+.invite-btn{
+background:#6366f1;
+color:white;
+border:none;
+padding:10px 18px;
+border-radius:8px;
+cursor:pointer;
+font-weight:600;
+transition:all 0.25s ease;
+}
+
+.invite-btn:hover{
+background:#4f46e5;
+transform:translateY(-2px);
+box-shadow:0 8px 20px rgba(79,70,229,0.35);
+}
+
+/* Table */
+
+.users-table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+}
+
+.users-table th{
+text-align:left;
+padding:12px;
+font-size:14px;
+color:#6b7280;
+border-bottom:1px solid #e5e7eb;
+}
+
+.users-table td{
+padding:14px;
+border-bottom:1px solid #f1f5f9;
+font-size:14px;
+}
+
+/* Role badges */
+
+.role{
+padding:5px 10px;
+border-radius:6px;
+font-size:12px;
+font-weight:600;
+}
+
+.role.admin{
+background:#fee2e2;
+color:#b91c1c;
+}
+
+.role.staff{
+background:#e0f2fe;
+color:#0369a1;
+}
+
+/* Remove button */
+
+.remove-btn{
+background:#ef4444;
+color:white;
+border:none;
+padding:7px 12px;
+border-radius:6px;
+cursor:pointer;
+font-size:13px;
+transition:all 0.2s ease;
+}
+
+.remove-btn:hover{
+background:#dc2626;
+transform:translateY(-1px);
+}
+
+/* Modal */
+
+#inviteModal{
+display:none;
+position:fixed;
+top:25%;
+left:50%;
+transform:translateX(-50%);
+background:white;
+padding:30px;
+border-radius:12px;
+box-shadow:0 25px 60px rgba(0,0,0,0.25);
+width:300px;
+}
+
+/* Inputs */
+
+#inviteModal input,
+#inviteModal select{
+width:100%;
+padding:10px;
+border:1px solid #e5e7eb;
+border-radius:6px;
+font-size:14px;
+}
+
+#inviteModal button{
+margin-top:8px;
+padding:10px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-weight:600;
+}
+
+#inviteModal button:first-of-type{
+background:#10b981;
+color:white;
+}
+
+#inviteModal button:last-of-type{
+background:#e5e7eb;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="page">
+
+  <div class="page-header">
+    <h2>Users & Roles</h2>
+
+<button class="invite-btn" onclick="openInviteModal()">Invite User</button>
+
+  <table class="users-table">
+
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+
+<tbody id="usersTable">
+      <tr>
+        <td>Admin</td>
+        <td>admin@email.com</td>
+        <td>
+          <span class="role admin">Admin</span>
+        </td>
+        <td>
+          <button class="remove-btn">Remove</button>
+        </td>
+      </tr>
+
+    </tbody>
+
+  </table>
+
+<div id="inviteModal" style="display:none; position:fixed; top:20%; left:40%;">
+
+<h3>Invite User</h3>
+
+<input id="inviteEmail" placeholder="Email"><br><br>
+
+<select id="inviteRole">
+<option value="staff">Staff</option>
+<option value="admin">Admin</option>
+</select>
+
+<br><br>
+
+<button onclick="sendInvite()">Send Invite</button>
+<button onclick="closeInviteModal()">Cancel</button>
+
+</div>
+
+</div>
+
+
+<script>
+
+async function loadUsers() {
+
+  const res = await fetch("/users", {
+    headers: {
+      "Authorization": "Bearer " + localStorage.getItem("token")
+    }
+  });
+
+  const users = await res.json();
+
+  const table = document.getElementById("usersTable");
+  table.innerHTML = "";
+
+  users.forEach(user => {
+
+    const row = document.createElement("tr");
+
+row.innerHTML = `
+<td>${user.email}</td>
+<td>${user.email}</td>
+<td>${user.role}</td>
+<td>
+<button class="remove-btn" onclick="removeUser(${user.id})">Remove</button>
+</td>
+`;
+    table.appendChild(row);
+
+  });
+
+}
+
+loadUsers();
+
+
+async function removeUser(id) {
+
+  if (!confirm("Remove this user?")) return;
+
+  await fetch("/users/" + id, {
+    method: "DELETE",
+    headers: {
+      "Authorization": "Bearer " + localStorage.getItem("token")
+    }
+  });
+
+  loadUsers();
+
+}
+
+
+
+</script>
+
+<script>
+
+function openInviteModal(){
+  document.getElementById("inviteModal").style.display = "block";
+}
+
+function closeInviteModal(){
+  document.getElementById("inviteModal").style.display = "none";
+}
+
+
+async function sendInvite(){
+
+  const email = document.getElementById("inviteEmail").value;
+  const role = document.getElementById("inviteRole").value;
+
+  const res = await fetch("/users",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer " + localStorage.getItem("token")
+    },
+    body:JSON.stringify({email, role})
+  });
+
+  if(res.ok){
+    alert("User invited");
+    closeInviteModal();
+    loadUsers();
+  }else{
+    alert("Error inviting user");
+  }
+
+}
+
+
+</script>
+
+
+</body>
+</html>

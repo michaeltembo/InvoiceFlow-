@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>InvoiceFlow Dashboard</title>
+
+<!-- Google Font (Premium SaaS font) -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Icons (Professional dashboards use this) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<!-- Animate.css (for premium animations) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+<!-- AOS Scroll Animation -->
+<link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" />
+
+<!-- Chart.js (for animated charts) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Your main dashboard styles -->
+<link rel="stylesheet" href="dashboard.css">
+<link rel="stylesheet" href="menu.css">
+
+
+</head>
+
+
+
+<body>
+
+<header>
+
+
+
+<div class="topbar">
+
+<div class="left-section">
+
+<button id="menuToggle">☰</button>
+
+<div class="logo">InvoiceFlow</div>
+<input id="globalSearch">
+<div id="searchResults"></div>
+
+
+<div class="nav-menu">
+</div>
+
+</div>
+
+</div>
+
+</header>
+
+
+<div id="sidebar" class="sidebar">
+
+<div class="sidebar-logo">
+<span class="logo-icon">IF</span>
+</div>
+
+<a href="trash.html">
+<i data-lucide="trash-2"></i>
+Trash Bin
+</a>
+
+<a href="dashboard.html">
+<i data-lucide="layout-dashboard"></i>
+Dashboard
+</a>
+
+<a href="clients.html">
+<i data-lucide="users"></i>
+Clients
+</a>
+
+<a href="invoices.html">
+<i data-lucide="file-text"></i>
+Invoices
+</a>
+
+<a href="company-settings.html">
+<i data-lucide="settings"></i>
+Settings
+</a>
+
+</div>
+<!-- MAIN -->
+
+<main class="dashboard">
+
+
+
+
+
+<!-- STATS -->
+
+<h1>Dashboard</h1>
+
+<div class="stats-grid">
+
+<div class="kpi-card" id="totalClientsCard">
+<span>Total Clients</span>
+<h2 id="totalClients">0</h2>
+</div>
+
+<div class="stat-card" id="activeClientsCard">
+<h3>Active Clients</h3>
+<p id="activeClients">0</p>
+</div>
+
+<div class="stat-card" id="totalRevenueCard">
+<h3>Total Revenue</h3>
+<p id="totalRevenue">$0</p>
+</div>
+
+<div class="stat-card" id="outstandingCard">
+<h3>Outstanding</h3>
+<p id="outstanding">$0</p>
+</div>
+
+</div>
+
+
+<!-- CHART -->
+
+<div class="card" id="revenueChartSection">
+
+<h2>Revenue Overview</h2>
+
+<canvas id="revenueChart"></canvas>
+
+</div>
+
+
+<!-- INVOICE TABLE -->
+
+<div class="card" id="recentInvoices">
+
+<h2>Recent Invoices</h2>
+<div class="table-wrapper">
+<table>
+
+<thead>
+
+<tr>
+<th>Invoice</th>
+<th>Client</th>
+<th>Status</th>
+<th>Total</th>
+</tr>
+
+
+</thead>
+
+<tbody id="invoiceTable"></tbody>
+
+</table>
+
+</div>
+
+
+
+</main>
+
+
+
+<script src="dashboard.js"></script>
+
+
+<script src="menu.js"></script>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+lucide.createIcons();
+</script>
+
+<footer class="app-footer">
+
+<div class="footer-links">
+
+<a href="privacy.html">Privacy</a>
+
+<a href="terms.html">Terms</a>
+
+<a href="security.html">Security</a>
+
+<a href="support.html">Support</a>
+
+</div>
+
+<div class="footer-copy">
+© 2026 InvoiceFlow
+</div>
+
+</footer>
+
+</body>
+
+</html>
+

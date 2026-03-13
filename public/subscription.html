@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Subscription</title>
+
+<style>
+
+/* Clean SaaS dashboard background */
+
+body{
+margin:0;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+background:#f8fafc;
+}
+
+/* Page layout */
+
+.page{
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+min-height:100vh;
+padding:40px;
+gap:20px;
+}
+
+/* Subscription card */
+
+.plan-card{
+background:white;
+padding:40px;
+border-radius:16px;
+width:420px;
+text-align:center;
+box-shadow:0 25px 60px rgba(0,0,0,0.12);
+transition:all 0.3s ease;
+}
+
+.plan-card:hover{
+transform:translateY(-4px);
+box-shadow:0 30px 70px rgba(0,0,0,0.16);
+}
+
+/* Title */
+
+.plan-card h2{
+margin-bottom:20px;
+color:#111827;
+font-weight:600;
+}
+
+/* Plan info */
+
+.plan-info{
+font-size:16px;
+margin-bottom:10px;
+color:#374151;
+}
+
+.plan-name{
+color:#6366f1;
+font-weight:600;
+}
+
+/* Billing cycle */
+
+.billing-cycle{
+font-size:14px;
+color:#6b7280;
+margin-bottom:25px;
+}
+
+/* Upgrade button */
+
+.upgrade-btn{
+width:100%;
+padding:12px;
+border:none;
+border-radius:8px;
+background:#10b981;
+color:white;
+font-weight:600;
+cursor:pointer;
+transition:all 0.25s ease;
+}
+
+.upgrade-btn:hover{
+background:#059669;
+transform:translateY(-2px);
+box-shadow:0 10px 25px rgba(16,185,129,0.25);
+}
+
+/* Manage subscription button */
+
+.manage-btn{
+padding:10px 18px;
+border:none;
+border-radius:8px;
+background:#6366f1;
+color:white;
+font-weight:600;
+cursor:pointer;
+transition:all 0.25s ease;
+}
+
+.manage-btn:hover{
+background:#4f46e5;
+transform:translateY(-2px);
+box-shadow:0 10px 25px rgba(99,102,241,0.25);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+  <div class="plan-card">
+
+    <h2>Subscription Plan</h2>
+
+    <p class="plan-info">
+      Current Plan: <strong id="planName" class="plan-name">Loading...</strong>
+    </p>
+
+    <p class="billing-cycle">
+      Billing Cycle: <span id="billingCycle">Monthly</span>
+    </p>
+
+    <button class="upgrade-btn" onclick="upgradePlan()">Upgrade Plan</button>
+
+  </div>
+
+<button class="manage-btn" onclick="manageBilling()">Manage Subscription</button>
+
+
+</div>
+
+<script>
+
+async function loadSubscription(){
+
+  const res = await fetch("/subscription",{
+    headers:{
+      "Authorization":"Bearer " + localStorage.getItem("token")
+    }
+  });
+
+  const data = await res.json();
+
+  document.getElementById("planName").innerText =
+    data.subscription_status;
+
+}
+
+loadSubscription();
+
+</script>
+
+<script>
+
+async function upgradePlan(){
+
+  const res = await fetch("/create-checkout-session",{
+    method:"POST",
+    headers:{
+      "Authorization":"Bearer " + localStorage.getItem("token")
+    }
+  });
+
+  const data = await res.json();
+
+  window.location.href = data.url;
+
+}
+
+</script>
+
+<script>
+
+async function manageBilling(){
+
+  const res = await fetch("/billing-portal",{
+    method:"POST",
+    headers:{
+      "Authorization":"Bearer " + localStorage.getItem("token")
+    }
+  });
+
+  const data = await res.json();
+
+  console.log(data);   // 👈 add this
+
+  if(!res.ok){
+    alert("Billing error: " + (data.error || "unknown"));
+    return;
+  }
+
+  window.location.href = data.url;
+
+}
+
+</script>
+
+
+</body>
+</html>

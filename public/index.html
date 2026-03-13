@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>InvoiceFlow - Smart Invoicing Platform</title>
+
+<style>
+
+body{
+margin:0;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;
+background:#f8fafc;
+color:#111827;
+}
+
+/* NAVBAR */
+
+.nav{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:20px 80px;
+background:white;
+box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+.nav h2{
+margin:0;
+}
+
+.nav a{
+text-decoration:none;
+margin-left:20px;
+color:#374151;
+font-weight:500;
+}
+
+.nav button{
+background:#6366f1;
+color:white;
+border:none;
+padding:10px 18px;
+border-radius:6px;
+cursor:pointer;
+}
+
+/* HERO */
+
+.hero{
+text-align:center;
+padding:120px 20px;
+background:linear-gradient(135deg,#6366f1,#06b6d4);
+color:white;
+}
+
+.hero h1{
+font-size:52px;
+margin-bottom:20px;
+}
+
+.hero p{
+font-size:18px;
+max-width:700px;
+margin:auto;
+opacity:0.9;
+}
+
+.hero button{
+margin-top:30px;
+padding:16px 30px;
+border:none;
+border-radius:8px;
+background:white;
+color:#4f46e5;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+}
+
+/* FEATURES */
+
+.features{
+padding:80px;
+text-align:center;
+}
+
+.features h2{
+margin-bottom:50px;
+}
+
+.features-grid{
+display:flex;
+gap:40px;
+justify-content:center;
+flex-wrap:wrap;
+}
+
+.feature{
+background:white;
+padding:30px;
+border-radius:10px;
+box-shadow:0 10px 25px rgba(0,0,0,0.05);
+width:260px;
+}
+
+.feature h3{
+margin-top:10px;
+}
+
+/* PRODUCT PREVIEW */
+
+.preview{
+padding:100px 40px;
+text-align:center;
+background:#eef2ff;
+}
+
+.preview img{
+width:80%;
+max-width:900px;
+border-radius:10px;
+box-shadow:0 20px 40px rgba(0,0,0,0.15);
+}
+
+/* PRICING */
+
+.pricing{
+padding:100px 40px;
+text-align:center;
+}
+
+.pricing-grid{
+display:flex;
+justify-content:center;
+gap:40px;
+flex-wrap:wrap;
+}
+
+.price-card{
+background:white;
+padding:40px;
+border-radius:12px;
+width:260px;
+box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+.price-card h3{
+margin-top:0;
+}
+
+.price{
+font-size:36px;
+margin:20px 0;
+}
+
+.price-card button{
+background:#6366f1;
+color:white;
+border:none;
+padding:12px 20px;
+border-radius:6px;
+cursor:pointer;
+}
+
+/* CTA */
+
+.cta{
+background:linear-gradient(135deg,#6366f1,#06b6d4);
+color:white;
+text-align:center;
+padding:100px 20px;
+}
+
+.cta h2{
+font-size:40px;
+}
+
+.cta button{
+margin-top:20px;
+padding:16px 30px;
+border:none;
+border-radius:8px;
+background:white;
+color:#4f46e5;
+font-size:16px;
+font-weight:bold;
+cursor:pointer;
+}
+
+/* FOOTER */
+
+.footer{
+background:#111827;
+color:white;
+text-align:center;
+padding:40px;
+font-size:14px;
+}
+
+html{
+scroll-behavior:smooth;
+}
+
+
+</style>
+
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<div class="nav">
+
+<h2>InvoiceFlow</h2>
+
+<div>
+
+<a href="#features">Features</a>
+<a href="#pricing">Pricing</a>
+
+<a href="/login.html">Login</a>
+<button onclick="location.href='/register.html'">Start Free</button>
+</div>
+
+</div>
+
+
+<!-- HERO -->
+
+<div class="hero">
+
+<h1>Modern Invoicing for Growing Businesses</h1>
+
+<p>
+Create invoices, track payments, and manage your team in one powerful platform.
+</p>
+
+<button onclick="location.href='/register.html'">
+Start Free Trial
+</button>
+</div>
+
+
+<!-- FEATURES -->
+
+<div class="features" id="features">
+<h2>Everything You Need to Run Your Business</h2>
+
+<div class="features-grid">
+
+<div class="feature">
+<h3>⚡ Fast Invoices</h3>
+<p>Create professional invoices in seconds.</p>
+</div>
+
+<div class="feature">
+<h3>👥 Team Management</h3>
+<p>Invite staff and control permissions easily.</p>
+</div>
+
+<div class="feature">
+<h3>📊 Smart Reports</h3>
+<p>Track revenue and payments instantly.</p>
+</div>
+
+<div class="feature">
+<h3>🔐 Secure Platform</h3>
+<p>Enterprise-grade security and authentication.</p>
+</div>
+
+</div>
+
+</div>
+
+
+<!-- PRODUCT PREVIEW -->
+
+<div class="preview">
+
+<h2>Powerful Dashboard</h2>
+
+<p>Manage invoices, clients, and payments from one place.</p>
+
+<img src="dashboard-preview.png">
+
+</div>
+
+
+<!-- PRICING -->
+
+<div class="pricing" id="pricing">
+<h2>Simple Pricing</h2>
+
+<div class="pricing-grid">
+
+<div class="price-card">
+<h3>Free</h3>
+<div class="price">$0</div>
+<p>Basic invoicing features</p>
+<button onclick="location.href='/register.html'">
+Get Started
+</button>
+</div>
+
+<div class="price-card">
+<h3>Pro</h3>
+<div class="price">$19/mo</div>
+<p>Advanced reports & team access</p>
+<button onclick="location.href='/register.html'">
+Start Trial
+</button>
+</div>
+
+<div class="price-card">
+<h3>Business</h3>
+<div class="price">$49/mo</div>
+<p>Full SaaS features for teams</p>
+<button onclick="location.href='/register.html'">
+Start Trial
+</button>
+</div>
+
+</div>
+
+</div>
+
+
+<!-- CTA -->
+
+<div class="cta">
+
+<h2>Start Managing Your Invoices Today</h2>
+
+<p>Join thousands of businesses using InvoiceFlow.</p>
+
+<button onclick="location.href='/register.html'">
+Create Free Account
+</button>
+
+</div>
+
+
+<!-- FOOTER -->
+
+<div class="footer">
+
+<p>© 2026 InvoiceFlow. All rights reserved.</p>
+
+</div>
+
+</body>
+
+</html>

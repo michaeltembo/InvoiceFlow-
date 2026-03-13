@@ -1,0 +1,505 @@
+/* =========================
+GLOBAL
+========================= */
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:'Inter',sans-serif;
+background:#f5f7fb;
+color:#1e293b;
+}
+
+/* =========================
+MAIN DASHBOARD
+========================= */
+
+.dashboard{
+max-width:1200px;
+margin:auto;
+padding:30px;
+}
+
+h1{
+font-size:26px;
+margin-bottom:25px;
+font-weight:600;
+}
+
+/* =========================
+STATS GRID
+========================= */
+
+.stats-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+margin-bottom:30px;
+}
+
+/* KPI CARD */
+
+.kpi-card,
+.stat-card{
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 8px 20px rgba(0,0,0,0.05);
+}
+
+.kpi-card span{
+font-size:14px;
+color:#64748b;
+}
+
+.kpi-card h2{
+font-size:28px;
+margin-top:6px;
+}
+
+.stat-card h3{
+font-size:14px;
+color:#64748b;
+}
+
+.stat-card p{
+font-size:24px;
+margin-top:6px;
+font-weight:600;
+}
+
+/* =========================
+CARDS
+========================= */
+
+.card{
+background:white;
+padding:25px;
+border-radius:10px;
+box-shadow:0 8px 20px rgba(0,0,0,0.05);
+margin-bottom:30px;
+}
+
+.card h2{
+margin-bottom:20px;
+font-size:18px;
+}
+
+/* =========================
+TABLE
+========================= */
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th{
+text-align:left;
+padding:12px;
+font-size:13px;
+color:#64748b;
+border-bottom:1px solid #e2e8f0;
+}
+
+td{
+padding:12px;
+border-bottom:1px solid #f1f5f9;
+}
+
+tr:hover{
+background:#f8fafc;
+}
+
+/* =========================
+TABLE MOBILE FIX
+========================= */
+
+.table-wrapper{
+overflow-x:auto;
+}
+
+/* =========================
+STATUS BADGES
+========================= */
+
+.status-paid{
+background:#dcfce7;
+color:#166534;
+padding:4px 10px;
+border-radius:6px;
+font-size:12px;
+}
+
+.status-pending{
+background:#fef3c7;
+color:#92400e;
+padding:4px 10px;
+border-radius:6px;
+font-size:12px;
+}
+
+
+/* ===== SAAS PREMIUM FOOTER ===== */
+
+.app-footer{
+background:#ffffff;
+border-top:1px solid #e5e7eb;
+
+padding:22px 40px;
+
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+flex-wrap:wrap;
+
+font-size:14px;
+color:#6b7280;
+
+margin-top:auto;
+}
+
+/* FOOTER LINKS */
+
+.footer-links{
+display:flex;
+gap:26px;
+flex-wrap:wrap;
+}
+
+.footer-links a{
+text-decoration:none;
+color:#64748b;
+
+font-weight:500;
+
+position:relative;
+
+transition:all .25s ease;
+}
+
+/* Hover effect like modern SaaS */
+
+.footer-links a:hover{
+color:#2563eb;
+}
+
+/* subtle underline animation */
+
+.footer-links a::after{
+content:"";
+position:absolute;
+left:0;
+bottom:-4px;
+
+width:0;
+height:2px;
+
+background:#2563eb;
+
+transition:width .25s ease;
+}
+
+.footer-links a:hover::after{
+width:100%;
+}
+
+/* COPYRIGHT */
+
+.footer-copy{
+font-size:13px;
+color:#94a3b8;
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width:768px){
+
+.app-footer{
+flex-direction:column;
+gap:14px;
+text-align:center;
+padding:20px;
+}
+
+.footer-links{
+justify-content:center;
+gap:18px;
+}
+
+.footer-copy{
+font-size:12px;
+}
+
+}
+
+
+
+
+
+/* =========================
+MOBILE
+========================= */
+
+@media (max-width:768px){
+
+.dashboard{
+padding:20px;
+}
+
+h1{
+font-size:22px;
+}
+
+}
+
+
+/* KPI COLORS */
+
+/* Total Clients */
+
+#totalClientsCard{
+border-left:5px solid #3b82f6;
+}
+
+#totalClients{
+color:#3b82f6;
+}
+
+
+/* Active Clients */
+
+#activeClientsCard{
+border-left:5px solid #22c55e;
+}
+
+#activeClients{
+color:#16a34a;
+}
+
+
+/* Total Revenue */
+
+#totalRevenueCard{
+border-left:5px solid #6366f1;
+}
+
+#totalRevenue{
+color:#4f46e5;
+}
+
+
+/* Outstanding */
+
+#outstandingCard{
+border-left:5px solid #f59e0b;
+}
+
+#outstanding{
+color:#d97706;
+}
+
+
+
+/* FACEBOOK STYLE SEARCH BAR */
+
+#globalSearch{
+width:260px;
+padding:10px 14px 10px 36px;
+border:none;
+border-radius:50px;
+background:#f0f2f5;
+font-size:14px;
+outline:none;
+position:relative;
+}
+
+/* SEARCH ICON */
+
+#globalSearch{
+background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%2365676b' viewBox='0 0 24 24'%3E%3Cpath d='M21 20l-5.6-5.6a7 7 0 10-1.4 1.4L20 21zM10 16a6 6 0 110-12 6 6 0 010 12z'/%3E%3C/svg%3E");
+background-repeat:no-repeat;
+background-size:16px;
+background-position:10px center;
+}
+
+/* FOCUS EFFECT */
+
+#globalSearch:focus{
+background:#ffffff;
+box-shadow:0 0 0 2px #1877f2;
+}
+
+/* SEARCH RESULTS DROPDOWN */
+
+#searchResults{
+position:absolute;
+top:45px;
+width:260px;
+background:white;
+border-radius:8px;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+display:none;
+z-index:999;
+overflow:hidden;
+}
+
+/* RESULTS ITEMS */
+
+#searchResults div{
+padding:10px;
+cursor:pointer;
+font-size:14px;
+}
+
+#searchResults div:hover{
+background:#f2f2f2;
+}
+
+
+
+
+
+
+
+
+/* Recent invoices table header */
+
+#recentInvoices th{
+color:#374151;
+font-weight:600;
+}
+
+/* Status header */
+
+
+/* Paid status */
+
+#invoiceTable .paid{
+color:#16a34a;
+font-weight:600;
+text-transform:capitalize;
+}
+
+/* Pending status */
+
+#invoiceTable .pending{
+color:#dc2626;
+font-weight:600;
+text-transform:capitalize;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* =========================
+SAAS PREMIUM TABLE
+========================= */
+
+#recentInvoices table{
+width:100%;
+border-collapse:collapse;
+font-family:Inter, sans-serif;
+background:#ffffff;
+border-radius:12px;
+overflow:hidden;
+}
+
+/* table header */
+
+#recentInvoices thead{
+background:#f9fafb;
+border-bottom:1px solid #e5e7eb;
+}
+
+#recentInvoices th{
+text-align:left;
+padding:14px 18px;
+font-size:13px;
+font-weight:600;
+color:#6b7280;
+letter-spacing:.02em;
+text-transform:uppercase;
+}
+
+/* table body */
+
+#recentInvoices td{
+padding:16px 18px;
+border-bottom:1px solid #f1f5f9;
+font-size:14px;
+color:#111827;
+}
+
+/* hover */
+
+#recentInvoices tbody tr:hover{
+background:#f9fafb;
+transition:.2s;
+}
+
+/* invoice id */
+
+#recentInvoices td:first-child{
+font-weight:600;
+color:#4f46e5;
+}
+
+/* client */
+
+#recentInvoices td:nth-child(2){
+font-weight:500;
+}
+
+/* total */
+
+#recentInvoices td:last-child{
+font-weight:600;
+}
+
+/* =========================
+STATUS BADGES
+========================= */
+
+#invoiceTable .paid{
+background:#dcfce7;
+color:#16a34a;
+padding:5px 12px;
+border-radius:999px;
+font-size:12px;
+font-weight:600;
+text-transform:capitalize;
+display:inline-block;
+}
+
+#invoiceTable .pending{
+background:#fee2e2;
+color:#dc2626;
+padding:5px 12px;
+border-radius:999px;
+font-size:12px;
+font-weight:600;
+text-transform:capitalize;
+display:inline-block;
+}

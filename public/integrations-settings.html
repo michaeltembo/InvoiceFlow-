@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Integrations</title>
+
+<style>
+
+/* SaaS dashboard background */
+
+body{
+margin:0;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+background:#f8fafc;
+}
+
+/* Page layout */
+
+.page{
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+padding:40px;
+}
+
+/* Card container */
+
+.card{
+background:white;
+padding:40px;
+border-radius:16px;
+width:420px;
+box-shadow:0 25px 60px rgba(0,0,0,0.12);
+transition:all 0.3s ease;
+text-align:center;
+}
+
+.card:hover{
+transform:translateY(-4px);
+box-shadow:0 30px 70px rgba(0,0,0,0.16);
+}
+
+/* Title */
+
+h2{
+margin-bottom:25px;
+color:#111827;
+font-weight:600;
+}
+
+/* Integration buttons */
+
+.card button{
+width:100%;
+padding:12px;
+margin-bottom:12px;
+border:none;
+border-radius:8px;
+font-size:14px;
+font-weight:600;
+cursor:pointer;
+transition:all 0.25s ease;
+}
+
+/* Stripe button */
+
+.card button:nth-child(2){
+background:#635bff;
+color:white;
+}
+
+.card button:nth-child(2):hover{
+background:#4f46e5;
+transform:translateY(-2px);
+box-shadow:0 10px 25px rgba(99,91,255,0.25);
+}
+
+/* PayPal button */
+
+.card button:nth-child(3){
+background:#0070ba;
+color:white;
+}
+
+.card button:nth-child(3):hover{
+background:#005ea6;
+transform:translateY(-2px);
+box-shadow:0 10px 25px rgba(0,112,186,0.25);
+}
+
+/* Zapier button */
+
+.card button:nth-child(4){
+background:#ff4a00;
+color:white;
+}
+
+.card button:nth-child(4):hover{
+background:#e03f00;
+transform:translateY(-2px);
+box-shadow:0 10px 25px rgba(255,74,0,0.25);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+<div class="card">
+
+<h2>Integrations</h2>
+
+<!-- Stripe -->
+
+<button onclick="connectStripe()">Connect Stripe</button>
+
+<!-- PayPal -->
+
+<button onclick="connectPayPal()">Connect PayPal</button>
+
+<hr>
+
+<!-- Zapier -->
+
+<input id="zapierWebhook" placeholder="Paste Zapier Webhook URL">
+
+<button onclick="saveZapier()">Save Zapier</button>
+
+<p id="zapierMsg"></p>
+
+</div>
+
+</div>
+
+<script>
+
+function connectStripe(){
+
+const token = localStorage.getItem("token");
+
+window.location="/connect/stripe?token=" + token;
+
+}
+
+
+function connectPayPal(){
+window.location="/connect/paypal";
+}
+
+async function saveZapier(){
+
+const token = localStorage.getItem("token");
+
+const webhook = document.getElementById("zapierWebhook").value;
+
+const res = await fetch("/integrations/zapier",{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"Authorization":"Bearer " + token
+},
+body:JSON.stringify({webhook})
+});
+
+document.getElementById("zapierMsg").textContent="Zapier connected";
+
+}
+</script>
+
+
+
+
+
+</body>
+</html>

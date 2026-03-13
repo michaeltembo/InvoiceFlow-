@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Clients</title>
+
+<link rel="stylesheet" href="clients.css">
+<link rel="stylesheet" href="menu.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<header>
+
+<div class="topbar">
+
+<div class="left-section">
+
+<button id="menuToggle">☰</button>
+
+<div class="logo">InvoiceFlow</div>
+
+<div class="nav-menu"></div>
+
+</div>
+
+</div>
+
+</header>
+
+
+<!-- SIDEBAR -->
+
+<div id="sidebar" class="sidebar">
+
+<div class="sidebar-logo">
+<span class="logo-icon">IF</span>
+</div>
+
+<a href="trash.html">Trash Bin</a>
+<a href="dashboard.html">Dashboard</a>
+<a href="clients.html">Clients</a>
+<a href="invoices.html">Invoices</a>
+<a href="company-settings.html">Settings</a>
+
+</div>
+
+
+<!-- MAIN CONTENT -->
+
+<main class="content">
+
+<div class="page-content">
+
+
+<!-- PAGE HEADER -->
+
+<div class="page-header">
+
+<div class="header-left">
+
+<h1 class="page-title">Clients</h1>
+
+<p class="subtitle">
+Manage your customers and monitor engagement
+</p>
+
+</div>
+
+<div class="header-right">
+
+<input
+type="text"
+placeholder="Search clients..."
+oninput="searchClients(this.value)"
+class="search-input"
+/>
+
+<button class="primary-btn" onclick="openClientModal()">
++ Add Client
+</button>
+
+</div>
+
+</div>
+
+
+<!-- KPI SECTION -->
+
+<div class="kpi-grid">
+
+<div class="kpi-card">
+<span class="kpi-title">Clients</span>
+<h2 class="kpi-number" id="totalClients">0</h2>
+</div>
+
+<div class="kpi-card">
+<span class="kpi-title">Active</span>
+<h2 class="kpi-number" id="activeClients">0</h2>
+</div>
+
+<div class="kpi-card">
+<span class="kpi-title">Inactive</span>
+<h2 class="kpi-number" id="inactiveClients">0</h2>
+</div>
+
+<div class="kpi-card highlight">
+<span class="kpi-title">Revenue</span>
+<h2 class="kpi-number" id="clientRevenue">$0</h2>
+</div>
+
+</div>
+
+
+<!-- FILTER -->
+
+<div class="filter-bar">
+
+<select id="statusFilter">
+
+<option value="">All Status</option>
+<option value="active">Active</option>
+<option value="inactive">Inactive</option>
+
+</select>
+
+</div>
+
+
+<!-- CLIENT TABLE -->
+
+<div class="card">
+
+<div class="table-container">
+
+<table class="premium-table">
+
+<thead>
+
+<tr>
+
+<th>Client</th>
+<th>Email</th>
+<th>Phone</th>
+<th>Country</th>
+<th>Revenue</th>
+<th>Status</th>
+<th>Invoices</th>
+<th>Actions</th>
+
+</tr>
+
+</thead>
+
+<tbody id="clientsTableBody"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+</div>
+
+</main>
+
+
+<!-- ADD CLIENT MODAL -->
+
+<div id="clientModal" class="modal">
+
+<div class="modal-content">
+
+<h2>Add New Client</h2>
+
+<div class="form-grid">
+
+<input type="text" id="clientName" placeholder="Client Name">
+
+<input type="email" id="clientEmail" placeholder="Email Address">
+
+<input type="text" id="clientPhone" placeholder="Phone Number">
+
+<input type="text" id="clientCountry" placeholder="Country">
+
+</div>
+
+<div class="modal-actions">
+
+<button class="secondary-btn" onclick="closeClientModal()">Cancel</button>
+
+<button class="primary-btn" onclick="addClient()">Save Client</button>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- CLIENT DRAWER -->
+
+<div id="clientDrawer" class="drawer">
+
+<div class="drawer-content">
+
+<div class="drawer-header">
+
+<h2 id="drawerClientName">Client</h2>
+
+<button onclick="closeDrawer()">✕</button>
+
+</div>
+
+<div class="drawer-body">
+
+
+<!-- CLIENT INFO -->
+
+<div class="client-info">
+
+<p>
+<strong>Email:</strong>
+<span id="drawerEmail"></span>
+</p>
+
+<p>
+<strong>Phone:</strong>
+<span id="drawerPhone"></span>
+</p>
+
+<p>
+<strong>Country:</strong>
+<span id="drawerCountry"></span>
+</p>
+
+</div>
+
+
+<!-- CLIENT STATS -->
+
+<div class="client-stats">
+
+<div class="stat-box">
+<span>Revenue</span>
+<strong id="drawerRevenue">$0</strong>
+</div>
+
+<div class="stat-box">
+<span>Invoices</span>
+<strong id="drawerInvoicesCount">0</strong>
+</div>
+
+<div class="stat-box">
+<span>Paid</span>
+<strong id="drawerPaid">$0</strong>
+</div>
+
+<div class="stat-box">
+<span>Pending</span>
+<strong id="drawerPending">$0</strong>
+</div>
+
+</div>
+
+
+<!-- INVOICE TABLE -->
+
+<h3 class="drawer-section">Invoices</h3>
+
+<div class="table-wrapper">
+
+<table class="drawer-table">
+
+<thead>
+
+<tr>
+<th>Invoice</th>
+<th>Date</th>
+<th>Amount</th>
+<th>Status</th>
+</tr>
+
+</thead>
+
+<tbody id="drawerInvoicesTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- FOOTER -->
+
+<footer class="app-footer">
+
+<div class="footer-links">
+
+<a href="privacy.html">Privacy</a>
+<a href="terms.html">Terms</a>
+<a href="security.html">Security</a>
+<a href="support.html">Support</a>
+
+</div>
+
+<div class="footer-copy">
+
+© 2026 InvoiceFlow
+
+</div>
+
+</footer>
+
+
+<script src="layout.js"></script>
+<script src="clients.js"></script>
+<script src="menu.js"></script>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<script>
+lucide.createIcons();
+</script>
+
+</body>
+</html>

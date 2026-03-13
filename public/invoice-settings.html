@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Invoice Settings</title>
+
+<style>
+
+/* Clean SaaS background */
+
+body{
+margin:0;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+background:#f8fafc;
+}
+
+/* Page layout */
+
+.page{
+display:flex;
+justify-content:center;
+align-items:center;
+min-height:100vh;
+padding:40px;
+}
+
+/* Card */
+
+.card{
+background:white;
+padding:40px;
+border-radius:16px;
+width:420px;
+box-shadow:0 25px 60px rgba(0,0,0,0.12);
+transition:all 0.3s ease;
+}
+
+.card:hover{
+transform:translateY(-4px);
+box-shadow:0 30px 70px rgba(0,0,0,0.16);
+}
+
+/* Title */
+
+h2{
+margin-bottom:25px;
+color:#111827;
+font-weight:600;
+}
+
+/* Inputs */
+
+.card input{
+width:100%;
+padding:12px;
+margin-bottom:14px;
+border-radius:8px;
+border:1px solid #e5e7eb;
+font-size:14px;
+transition:all 0.2s ease;
+}
+
+.card input:focus{
+outline:none;
+border-color:#6366f1;
+box-shadow:0 0 0 3px rgba(99,102,241,0.15);
+}
+
+/* Button */
+
+.card button{
+width:100%;
+padding:12px;
+border:none;
+border-radius:8px;
+background:#6366f1;
+color:white;
+font-weight:600;
+cursor:pointer;
+transition:all 0.25s ease;
+}
+
+.card button:hover{
+background:#4f46e5;
+transform:translateY(-2px);
+box-shadow:0 10px 25px rgba(79,70,229,0.25);
+}
+
+/* Message */
+
+#invoiceMsg{
+margin-top:15px;
+font-size:14px;
+color:#16a34a;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+<div class="card">
+
+<h2>Invoice Preferences</h2>
+
+<input id="invoicePrefix" placeholder="Invoice Prefix (INV-)">
+
+<input id="startNumber" placeholder="Starting Invoice Number">
+
+<input id="paymentTerms" placeholder="Default Payment Terms (Days)">
+
+<input id="invoiceFooter" placeholder="Invoice Footer Message">
+
+<button onclick="saveInvoicePreferences()">Save Preferences</button>
+
+<p id="invoiceMsg"></p>
+
+</div>
+
+</div>
+
+
+<script>
+
+async function saveInvoicePreferences(){
+
+const token = localStorage.getItem("token");
+
+const prefix = document.getElementById("invoicePrefix").value;
+const startNumber = document.getElementById("startNumber").value;
+const paymentTerms = document.getElementById("paymentTerms").value;
+const footer = document.getElementById("invoiceFooter").value;
+
+try{
+
+const res = await fetch("/invoice/preferences",{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"Authorization":"Bearer " + token
+},
+body: JSON.stringify({
+prefix,
+startNumber,
+paymentTerms,
+footer
+})
+});
+
+if(!res.ok){
+throw new Error("Request failed");
+}
+
+document.getElementById("invoiceMsg").textContent =
+"Preferences saved successfully";
+
+}catch(err){
+
+console.error(err);
+
+document.getElementById("invoiceMsg").textContent =
+"Failed to save preferences";
+
+}
+
+}
+
+</script>
+
+</body>
+</html>

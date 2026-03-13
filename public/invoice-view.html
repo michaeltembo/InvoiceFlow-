@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Invoice</title>
+
+<style>
+
+
+body{
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+background:#f4f6f9;
+margin:0;
+padding:40px;
+color:#111827;
+min-height:100vh;
+display:flex;
+flex-direction:column;
+}
+
+/* MAIN CONTAINER */
+
+.invoice-container{
+max-width:900px;
+margin:auto;
+background:#fff;
+padding:40px;
+border-radius:12px;
+box-shadow:0 12px 35px rgba(0,0,0,0.08);
+flex:1;
+}
+/* HEADER */
+
+.invoice-header{
+display:flex;
+justify-content:space-between;
+align-items:flex-start;
+border-bottom:1px solid #e5e7eb;
+padding-bottom:20px;
+margin-bottom:30px;
+}
+
+.invoice-header h1{
+margin:0;
+font-size:26px;
+font-weight:600;
+}
+
+.invoice-header p{
+margin:3px 0;
+font-size:14px;
+color:#6b7280;
+}
+
+.invoice-meta{
+text-align:right;
+font-size:14px;
+}
+
+.invoice-meta h2{
+margin:0 0 6px 0;
+font-size:20px;
+font-weight:600;
+}
+
+/* STATUS */
+
+.status{
+display:inline-block;
+padding:6px 14px;
+border-radius:20px;
+font-size:12px;
+font-weight:600;
+text-transform:capitalize;
+margin-top:6px;
+}
+
+.status.paid{
+background:#dcfce7;
+color:#16a34a;
+}
+
+.status.pending{
+background:#fff7ed;
+color:#f97316;
+}
+
+.status.overdue{
+background:#fee2e2;
+color:#dc2626;
+}
+
+/* BILLING SECTIONS */
+
+.invoice-addresses{
+display:flex;
+justify-content:space-between;
+gap:50px;
+margin-bottom:30px;
+}
+
+.invoice-addresses h4{
+margin-bottom:6px;
+font-size:13px;
+color:#6b7280;
+font-weight:600;
+}
+
+.invoice-addresses p{
+margin:2px 0;
+font-size:14px;
+}
+
+/* TABLE */
+
+
+thead{
+background:#f9fafb;
+}
+
+th{
+text-align:left;
+padding:12px;
+font-size:13px;
+color:#6b7280;
+border-bottom:2px solid #e5e7eb;
+}
+
+td{
+padding:12px;
+border-bottom:1px solid #f3f4f6;
+}
+
+/* ALIGN COLUMNS */
+
+td:nth-child(2){
+text-align:center;
+}
+
+td:nth-child(3),
+td:nth-child(4){
+text-align:right;
+font-variant-numeric:tabular-nums;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
+font-size:14px;
+table-layout:fixed;
+}
+
+th:nth-child(1), td:nth-child(1){width:50%;}
+th:nth-child(2), td:nth-child(2){width:10%;}
+th:nth-child(3), td:nth-child(3){width:20%;}
+th:nth-child(4), td:nth-child(4){width:20%;}
+
+table + .invoice-summary{
+margin-top:40px;
+}
+
+table td,
+table th{
+display:table-cell;
+}
+
+/* TOTALS */
+
+.invoice-summary{
+width:320px;
+margin-left:auto;
+margin-top:35px;
+}
+
+.summary-row{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:8px 0;
+font-size:14px;
+}
+
+.summary-row span:first-child{
+color:#6b7280;
+}
+
+.summary-row span:last-child{
+text-align:right;
+min-width:140px;
+}
+
+.summary-row.total{
+border-top:2px solid #e5e7eb;
+margin-top:10px;
+padding-top:12px;
+font-size:18px;
+font-weight:700;
+}
+
+/* PAYMENT SECTION */
+
+.payment-info{
+margin-top:45px;
+font-size:14px;
+}
+
+.payment-info h4{
+margin-bottom:10px;
+font-size:15px;
+}
+
+.payment-info p{
+margin:4px 0;
+}
+
+/* QR CODE */
+
+#qrcode{
+margin-top:12px;
+padding:12px;
+background:white;
+border:1px solid #e5e7eb;
+border-radius:8px;
+width:160px;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+/* SIGNATURE */
+
+.signature{
+margin-top:60px;
+font-size:14px;
+}
+
+.signature-line{
+border-bottom:1px solid #111827;
+width:220px;
+margin:12px 0;
+}
+
+/* FOOTER */
+
+.invoice-footer{
+margin-top:40px;
+border-top:1px solid #e5e7eb;
+padding-top:15px;
+color:#6b7280;
+font-size:13px;
+}
+
+.invoice-footer h4{
+margin-bottom:6px;
+}
+
+/* BUTTONS */
+
+.actions{
+text-align:center;
+margin-top:30px;
+}
+
+button{
+padding:10px 18px;
+margin:5px;
+border:none;
+background:#111827;
+color:white;
+border-radius:6px;
+cursor:pointer;
+font-size:14px;
+transition:background 0.2s;
+}
+
+button:hover{
+background:#000;
+}
+
+/* PRINT */
+
+@media print{
+
+body{
+background:white;
+padding:0;
+}
+
+.invoice-container{
+box-shadow:none;
+border-radius:0;
+}
+
+.actions{
+display:none;
+}
+
+}
+
+section{
+margin-bottom:25px;
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="invoice-container">
+
+<header class="invoice-header">
+
+<div>
+<h1>Your Company Name</h1>
+<p>company@email.com</p>
+</div>
+
+<div class="invoice-meta">
+<h2 id="invoiceNumber">Invoice #INV-44</h2>
+<p id="invoiceDate">Issue Date</p>
+<p id="invoiceDue">Due Date</p>
+<span id="invoiceStatus" class="status pending">Pending</span>
+</div>
+
+</header>
+
+<section class="invoice-addresses">
+
+<div>
+<h4>Bill From</h4>
+<p>Your Company Ltd</p>
+<p>Business Address</p>
+</div>
+
+<div>
+<h4>Bill To</h4>
+<p id="clientName">Client</p>
+</div>
+
+</section>
+
+<table>
+
+<thead>
+<tr>
+<th>Description</th>
+<th>Qty</th>
+<th>Price</th>
+<th>Total</th>
+</tr>
+</thead>
+
+<tbody id="itemsTable"></tbody>
+
+</table>
+
+<section class="invoice-summary">
+
+<div class="summary-row">
+<span>Subtotal</span>
+<span id="subtotal">$0</span>
+</div>
+
+<div class="summary-row">
+<span>Tax</span>
+<span id="tax">$0</span>
+</div>
+
+<div class="summary-row total">
+<span>Total</span>
+<span id="grandTotal">$0</span>
+</div>
+
+</section>
+
+<section class="payment-info">
+
+<h4>Payment Information</h4>
+
+<p><strong>Bank:</strong> Zanaco</p>
+<p><strong>Account Name:</strong> Your Company Ltd</p>
+<p><strong>Account Number:</strong> 5512876345</p>
+<p><strong>Reference:</strong> <span id="paymentRef"></span></p>
+
+<h4>Scan to Pay</h4>
+<div id="qrcode"></div>
+
+</section>
+
+<section class="signature">
+
+<p>Authorized Signature</p>
+<div class="signature-line"></div>
+<p>Your Company Name</p>
+
+</section>
+
+<footer class="invoice-footer">
+
+<h4>Notes</h4>
+<p>Thank you for your business. Payment is due by the due date above.</p>
+
+</footer>
+
+<div class="actions">
+<button onclick="window.print()">Print</button>
+<button onclick="window.print()">Download PDF</button>
+</div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+<script>
+
+document.addEventListener("DOMContentLoaded",loadInvoice)
+
+async function loadInvoice(){
+
+try{
+
+const params=new URLSearchParams(window.location.search)
+const id=params.get("id")
+if(!id)return
+
+const token=localStorage.getItem("token")
+
+const res=await fetch("/invoices/"+id,{
+headers:{Authorization:"Bearer "+token}
+})
+
+const data=await res.json()
+
+renderInvoice({
+...data.invoice,
+items:data.items
+})
+
+}catch(err){
+
+console.error(err)
+
+}
+
+}
+
+function renderInvoice(inv){
+
+setText("invoiceNumber","Invoice #INV-"+(inv.invoice_number||inv.id))
+
+setText("invoiceDate","Issue Date: "+formatDate(inv.created_at))
+setText("invoiceDue","Due Date: "+formatDate(inv.due_date||inv.created_at))
+
+setText("clientName",inv.client_name||"-")
+
+setText("paymentRef","INV-"+inv.id)
+
+const subtotal=Number(inv.subtotal||0)
+const taxRate=Number(inv.tax_rate||0)
+const taxAmount=subtotal*taxRate/100
+const total=subtotal+taxAmount
+
+setText("subtotal",formatCurrency(subtotal))
+setText("tax",formatCurrency(taxAmount))
+setText("grandTotal",formatCurrency(total))
+
+renderItems(inv.items||[])
+
+generateQRCode(inv.id)
+
+updateStatus(inv)
+
+}
+
+function renderItems(items){
+
+const table = document.getElementById("itemsTable")
+table.innerHTML = ""
+
+items.forEach(item => {
+
+const qty = Number(item.quantity || 1)
+const price = Number(item.price ?? item.unit_price ?? 0)
+const total = qty * price
+
+const row = document.createElement("tr")
+
+row.innerHTML = `
+<td>${item.description}</td>
+<td>${qty}</td>
+<td>${formatCurrency(price)}</td>
+<td>${formatCurrency(total)}</td>
+`
+
+table.appendChild(row)
+
+})
+
+}
+
+
+function updateStatus(inv){
+
+let status=inv.status||"pending"
+
+if(status!=="paid"&&inv.due_date){
+
+const due=new Date(inv.due_date)
+const today=new Date()
+
+if(due<today)status="overdue"
+
+}
+
+const el=document.getElementById("invoiceStatus")
+
+el.className="status "+status
+el.innerText=status
+
+}
+
+function generateQRCode(id){
+
+const container=document.getElementById("qrcode")
+
+container.innerHTML=""
+
+const url=window.location.origin+"/pay/"+id
+
+QRCode.toCanvas(url,{width:150},function(err,canvas){
+
+if(!err)container.appendChild(canvas)
+
+})
+
+}
+
+function formatCurrency(value){
+
+return new Intl.NumberFormat("en-US",{
+style:"currency",
+currency:"USD"
+}).format(value||0)
+
+}
+
+function formatDate(date){
+
+if(!date)return "-"
+
+return new Date(date).toLocaleDateString()
+
+}
+
+function setText(id,val){
+
+const el=document.getElementById(id)
+if(el) el.textContent = val
+
+}
+
+
+</script>
+
+</body>
+</html>

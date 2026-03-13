@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Notifications</title>
+
+<style>
+
+body{
+  font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:#f5f7fb;
+  margin:0;
+}
+
+.page{
+  display:flex;
+  justify-content:center;
+  padding:60px 20px;
+}
+
+.card{
+  background:white;
+  width:420px;
+  padding:30px;
+  border-radius:12px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+.card h2{
+  margin-top:0;
+  margin-bottom:25px;
+  font-size:20px;
+  color:#1f2937;
+}
+
+.notification{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px 0;
+  border-bottom:1px solid #f1f3f7;
+  font-size:15px;
+  color:#374151;
+}
+
+.notification:last-child{
+  border-bottom:none;
+}
+
+.switch{
+  position:relative;
+  width:46px;
+  height:24px;
+}
+
+.switch input{
+  opacity:0;
+  width:0;
+  height:0;
+}
+
+.slider{
+  position:absolute;
+  cursor:pointer;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  background:#d1d5db;
+  transition:.3s;
+  border-radius:30px;
+}
+
+.slider:before{
+  position:absolute;
+  content:"";
+  height:18px;
+  width:18px;
+  left:3px;
+  bottom:3px;
+  background:white;
+  transition:.3s;
+  border-radius:50%;
+}
+
+input:checked + .slider{
+  background:#4f46e5;
+}
+
+input:checked + .slider:before{
+  transform:translateX(22px);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="page">
+
+<div class="card">
+
+<h2>Email Notifications</h2>
+
+<div class="notification">
+<span>Invoice Paid Alerts</span>
+<label class="switch">
+<input id="invoicePaid" type="checkbox">
+<span class="slider"></span>
+</label>
+</div>
+
+<div class="notification">
+<span>Overdue Reminders</span>
+<label class="switch">
+<input id="overdueReminder" type="checkbox">
+<span class="slider"></span>
+</label>
+</div>
+
+<div class="notification">
+<span>Weekly Reports</span>
+<label class="switch">
+<input id="weeklyReports" type="checkbox">
+<span class="slider"></span>
+</label>
+</div>
+
+<div class="notification">
+<span>Monthly Revenue Reports</span>
+<label class="switch">
+<input id="monthlyReports" type="checkbox">
+<span class="slider"></span>
+</label>
+</div>
+
+</body>
+
+<script>
+
+async function loadNotifications(){
+
+  const res = await fetch("/notification-settings",{
+    headers:{
+      "Authorization":"Bearer " + localStorage.getItem("token")
+    }
+  });
+
+  const data = await res.json();
+
+  document.getElementById("invoicePaid").checked = data.invoice_paid;
+  document.getElementById("overdueReminder").checked = data.overdue_reminder;
+  document.getElementById("weeklyReports").checked = data.weekly_reports;
+  document.getElementById("monthlyReports").checked = data.monthly_reports;
+
+}
+
+async function saveNotifications(){
+
+  const settings = {
+    invoice_paid: document.getElementById("invoicePaid").checked,
+    overdue_reminder: document.getElementById("overdueReminder").checked,
+    weekly_reports: document.getElementById("weeklyReports").checked,
+    monthly_reports: document.getElementById("monthlyReports").checked
+  };
+
+  await fetch("/notification-settings",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer " + localStorage.getItem("token")
+    },
+    body: JSON.stringify(settings)
+  });
+
+}
+
+document.querySelectorAll("input[type=checkbox]").forEach(toggle=>{
+  toggle.addEventListener("change", saveNotifications);
+});
+
+loadNotifications();
+
+</script>
+
+
+
+</html>

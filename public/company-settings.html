@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Company Settings</title>
+
+<link rel="stylesheet" href="/company-settings.css">
+<link rel="stylesheet" href="menu.css">
+
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header>
+
+<div class="topbar">
+
+<div class="left-section">
+
+<button id="menuToggle">☰</button>
+
+<div class="logo">InvoiceFlow</div>
+
+<div class="nav-menu"></div>
+
+</div>
+
+</div>
+
+</header>
+
+
+<!-- SIDEBAR -->
+
+<div id="sidebar" class="sidebar">
+
+<div class="sidebar-logo">
+<span class="logo-icon">IF</span>
+</div>
+
+<a href="trash.html">
+<i data-lucide="trash-2"></i>
+Trash Bin
+</a>
+
+<a href="dashboard.html">
+<i data-lucide="layout-dashboard"></i>
+Dashboard
+</a>
+
+<a href="clients.html">
+<i data-lucide="users"></i>
+Clients
+</a>
+
+<a href="invoices.html">
+<i data-lucide="file-text"></i>
+Invoices
+</a>
+
+<a href="company-settings.html">
+<i data-lucide="settings"></i>
+Settings
+</a>
+
+</div>
+
+
+<!-- PAGE CONTENT -->
+
+<main class="page-content">
+
+<div class="settings-container">
+
+<div class="settings-layout">
+
+
+<!-- LEFT SETTINGS MENU -->
+
+<div class="settings-sidebar">
+
+<ul>
+
+<li class="active">
+<a href="company-settings.html">Company</a>
+</li>
+
+<li>
+<a href="invoice-settings.html">Invoice</a>
+</li>
+
+<li>
+<a href="tax-settings.html">Tax & Currency</a>
+</li>
+
+<li>
+<a href="users-settings.html">Users & Roles</a>
+</li>
+
+<li>
+<a href="subscription.html">Subscription</a>
+</li>
+
+<li>
+<a href="notifications-settings.html">Notifications</a>
+</li>
+
+<li>
+<a href="security-settings.html">Security</a>
+</li>
+
+<li>
+<a href="integrations-settings.html">Integrations</a>
+</li>
+
+</ul>
+
+</div>
+
+
+<!-- RIGHT SETTINGS CONTENT -->
+
+<div class="settings-content">
+
+
+<!-- COMPANY -->
+
+<div class="settings-panel active" id="company">
+
+<h2>Company Information</h2>
+
+<div class="form-grid">
+
+<input id="companyName" type="text" placeholder="Company Name">
+
+<input id="companyReg" type="text" placeholder="Business Registration Number">
+
+<input id="companyEmail" type="email" placeholder="Company Email">
+
+<input id="companyPhone" type="text" placeholder="Phone Number">
+
+<input id="companyAddress" type="text" placeholder="Address">
+
+<input id="companyCountry" type="text" placeholder="Country">
+
+</div>
+
+<button type="button" class="primary-btn" onclick="saveCompanySettings()">
+Save Changes
+</button>
+
+<p id="companyMessage"></p>
+
+</div>
+
+
+<!-- INVOICE -->
+
+<div class="settings-panel" id="invoice">
+
+<h2>Invoice Preferences</h2>
+	
+<div class="form-grid">
+
+<input type="text" placeholder="Invoice Prefix (INV-)">
+
+<input type="number" placeholder="Default Payment Terms (Days)">
+
+<input type="text" placeholder="Default Notes">
+
+<input type="text" placeholder="Footer Message">
+
+</div>
+
+<button class="primary-btn">Save Preferences</button>
+
+</div>
+
+
+
+<!-- TAX -->
+
+<div class="settings-panel" id="tax">
+
+<h2>Tax & Currency</h2>
+
+<div class="form-grid">
+
+<select>
+
+<option>USD</option>
+<option>EUR</option>
+<option>GBP</option>
+<option>NGN</option>
+
+</select>
+
+<input type="number" placeholder="Default Tax Rate (%)">
+
+</div>
+
+<button class="primary-btn">Save Settings</button>
+
+</div>
+
+
+
+<!-- USERS -->
+
+<div class="settings-panel" id="users">
+
+<h2>Users & Roles</h2>
+
+<p>Manage team access and permissions.</p>
+
+<button class="primary-btn">Invite User</button>
+
+</div>
+
+
+
+<!-- BILLING -->
+
+<div class="settings-panel" id="billing">
+
+<h2>Subscription Plan</h2>
+
+<p>Current Plan: <strong>Pro</strong></p>
+
+<button class="primary-btn">Upgrade Plan</button>
+
+</div>
+
+
+
+<!-- NOTIFICATIONS -->
+
+<div class="settings-panel" id="notifications">
+
+<h2>Email Notifications</h2>
+
+<label>
+<input type="checkbox"> Invoice Paid Alerts
+</label>
+
+<label>
+<input type="checkbox"> Overdue Reminders
+</label>
+
+<label>
+<input type="checkbox"> Weekly Reports
+</label>
+
+</div>
+
+
+
+<!-- SECURITY -->
+
+<div class="settings-panel" id="security">
+
+<h2>Security</h2>
+
+<button class="secondary-btn">Change Password</button>
+
+<button class="secondary-btn">Enable Two-Factor Authentication</button>
+
+</div>
+
+
+
+<!-- API -->
+
+<div class="settings-panel" id="api">
+
+<h2>API Keys</h2>
+
+<input type="text" value="sk_test_xxxxxxxxxxxxxx" readonly>
+
+<button class="secondary-btn">Regenerate Key</button>
+
+</div>
+
+
+
+<!-- INTEGRATIONS -->
+
+<div class="settings-panel" id="integrations">
+
+<h2>Integrations</h2>
+
+<p>Connect with Stripe, PayPal, and accounting tools.</p>
+
+<button class="primary-btn">Connect Stripe</button>
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+</main>
+
+<script>
+
+async function saveCompanySettings(){
+
+const token = localStorage.getItem("token");
+
+const name = document.getElementById("companyName").value;
+const registration_number = document.getElementById("companyReg").value;
+const email = document.getElementById("companyEmail").value;
+const phone = document.getElementById("companyPhone").value;
+const address = document.getElementById("companyAddress").value;
+const country = document.getElementById("companyCountry").value;
+
+try{
+
+const res = await fetch("/company/settings",{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"Authorization":"Bearer " + token
+},
+body: JSON.stringify({
+name,
+registration_number,
+email,
+phone,
+address,
+country
+})
+});
+
+if(!res.ok){
+throw new Error("Request failed");
+}
+
+const data = await res.json();
+
+alert("Company settings saved successfully");
+
+}catch(err){
+
+console.error(err);
+alert("Failed to save settings");
+
+}
+
+}
+
+</script>
+
+<script src="menu.js"></script>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<script>
+lucide.createIcons();
+</script>
+
+
+
+<!-- FOOTER -->
+
+<footer class="app-footer">
+
+<div class="footer-links">
+
+<a href="privacy.html">Privacy</a>
+<a href="terms.html">Terms</a>
+<a href="security.html">Security</a>
+<a href="support.html">Support</a>
+
+</div>
+
+<div class="footer-copy">
+© 2026 InvoiceFlow
+</div>
+
+</footer>
+
+
+</body>
+</html>

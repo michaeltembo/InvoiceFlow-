@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Invoices</title>
+<link rel="stylesheet" href="invoices.css">
+<link rel="stylesheet" href="menu.css">
+
+</head>
+
+
+<body>
+
+
+<header>
+
+<div class="topbar">
+
+<div class="left-section">
+
+<button id="menuToggle">☰</button>
+
+<div class="logo">InvoiceFlow</div>
+
+<div class="nav-menu">
+</div>
+
+</div>
+
+</div>
+
+</header>
+
+
+<div id="sidebar" class="sidebar">
+
+<div class="sidebar-logo">
+<span class="logo-icon">IF</span>
+</div>
+
+<a href="trash.html">
+<i data-lucide="trash-2"></i>
+Trash Bin
+</a>
+
+<a href="dashboard.html">
+<i data-lucide="layout-dashboard"></i>
+Dashboard
+</a>
+
+<a href="clients.html">
+<i data-lucide="users"></i>
+Clients
+</a>
+
+<a href="invoices.html">
+<i data-lucide="file-text"></i>
+Invoices
+</a>
+
+<a href="company-settings.html">
+<i data-lucide="settings"></i>
+Settings
+</a>
+
+
+</div>
+
+<!-- PAGE -->
+
+
+<div class="page-header">
+
+<div>
+<h1>Invoices</h1>
+<p class="page-subtitle">
+Track billing, payments and revenue in one place
+</p>
+
+</div>
+
+<button class="primary-btn" onclick="openInvoiceModal()">
+ Create Invoice
+</button>
+</div>
+<div id="invoiceModal" class="modal">
+
+  <div class="modal-box">
+
+
+<h2>Create Invoice</h2>
+<p class="modal-subtitle">Generate a new invoice for your client</p>
+
+<!-- CLIENT -->
+<div class="form-section">
+<label>Client</label>
+<select id="invoiceClient"></select>
+</div>
+
+<!-- INVOICE DETAILS -->
+<div class="form-section">
+
+<h3>Invoice Details</h3>
+
+<div class="form-row">
+
+<div>
+<label>Date</label>
+<input type="date" id="invoiceDate">
+</div>
+
+<div>
+<label>Due Date</label>
+<input type="date" id="dueDate">
+</div>
+
+<div>
+<label>Status</label>
+<select id="invoiceStatus">
+<option value="pending">Pending</option>
+<option value="paid">Paid</option>
+</select>
+</div>
+
+</div>
+
+</div>
+
+<!-- ITEMS -->
+<div class="form-section">
+
+<h3>Invoice Items</h3>
+
+<table class="items-table">
+<thead>
+<tr>
+<th>Description</th>
+<th>Qty</th>
+<th>Price</th>
+<th>Total</th>
+<th></th>
+</tr>
+</thead>
+
+<tbody id="lineItems"></tbody>
+
+</table>
+
+<button class="add-item-btn" onclick="addLineItem()">+ Add Item</button>
+
+</div>
+
+<!-- TAX -->
+<div class="form-section">
+
+<label>Tax %</label>
+<input type="number" id="taxRate" value="0" oninput="calculateTotals()">
+
+</div>
+
+<!-- SUMMARY -->
+<div class="invoice-summary">
+
+<div class="summary-row">
+<span>Subtotal</span>
+<span id="subtotal">$0.00</span>
+</div>
+
+<div class="summary-row">
+<span>Tax</span>
+<span id="taxAmount">$0.00</span>
+</div>
+
+<div class="summary-row total-row">
+<span>Total</span>
+<span id="grandTotal">$0.00</span>
+</div>
+
+</div>
+
+<!-- ACTIONS -->
+<div class="modal-actions">
+
+<button class="save-btn" onclick="saveInvoice()">
+Save Invoice
+</button>
+
+<button class="cancel-btn" onclick="closeInvoiceModal()">
+Cancel
+</button>
+
+</div>
+
+  </div>
+
+</div>
+
+<div class="stats-grid">
+
+<div class="stat-card">
+<p class="stat-number" id="totalInvoices">0</p>
+<p class="stat-label">Total Invoices</p>
+</div>
+
+<div class="stat-card">
+<p class="stat-number" id="paidInvoices">0</p>
+<p class="stat-label">Paid</p>
+</div>
+
+<div class="stat-card">
+<p class="stat-number" id="pendingInvoices">0</p>
+<p class="stat-label">Pending</p>
+</div>
+
+<div class="stat-card">
+<p class="stat-number" id="totalRevenue">$0</p>
+<p class="stat-label">Total Revenue</p>
+</div>
+
+<div class="stat-card">
+<p class="stat-number" id="outstandingRevenue">$0</p>
+<p class="stat-label">Outstanding</p>
+</div>
+
+</div>
+
+
+<div class="card">
+
+<table>
+
+<thead>
+<tr>
+<th>ID</th>
+<th>Client</th>
+<th>Date</th>
+<th>Due Date</th>
+<th>Total</th>
+<th>Status</th>
+<th>Actions</th>
+</tr>
+</thead>
+
+<tbody id="invoiceTableBody"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script src="layout.js"></script>
+<script src="invoices.js"></script>
+<script src="menu.js"></script>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+lucide.createIcons();
+</script>
+
+<footer class="app-footer">
+
+<div class="footer-links">
+
+<a href="privacy.html">Privacy</a>
+
+<a href="terms.html">Terms</a>
+
+<a href="security.html">Security</a>
+
+<a href="support.html">Support</a>
+
+</div>
+
+<div class="footer-copy">
+© 2026 InvoiceFlow
+</div>
+
+</footer>
+
+
+</body>
+</html>

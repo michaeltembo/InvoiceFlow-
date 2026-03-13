@@ -1,0 +1,104 @@
+/* =========================
+   PAGE
+========================= */
+
+body{
+background:#f5f7fb;
+font-family:Inter,system-ui,sans-serif;
+margin:0;
+padding:40px;
+}
+
+/* =========================
+   TRASH CONTAINER
+========================= */
+
+.trash-container{
+max-width:900px;
+margin:auto;
+background:#ffffff;
+padding:30px;
+border-radius:12px;
+box-shadow:0 12px 30px rgba(0,0,0,0.08);
+}
+
+/* =========================
+   TITLE
+========================= */
+
+.trash-title{
+margin:0 0 25px 0;
+font-size:22px;
+font-weight:600;
+color:#111827;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+.trash-table{
+width:100%;
+border-collapse:collapse;
+}
+
+.trash-table thead{
+background:#f9fafb;
+}
+
+.trash-table th{
+text-align:left;
+padding:14px;
+font-size:13px;
+text-transform:uppercase;
+letter-spacing:0.5px;
+color:#6b7280;
+border-bottom:1px solid #e5e7eb;
+}
+
+.trash-table td{
+padding:16px 14px;
+border-bottom:1px solid #f1f1f1;
+font-size:14px;
+color:#374151;
+}
+
+.trash-table tr:hover{
+background:#f9fafb;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.trash-table button{
+border:none;
+padding:6px 12px;
+border-radius:6px;
+font-size:13px;
+cursor:pointer;
+margin-right:6px;
+transition:0.2s;
+}
+
+/* Restore */
+
+.trash-table button:first-child{
+background:#10b981;
+color:white;
+}
+
+.trash-table button:first-child:hover{
+background:#059669;
+}
+
+/* Delete */
+
+.trash-table button:last-child{
+background:#ef4444;
+color:white;
+}
+
+.trash-table button:last-child:hover{
+background:#dc2626;
+}
