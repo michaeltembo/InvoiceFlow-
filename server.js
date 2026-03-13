@@ -28,7 +28,6 @@ const pool = new Pool({
     rejectUnauthorized: false
   }
 });
-
 const crypto = require("crypto");
 
 
