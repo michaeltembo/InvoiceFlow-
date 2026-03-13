@@ -382,9 +382,8 @@ for (const item of items) {
     // ===============================
     // INSERT ITEMS
     // ===============================
+app.get("/invoices", auth, async (req, res) => {
 
-
-app.get("/invoices", authenticateToken, async (req, res) => {
   try {
 
     console.log("Full user object:", req.user);
