@@ -22,7 +22,7 @@ const app = express();
 
 
 const crypto = require("crypto");
-
+const auth = require("./middleware/auth");
 
 app.use(cors());
 app.use(express.json());
@@ -394,19 +394,23 @@ app.get("/invoices", authenticateToken, async (req, res) => {
     console.log("Company ID used in query:", companyId);
 
     const result = await pool.query(`
-      SELECT
-        i.id,
-        i.client_id,
-        i.created_at,
-        i.due_date,
-        i.total,
-        i.status,
-        c.name AS client_name
-      FROM invoices i
-      LEFT JOIN clients c
-        ON c.id = i.client_id
-      WHERE i.company_id = $1
-      ORDER BY i.id DESC
+
+SELECT
+  i.id,
+  i.client_id,
+  i.created_at,
+  i.due_date,
+  i.total,
+  i.status,
+  c.name AS client_name
+FROM invoices i
+LEFT JOIN clients c
+  ON c.id = i.client_id
+  AND c.company_id = $1
+WHERE i.company_id = $1
+ORDER BY i.id DESC
+
+
     `, [companyId]);
 
     console.log("Invoices found:", result.rows.length);

@@ -14,3 +14,12 @@ sidebar.style.left = "0px";
 });
 
 });
+
+
+
+
+
+function logout() {
+  localStorage.removeItem("token");
+  window.location.href = "/login.html";
+}
