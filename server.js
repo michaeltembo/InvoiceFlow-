@@ -67,36 +67,6 @@ function authenticateToken(req, res, next) {
 
 /* ================= AUTH MIDDLEWARE ================= */
 
-function auth(req, res, next) {
-  const header = req.headers.authorization;
-
-  if (!header) {
-    return res.status(401).json({ error: "No token provided" });
-  }
-
-  if (!header.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Invalid authorization format" });
-  }
-
-  const token = header.split(" ")[1];
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // Validate required fields
-    if (!decoded.userId || !decoded.companyId || !decoded.role) {
-      return res.status(403).json({ error: "Invalid token structure" });
-    }
-
-    req.userId = decoded.userId;
-    req.companyId = decoded.companyId;
-    req.role = decoded.role; // 🔐 attach role
-
-    next();
-  } catch (err) {
-    return res.status(403).json({ error: "Invalid or expired token" });
-  }
-}
 
 /* ================= LOGIN ================= */
 
@@ -383,33 +353,27 @@ for (const item of items) {
     // INSERT ITEMS
     // ===============================
 app.get("/invoices", auth, async (req, res) => {
-
   try {
 
-    console.log("Full user object:", req.user);
-
-    const companyId = req.user.companyId;   // <-- USE THIS
+    const companyId = req.companyId;
 
     console.log("Company ID used in query:", companyId);
 
     const result = await pool.query(`
-
-SELECT
-  i.id,
-  i.client_id,
-  i.created_at,
-  i.due_date,
-  i.total,
-  i.status,
-  c.name AS client_name
-FROM invoices i
-LEFT JOIN clients c
-  ON c.id = i.client_id
-  AND c.company_id = $1
-WHERE i.company_id = $1
-ORDER BY i.id DESC
-
-
+      SELECT
+        i.id,
+        i.client_id,
+        i.created_at,
+        i.due_date,
+        i.total,
+        i.status,
+        c.name AS client_name
+      FROM invoices i
+      LEFT JOIN clients c
+        ON c.id = i.client_id
+        AND c.company_id = $1
+      WHERE i.company_id = $1
+      ORDER BY i.id DESC
     `, [companyId]);
 
     console.log("Invoices found:", result.rows.length);
@@ -421,7 +385,6 @@ ORDER BY i.id DESC
     res.status(500).json({ message: "Server error" });
   }
 });
-
 
 app.delete("/invoices/:id", auth, async (req, res) => {
   try {
