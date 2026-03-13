@@ -147,22 +147,26 @@ text-decoration:underline;
     </select>
   </div>
 
-  <h2 id="registerTitle">Create Your Account</h2>
+<h2 id="registerTitle">Create Your Account</h2>
+
+<input id="company_name" placeholder="Company Name">
+
+<input id="company_code" placeholder="Company Code">
 
 <input id="email" type="email" placeholder="Business Email">
+
 <input id="password" type="password" placeholder="Create Password">
-<input id="company_code" type="text" placeholder="Company Code">
+
 <label style="font-size:13px;">
-<input type="checkbox" onclick="togglePassword()"> Show Password
+  <input type="checkbox" onclick="togglePassword()"> Show Password
 </label>
 
 <button id="registerBtn" onclick="register()">Create Account</button>
 
-  <div class="links">
-    <span id="haveAccountText">Already have an account?</span>
-    <a href="/login.html" id="loginLinkText">Login</a>
-  </div>
-
+<div class="links">
+  <span id="haveAccountText">Already have an account?</span>
+  <a href="/login.html" id="loginLinkText">Login</a>
+</div>
 </div>
 
 <script>
@@ -211,36 +215,37 @@ function applyLanguage(lang) {
 
 async function register() {
 
+const company_name = document.getElementById("company_name").value;
+const company_code = document.getElementById("company_code").value;
 const email = document.getElementById("email").value;
 const password = document.getElementById("password").value;
-const company_code = document.getElementById("company_code").value;
 
-if (!email || !password || !company_code) {
-  alert("Please fill all fields");
-  return;
+if(!company_name || !company_code || !email || !password){
+alert("Please fill all fields");
+return;
 }
 
-const res = await fetch("/register", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    email,
-    password,
-    company_code
-  })
+const res = await fetch("/register",{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body: JSON.stringify({
+company_name,
+company_code,
+email,
+password
+})
 });
 
 const data = await res.json();
 
-if (res.ok) {
-  alert("Account created successfully");
-  window.location.href = "/login.html";
-} else {
-  alert(data.error || "Registration failed");
+if(res.ok){
+alert("Company created successfully");
+window.location.href="/login.html";
+}else{
+alert(data.error);
 }
 
 }
-
 
 const savedLang = localStorage.getItem("language") || "en";
 document.getElementById("languageSelect").value = savedLang;
