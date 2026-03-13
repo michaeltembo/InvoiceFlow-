@@ -23,6 +23,7 @@ const app = express();
 
 const crypto = require("crypto");
 const auth = require("./middleware/auth");
+const requireAdmin = require("./middleware/requireAdmin");
 
 app.use(cors());
 app.use(express.json());
@@ -1056,51 +1057,53 @@ app.get("/company-settings", auth, async (req, res) => {
 
 app.use("/invoices", invoiceRoutes);
 
-app.post("/register", async (req, res) => {
-  try {
-    const { email, password, company_code } = req.body;
+app.post("/register", async (req,res)=>{
 
-    if (!email || !password || !company_code) {
-      return res.status(400).json({ error: "All fields required" });
-    }
+try{
 
-    const existing = await pool.query(
-      "SELECT id FROM users WHERE email = $1",
-      [email]
-    );
+const { company_name, company_code, email, password } = req.body;
 
-    if (existing.rows.length > 0) {
-      return res.status(400).json({ error: "Email already registered" });
-    }
+if(!company_name || !company_code || !email || !password){
+return res.status(400).json({error:"All fields required"});
+}
 
-    const companyResult = await pool.query(
-      "SELECT id FROM companies WHERE code = $1",
-      [company_code]
-    );
+const companyCheck = await pool.query(
+"SELECT id FROM companies WHERE code=$1",
+[company_code]
+);
 
-    if (companyResult.rows.length === 0) {
-      return res.status(400).json({ error: "Invalid company code" });
-    }
+if(companyCheck.rows.length > 0){
+return res.status(400).json({error:"Company code already taken"});
+}
 
-    const companyId = companyResult.rows[0].id;
+const hashedPassword = await bcrypt.hash(password,10);
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+const companyResult = await pool.query(
+`INSERT INTO companies (name,email,password,code)
+VALUES ($1,$2,$3,$4)
+RETURNING id`,
+[company_name,email,hashedPassword,company_code]
+);
 
-    await pool.query(
-      `INSERT INTO users (email, password, role, company_id)
-       VALUES ($1,$2,'staff',$3)`,
-      [email, hashedPassword, companyId]
-    );
+const companyId = companyResult.rows[0].id;
 
-    res.status(201).json({ message: "Staff registered successfully" });
+await pool.query(
+`INSERT INTO users (email,password,role,company_id)
+VALUES ($1,$2,'admin',$3)`,
+[email,hashedPassword,companyId]
+);
 
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Registration failed" });
-  }
+res.json({message:"Company created successfully"});
+
+}catch(err){
+
+console.error(err);
+res.status(500).json({error:"Registration failed"});
+
+}
+
 });
 
-const requireAdmin = require("./middleware/requireAdmin");
 
 app.get("/admin-test", auth, requireAdmin, (req, res) => {
   res.json({ message: "Admin access granted" });
@@ -1653,6 +1656,46 @@ await pool.query(
 
 res.redirect("/integrations-settings.html");
 
+});
+
+app.post("/create-company", async (req, res) => {
+  try {
+    const { company_name, company_code, email, password } = req.body;
+
+    if (!company_name || !company_code || !email || !password) {
+      return res.status(400).json({ error: "All fields required" });
+    }
+
+    const companyCheck = await pool.query(
+      "SELECT id FROM companies WHERE code = $1",
+      [company_code]
+    );
+
+    if (companyCheck.rows.length > 0) {
+      return res.status(400).json({ error: "Company code already exists" });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const company = await pool.query(
+      "INSERT INTO companies (name, code) VALUES ($1,$2) RETURNING id",
+      [company_name, company_code]
+    );
+
+    const companyId = company.rows[0].id;
+
+    await pool.query(
+      `INSERT INTO users (email,password,role,company_id)
+       VALUES ($1,$2,'admin',$3)`,
+      [email, hashedPassword, companyId]
+    );
+
+    res.json({ message: "Company created successfully" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
 });
 
 

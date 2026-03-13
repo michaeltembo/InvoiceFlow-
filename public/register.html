@@ -215,37 +215,26 @@ function applyLanguage(lang) {
 
 async function register() {
 
-const company_name = document.getElementById("company_name").value;
-const company_code = document.getElementById("company_code").value;
-const email = document.getElementById("email").value;
-const password = document.getElementById("password").value;
+  const company_name = document.getElementById("company_name").value;
+  const company_code = document.getElementById("company_code").value;
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
 
-if(!company_name || !company_code || !email || !password){
-alert("Please fill all fields");
-return;
+  const res = await fetch("/create-company", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      company_name,
+      company_code,
+      email,
+      password
+    })
+  });
+
+  const data = await res.json();
+  alert(data.message || data.error);
 }
 
-const res = await fetch("/register",{
-method:"POST",
-headers:{ "Content-Type":"application/json" },
-body: JSON.stringify({
-company_name,
-company_code,
-email,
-password
-})
-});
-
-const data = await res.json();
-
-if(res.ok){
-alert("Company created successfully");
-window.location.href="/login.html";
-}else{
-alert(data.error);
-}
-
-}
 
 const savedLang = localStorage.getItem("language") || "en";
 document.getElementById("languageSelect").value = savedLang;
