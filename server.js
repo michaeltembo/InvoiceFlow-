@@ -24,6 +24,9 @@ const app = express();
 const crypto = require("crypto");
 const auth = require("./middleware/auth");
 const requireAdmin = require("./middleware/requireAdmin");
+const sgMail = require("@sendgrid/mail");
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
 
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
@@ -2271,29 +2274,44 @@ res.json(filtered)
 
 
 app.post("/send-invoice-email", authenticateToken, async (req, res) => {
+  try {
 
-try{
+    const { email, invoiceId } = req.body;
 
-const { email, invoiceId } = req.body;
+    if (!email || !invoiceId) {
+      return res.status(400).json({ error: "Missing email or invoiceId" });
+    }
 
-if(!email || !invoiceId){
-return res.status(400).json({ error: "Missing email or invoiceId" });
-}
+    /* GET INVOICE */
+    const invoiceRes = await pool.query(
+      "SELECT * FROM invoices WHERE id = $1",
+      [invoiceId]
+    );
 
-/* GET INVOICE */
+    const invoice = invoiceRes.rows[0];
 
-const invoiceRes = await pool.query(
-"SELECT * FROM invoices WHERE id = $1",
-[invoiceId]
-);
+    if (!invoice) {
+      return res.status(404).json({ error: "Invoice not found" });
+    }
 
-const invoice = invoiceRes.rows[0];
+    /* SEND EMAIL */
+    await sendEmail(
+      email,
+      `Invoice #INV-${invoiceId}`,
+      `
+      <h3>Invoice from InvoiceFlow</h3>
+      <p>Amount: ${invoice.amount}</p>
+      <p>Status: ${invoice.status}</p>
+      `
+    );
 
-if(!invoice){
-return res.status(404).json({ error: "Invoice not found" });
-}
+    res.json({ message: "Email sent successfully" });
 
-
+  } catch (err) {
+    console.error("EMAIL ERROR:", err);
+    res.status(500).json({ error: "Email failed" });
+  }
+});
 
 
 
