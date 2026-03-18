@@ -1,8 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const pool = require("../db"); // adjust if your db file is named differently
+const pool = require("../db");
 const auth = require("../middleware/auth");
 const requireAdmin = require("../middleware/requireAdmin");
+
+const { sendEmail } = require("../utils/sendEmail");
 
 router.delete("/:id", auth, requireAdmin, async (req, res) => {
   try {
