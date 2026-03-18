@@ -24,7 +24,7 @@ const app = express();
 const crypto = require("crypto");
 const auth = require("./middleware/auth");
 const requireAdmin = require("./middleware/requireAdmin");
-
+const { sendEmail } = require("../utils/sendEmail");
 
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
@@ -2294,24 +2294,23 @@ if(!invoice){
 return res.status(404).json({ error: "Invoice not found" });
 }
 
-/* EMAIL TRANSPORT */
+
 
 
 
 /* EMAIL CONTENT */
 
-const link = `http://localhost:3000/invoice.html?id=${invoiceId}`;
+const link = `https://your-frontend-url.com/invoice.html?id=${invoiceId}`;
 
-await transporter.sendMail({
-from: '"InvoiceFlow" <your-email@gmail.com>',
-to: email,
-subject: `Invoice #INV-${invoiceId}`,
-html: `
-<h3>Invoice from InvoiceFlow</h3>
-<p>You have received an invoice.</p>
-<p><a href="${link}">View Invoice</a></p>
-`
-});
+await sendEmail(
+  email,
+  `Invoice #INV-${invoiceId}`,
+  `
+  <h3>Invoice from InvoiceFlow</h3>
+  <p>You have received an invoice.</p>
+  <p><a href="${link}">View Invoice</a></p>
+  `
+);
 
 res.json({ success: true });
 
@@ -2319,9 +2318,6 @@ res.json({ success: true });
 console.error("EMAIL ERROR:", err);
 res.status(500).json({ error: "Email failed" });
 }
-
-});
-
 
 
 /* ================= SERVER ================= */
