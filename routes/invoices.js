@@ -31,10 +31,9 @@ router.delete("/:id", auth, requireAdmin, async (req, res) => {
 });
 
 
-// ✅ ADD THIS EMAIL ROUTE
+// SEND EMAIL
 router.post("/send-invoice", async (req, res) => {
   try {
-
     const { email, invoiceId } = req.body;
 
     const link = `https://your-frontend-url.com/invoice.html?id=${invoiceId}`;
@@ -56,6 +55,5 @@ router.post("/send-invoice", async (req, res) => {
     res.status(500).json({ error: "Email failed" });
   }
 });
-
 
 module.exports = router;
