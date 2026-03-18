@@ -24,7 +24,6 @@ const app = express();
 const crypto = require("crypto");
 const auth = require("./middleware/auth");
 const requireAdmin = require("./middleware/requireAdmin");
-const nodemailer = require("nodemailer");
 
 
 app.use(cors());
@@ -2297,15 +2296,6 @@ return res.status(404).json({ error: "Invoice not found" });
 
 /* EMAIL TRANSPORT */
 
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: "yourrealemail@gmail.com",
-    pass: "xnhflsaucuzgtmra"
-  }
-});
 
 
 /* EMAIL CONTENT */
