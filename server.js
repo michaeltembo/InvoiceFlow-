@@ -26,6 +26,7 @@ const auth = require("./middleware/auth");
 const requireAdmin = require("./middleware/requireAdmin");
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const { sendEmail } = require("./utils/sendEmail");
 
 
 app.use(cors());
