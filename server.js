@@ -24,7 +24,6 @@ const app = express();
 const crypto = require("crypto");
 const auth = require("./middleware/auth");
 const requireAdmin = require("./middleware/requireAdmin");
-const { sendEmail } = require("../utils/sendEmail");
 
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
@@ -2298,26 +2297,6 @@ return res.status(404).json({ error: "Invoice not found" });
 
 
 
-/* EMAIL CONTENT */
-
-const link = `https://your-frontend-url.com/invoice.html?id=${invoiceId}`;
-
-await sendEmail(
-  email,
-  `Invoice #INV-${invoiceId}`,
-  `
-  <h3>Invoice from InvoiceFlow</h3>
-  <p>You have received an invoice.</p>
-  <p><a href="${link}">View Invoice</a></p>
-  `
-);
-
-res.json({ success: true });
-
-}catch(err){
-console.error("EMAIL ERROR:", err);
-res.status(500).json({ error: "Email failed" });
-}
 
 
 /* ================= SERVER ================= */

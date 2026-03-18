@@ -6,6 +6,8 @@ const requireAdmin = require("../middleware/requireAdmin");
 
 const { sendEmail } = require("../utils/sendEmail");
 
+
+// DELETE INVOICE
 router.delete("/:id", auth, requireAdmin, async (req, res) => {
   try {
     const result = await pool.query(
@@ -27,5 +29,33 @@ router.delete("/:id", auth, requireAdmin, async (req, res) => {
     res.status(500).json({ error: "Delete failed" });
   }
 });
+
+
+// ✅ ADD THIS EMAIL ROUTE
+router.post("/send-invoice", async (req, res) => {
+  try {
+
+    const { email, invoiceId } = req.body;
+
+    const link = `https://your-frontend-url.com/invoice.html?id=${invoiceId}`;
+
+    await sendEmail(
+      email,
+      `Invoice #INV-${invoiceId}`,
+      `
+      <h3>Invoice from InvoiceFlow</h3>
+      <p>You have received an invoice.</p>
+      <p><a href="${link}">View Invoice</a></p>
+      `
+    );
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.error("EMAIL ERROR:", err);
+    res.status(500).json({ error: "Email failed" });
+  }
+});
+
 
 module.exports = router;
