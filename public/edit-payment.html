@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Edit Payment • InvoiceFlow</title>
+
+<style>
+
+body{
+font-family:Inter,system-ui;
+background:#f4f6f9;
+padding:20px;
+}
+
+.container{
+max-width:600px;
+margin:auto;
+background:white;
+padding:25px;
+border-radius:10px;
+box-shadow:0 2px 12px rgba(0,0,0,0.05);
+}
+
+input,select{
+width:100%;
+padding:10px;
+margin-bottom:12px;
+border:1px solid #ddd;
+border-radius:6px;
+}
+
+button{
+background:#2563eb;
+color:white;
+border:none;
+padding:10px 15px;
+border-radius:6px;
+cursor:pointer;
+}
+
+button:hover{
+background:#1d4ed8;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Edit Payment</h2>
+
+<form id="editForm">
+
+<input type="date" id="date" required>
+
+<select id="method">
+<option>MTN MoMo</option>
+<option>Airtel Money</option>
+<option>Zamtel Kwacha</option>
+<option>Bank Transfer</option>
+</select>
+
+<input type="text" id="description" placeholder="Description">
+
+<input type="text" id="reference" placeholder="Reference">
+
+<input type="number" id="amount" placeholder="Amount">
+
+<button type="submit">
+Update Payment
+</button>
+
+</form>
+
+</div>
+
+<script>
+
+const params = new URLSearchParams(window.location.search)
+const id = params.get("id")
+
+loadPayment()
+
+async function loadPayment(){
+
+const res = await fetch("/payments")
+
+const data = await res.json()
+
+const payment = data.find(p => p.id == id)
+
+if(!payment) return
+
+document.getElementById("date").value = payment.date
+document.getElementById("method").value = payment.method
+document.getElementById("description").value = payment.description
+document.getElementById("reference").value = payment.reference
+document.getElementById("amount").value = payment.amount
+
+}
+
+document
+.getElementById("editForm")
+.addEventListener("submit",updatePayment)
+
+async function updatePayment(e){
+
+e.preventDefault()
+
+const updated = {
+
+date:document.getElementById("date").value,
+method:document.getElementById("method").value,
+description:document.getElementById("description").value,
+reference:document.getElementById("reference").value,
+amount:Number(document.getElementById("amount").value)
+
+}
+
+await fetch("/payments/"+id,{
+
+method:"PUT",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify(updated)
+
+})
+
+window.location="payments.html"
+
+}
+
+</script>
+
+</body>
+
+</html>

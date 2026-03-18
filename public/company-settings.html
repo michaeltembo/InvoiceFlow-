@@ -24,7 +24,9 @@
 <button id="menuToggle">☰</button>
 
 <div class="logo">InvoiceFlow</div>
-
+<button class="back-btn" onclick="goBack()">
+← Back
+</button>
 <div class="nav-menu"></div>
 
 </div>
@@ -149,6 +151,39 @@ Settings
 
 </div>
 
+<h3>Transfer Details</h3>
+
+<div class="form-group">
+<label>Bank Name</label>
+<input type="text" id="bank_name">
+</div>
+
+<div class="form-group">
+<label>Account Name</label>
+<input type="text" id="account_name">
+</div>
+
+<div class="form-group">
+<label>Account Number</label>
+<input type="text" id="account_number">
+</div>
+
+<div class="form-group">
+<label>Branch</label>
+<input type="text" id="branch">
+</div>
+
+<div class="form-group">
+<label>SWIFT Code</label>
+<input type="text" id="swift">
+</div>
+
+<div class="form-group">
+<label>Mobile Money</label>
+<input type="text" id="mobile_money">
+</div>
+
+
 <button type="button" class="primary-btn" onclick="saveCompanySettings()">
 Save Changes
 </button>
@@ -157,123 +192,6 @@ Save Changes
 
 </div>
 
-
-<!-- INVOICE -->
-
-<div class="settings-panel" id="invoice">
-
-<h2>Invoice Preferences</h2>
-	
-<div class="form-grid">
-
-<input type="text" placeholder="Invoice Prefix (INV-)">
-
-<input type="number" placeholder="Default Payment Terms (Days)">
-
-<input type="text" placeholder="Default Notes">
-
-<input type="text" placeholder="Footer Message">
-
-</div>
-
-<button class="primary-btn">Save Preferences</button>
-
-</div>
-
-
-
-<!-- TAX -->
-
-<div class="settings-panel" id="tax">
-
-<h2>Tax & Currency</h2>
-
-<div class="form-grid">
-
-<select>
-
-<option>USD</option>
-<option>EUR</option>
-<option>GBP</option>
-<option>NGN</option>
-
-</select>
-
-<input type="number" placeholder="Default Tax Rate (%)">
-
-</div>
-
-<button class="primary-btn">Save Settings</button>
-
-</div>
-
-
-
-<!-- USERS -->
-
-<div class="settings-panel" id="users">
-
-<h2>Users & Roles</h2>
-
-<p>Manage team access and permissions.</p>
-
-<button class="primary-btn">Invite User</button>
-
-</div>
-
-
-
-<!-- BILLING -->
-
-<div class="settings-panel" id="billing">
-
-<h2>Subscription Plan</h2>
-
-<p>Current Plan: <strong>Pro</strong></p>
-
-<button class="primary-btn">Upgrade Plan</button>
-
-</div>
-
-
-
-<!-- NOTIFICATIONS -->
-
-<div class="settings-panel" id="notifications">
-
-<h2>Email Notifications</h2>
-
-<label>
-<input type="checkbox"> Invoice Paid Alerts
-</label>
-
-<label>
-<input type="checkbox"> Overdue Reminders
-</label>
-
-<label>
-<input type="checkbox"> Weekly Reports
-</label>
-
-</div>
-
-
-
-<!-- SECURITY -->
-
-<div class="settings-panel" id="security">
-
-<h2>Security</h2>
-
-<button class="secondary-btn">Change Password</button>
-
-<button class="secondary-btn">Enable Two-Factor Authentication</button>
-
-</div>
-
-
-
-<!-- API -->
 
 <div class="settings-panel" id="api">
 
@@ -285,41 +203,37 @@ Save Changes
 
 </div>
 
-
-
-<!-- INTEGRATIONS -->
-
-<div class="settings-panel" id="integrations">
-
-<h2>Integrations</h2>
-
-<p>Connect with Stripe, PayPal, and accounting tools.</p>
-
-<button class="primary-btn">Connect Stripe</button>
-
-</div>
-
-
-</div>
-
-</div>
-
-</div>
-
 </main>
 
 <script>
 
+console.log("SCRIPT LOADED");
+
 async function saveCompanySettings(){
+
+
 
 const token = localStorage.getItem("token");
 
-const name = document.getElementById("companyName").value;
-const registration_number = document.getElementById("companyReg").value;
-const email = document.getElementById("companyEmail").value;
-const phone = document.getElementById("companyPhone").value;
-const address = document.getElementById("companyAddress").value;
-const country = document.getElementById("companyCountry").value;
+console.log("CLICK WORKING");
+
+const name = document.getElementById("companyName").value.trim();
+const registration_number = document.getElementById("companyReg").value.trim();
+const email = document.getElementById("companyEmail").value.trim();
+const phone = document.getElementById("companyPhone").value.trim();
+const address = document.getElementById("companyAddress").value.trim();
+const country = document.getElementById("companyCountry").value.trim();
+
+/* TRANSFER DETAILS */
+
+const bank_name = document.getElementById("bank_name").value;
+const account_name = document.getElementById("account_name").value;
+const account_number = document.getElementById("account_number").value;
+const branch = document.getElementById("branch").value;
+const swift = document.getElementById("swift").value;
+const mobile_money = document.getElementById("mobile_money").value;
+
+const invoice_footer = document.getElementById("invoice_footer")?.value || "";
 
 try{
 
@@ -329,14 +243,23 @@ headers:{
 "Content-Type":"application/json",
 "Authorization":"Bearer " + token
 },
+
 body: JSON.stringify({
-name,
-registration_number,
-email,
-phone,
-address,
-country
+  company_name: name,
+  registration_number,
+  email,
+  phone,
+  address,
+  country,
+  bank_name,
+  account_name,
+  account_number,
+  branch,
+  swift,
+  mobile_money,
+  invoice_footer
 })
+
 });
 
 if(!res.ok){
@@ -355,6 +278,31 @@ alert("Failed to save settings");
 }
 
 }
+
+
+
+async function loadCompanySettings(){
+
+const token = localStorage.getItem("token")
+
+const res = await fetch("/company-settings",{
+headers:{
+Authorization:"Bearer "+token
+}
+})
+
+const company = await res.json()
+
+document.getElementById("bank_name").value = company.bank_name || ""
+document.getElementById("account_name").value = company.account_name || ""
+document.getElementById("account_number").value = company.account_number || ""
+document.getElementById("branch").value = company.branch || ""
+document.getElementById("swift").value = company.swift || ""
+document.getElementById("mobile_money").value = company.mobile_money || ""
+
+}
+
+loadCompanySettings();
 
 </script>
 

@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Customers & Suppliers • InvoiceFlow</title>
+
+<link rel="stylesheet" href="dashboard.css">
+
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+
+/* PAGE */
+
+body{
+font-family:Inter,system-ui;
+background:#f4f6f9;
+margin:0;
+padding:20px;
+}
+
+
+
+
+/* SEARCH */
+
+
+.actions input{
+padding:8px 10px;
+border:1px solid #ddd;
+border-radius:6px;
+}
+
+
+/* FILTER TABS */
+
+
+
+.tabs button.active{
+background:#111827;
+color:white;
+}
+
+/* TABLE */
+
+
+
+th,td{
+padding:12px;
+border-bottom:1px solid #eee;
+text-align:left;
+}
+
+
+
+/* ACTIONS */
+
+.actions-links a{
+margin-right:10px;
+text-decoration:none;
+color:#2563eb;
+font-size:13px;
+}
+
+/* HEADER */
+
+.page-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:25px;
+flex-wrap:wrap;
+gap:15px;
+}
+
+.page-header h1{
+font-size:24px;
+font-weight:600;
+color:#111827;
+margin:0;
+}
+
+
+/* ACTION AREA */
+
+.actions{
+display:flex;
+gap:10px;
+align-items:center;
+}
+
+
+/* SEARCH INPUT */
+
+#search{
+padding:10px 12px;
+border:1px solid #e5e7eb;
+border-radius:8px;
+font-size:14px;
+outline:none;
+width:200px;
+transition:all 0.2s ease;
+}
+
+#search:focus{
+border-color:#2563eb;
+box-shadow:0 0 0 3px rgba(37,99,235,0.15);
+}
+
+
+/* BUTTON */
+
+.btn{
+background:#111827;
+color:white;
+border:none;
+padding:10px 16px;
+border-radius:8px;
+font-size:14px;
+cursor:pointer;
+transition:all 0.2s;
+}
+
+.btn:hover{
+background:#1f2937;
+}
+
+
+/* FILTER TABS */
+
+.tabs{
+display:flex;
+gap:10px;
+margin-bottom:20px;
+}
+
+.tabs button{
+background:white;
+border:1px solid #e5e7eb;
+padding:8px 16px;
+border-radius:20px;
+cursor:pointer;
+font-size:13px;
+transition:all 0.2s;
+}
+
+.tabs button:hover{
+background:#f3f4f6;
+}
+
+.tabs button.active{
+background:#111827;
+color:white;
+border-color:#111827;
+}
+
+
+/* TABLE CARD */
+
+.table-wrapper{
+background:white;
+border-radius:12px;
+box-shadow:0 6px 20px rgba(0,0,0,0.05);
+overflow:hidden;
+}
+
+
+/* TABLE */
+
+table{
+width:100%;
+border-collapse:collapse;
+font-size:14px;
+}
+
+th{
+background:#f9fafb;
+color:#374151;
+text-align:left;
+padding:14px;
+font-weight:600;
+}
+
+td{
+padding:14px;
+border-bottom:1px solid #f1f5f9;
+}
+
+tr:hover{
+background:#f9fafb;
+}
+
+
+/* BALANCE COLORS */
+
+.balance-positive{
+color:#16a34a;
+font-weight:600;
+}
+
+.balance-negative{
+color:#dc2626;
+font-weight:600;
+}
+
+
+/* ACTION LINKS */
+
+.actions a{
+margin-right:10px;
+color:#2563eb;
+font-size:13px;
+text-decoration:none;
+}
+
+.actions a:hover{
+text-decoration:underline;
+}
+
+
+/* EMPTY STATE */
+
+.empty{
+text-align:center;
+padding:40px;
+color:#6b7280;
+font-size:14px;
+}
+
+
+/* MOBILE RESPONSIVE */
+
+@media(max-width:768px){
+
+.page-header{
+flex-direction:column;
+align-items:flex-start;
+}
+
+.actions{
+width:100%;
+}
+
+#search{
+width:100%;
+}
+
+table{
+font-size:13px;
+}
+
+}
+
+/* TABLE WRAPPER */
+
+.table-wrapper{
+width:100%;
+overflow-x:auto;
+-webkit-overflow-scrolling:touch;
+}
+
+/* TABLE */
+
+table{
+min-width:700px;
+border-collapse:collapse;
+width:100%;
+}
+
+/* ACTION BUTTON CONTAINER */
+
+.actions-links{
+display:flex;
+gap:8px;
+align-items:center;
+}
+
+/* BASE BUTTON STYLE */
+
+.actions-links a{
+text-decoration:none;
+font-size:13px;
+font-weight:600;
+padding:6px 12px;
+border-radius:6px;
+transition:all .2s ease;
+display:inline-flex;
+align-items:center;
+}
+
+/* VIEW */
+
+.actions-links a:nth-child(1){
+background:#e0e7ff;
+color:#3730a3;
+}
+
+.actions-links a:nth-child(1):hover{
+background:#c7d2fe;
+}
+
+/* EDIT */
+
+.actions-links a:nth-child(2){
+background:#dcfce7;
+color:#166534;
+}
+
+.actions-links a:nth-child(2):hover{
+background:#bbf7d0;
+}
+
+/* DELETE */
+
+.actions-links a:nth-child(3){
+background:#fee2e2;
+color:#b91c1c;
+}
+
+.actions-links a:nth-child(3):hover{
+background:#fecaca;
+}
+
+
+.back-btn{
+position:fixed;
+top:20px;
+right:20px;
+background:#f3f4f6;
+border:none;
+padding:8px 14px;
+border-radius:8px;
+font-size:13px;
+font-weight:600;
+cursor:pointer;
+color:#374151;
+}
+
+.back-btn:hover{
+background:#e5e7eb;
+}
+
+
+
+
+</style>
+
+</head>
+
+<body>
+<button class="back-btn" onclick="goBack()">← Back</button>
+
+
+<header class="page-header">
+
+<h1>Customers & Suppliers</h1>
+
+<div class="actions">
+
+<input
+type="text"
+id="search"
+placeholder="Search contact"
+onkeyup="searchContacts()"
+>
+
+<button class="btn" onclick="addContact()">
+Add Contact
+</button>
+
+</div>
+
+</header>
+
+
+<!-- FILTER TABS -->
+
+<div class="tabs">
+
+<button class="active" onclick="loadContacts('all')">
+All
+</button>
+
+<button onclick="loadContacts('customer')">
+Customers
+</button>
+
+<button onclick="loadContacts('supplier')">
+Suppliers
+</button>
+
+</div>
+
+
+<!-- CONTACT TABLE -->
+
+<div class="table-wrapper">
+
+<table>
+
+<thead>
+
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Email</th>
+<th>Phone</th>
+<th>Balance</th>
+<th>Actions</th>
+</tr>
+
+</thead>
+
+<tbody id="contactsTable">
+
+<tr>
+<td colspan="6" class="empty">
+Loading contacts...
+</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+
+<script>
+
+const currency = localStorage.getItem("currency") || "ZMW";
+
+const rates = {
+  USD:1,
+  EUR:0.92,
+  GBP:0.79,
+  ZMW:27
+};
+
+function formatMoney(amount){
+  return new Intl.NumberFormat("en-US",{
+    style:"currency",
+    currency: currency
+  }).format(amount);
+}
+
+lucide.createIcons()
+
+let contacts=[]
+
+document.addEventListener("DOMContentLoaded",()=>{
+
+loadContacts("all")
+
+})
+
+
+
+/* LOAD CONTACTS */
+
+async function loadContacts(type){
+
+try{
+
+const token=localStorage.getItem("token")
+
+const url = type==="all"
+? "/contacts"
+: `/contacts?type=${type}`
+
+const res=await fetch(url,{
+headers:{
+Authorization:"Bearer "+token
+}
+})
+
+contacts=await res.json()
+
+renderContacts(contacts)
+
+setActiveTab(type)
+
+}catch(err){
+
+console.error(err)
+
+}
+
+}
+
+
+
+/* RENDER CONTACTS */
+
+function renderContacts(data){
+
+const table=document.getElementById("contactsTable")
+
+table.innerHTML=""
+
+if(!data.length){
+
+table.innerHTML=
+"<tr><td colspan='6' class='empty'>No contacts found</td></tr>"
+
+return
+
+}
+
+data.forEach(c=>{
+
+const balanceClass=c.balance>=0
+? "balance-positive"
+: "balance-negative"
+
+const row=document.createElement("tr")
+
+row.innerHTML=`
+
+<td>${c.name}</td>
+
+<td>${capitalize(c.type)}</td>
+
+<td>${c.email||"-"}</td>
+
+<td>${c.phone||"-"}</td>
+
+<td class="${balanceClass}">
+${formatCurrency(c.balance)}
+</td>
+
+<td class="actions-links">
+
+<a href="view-contact.html?id=${c.id}">
+View
+</a>
+
+<a href="edit-contact.html?id=${c.id}">
+Edit
+</a>
+
+
+<a href="#" onclick="deleteContact(${c.id})">
+Delete
+</a>
+
+</td>
+
+`
+
+table.appendChild(row)
+
+})
+
+}
+
+
+
+/* SEARCH */
+
+function searchContacts(){
+
+const term=document.getElementById("search").value.toLowerCase()
+
+const filtered=contacts.filter(c=>
+c.name.toLowerCase().includes(term)
+)
+
+renderContacts(filtered)
+
+}
+
+
+
+/* DELETE */
+
+async function deleteContact(id){
+
+if(!confirm("Delete this contact?")) return
+
+const token=localStorage.getItem("token")
+
+await fetch(`/contacts/${id}`,{
+
+method:"DELETE",
+headers:{
+Authorization:"Bearer "+token
+}
+
+})
+
+loadContacts("all")
+
+}
+
+
+
+/* ADD CONTACT */
+
+function addContact(){
+
+window.location="add-contact.html"
+
+}
+
+
+
+/* UTILITIES */
+
+function formatCurrency(value){
+return formatMoney(value);
+}
+
+
+function capitalize(text){
+
+return text.charAt(0).toUpperCase()+text.slice(1)
+
+}
+
+
+
+/* ACTIVE TAB */
+
+function setActiveTab(type){
+
+const buttons=document.querySelectorAll(".tabs button")
+
+buttons.forEach(btn=>btn.classList.remove("active"))
+
+if(type==="all") buttons[0].classList.add("active")
+if(type==="customer") buttons[1].classList.add("active")
+if(type==="supplier") buttons[2].classList.add("active")
+
+}
+
+
+
+function goBack(){
+window.history.back()
+}
+
+
+</script>
+
+
+</body>
+
+</html>

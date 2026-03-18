@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>Create Invoice • InvoiceFlow</title>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+<style>
+
+body{
+font-family:Inter,system-ui;
+background:#f4f6f9;
+margin:0;
+padding:30px;
+}
+
+.container{
+max-width:1000px;
+margin:auto;
+}
+
+/* CARD */
+
+.card{
+background:white;
+padding:25px;
+border-radius:12px;
+box-shadow:0 4px 16px rgba(0,0,0,0.06);
+margin-bottom:20px;
+}
+
+h1{
+margin-top:0;
+}
+
+/* INPUTS */
+
+.input-group{
+margin-bottom:15px;
+}
+
+label{
+font-size:13px;
+color:#6b7280;
+display:block;
+margin-bottom:5px;
+}
+
+input,select{
+width:100%;
+padding:10px;
+border:1px solid #ddd;
+border-radius:6px;
+}
+
+/* TABLE */
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th,td{
+padding:10px;
+border-bottom:1px solid #eee;
+text-align:left;
+}
+
+th{
+background:#f9fafb;
+}
+
+.lineTotal{
+font-weight:600;
+}
+
+/* BUTTONS */
+
+.btn{
+background:#111827;
+color:white;
+border:none;
+padding:10px 16px;
+border-radius:8px;
+cursor:pointer;
+margin-top:10px;
+}
+
+.btn.secondary{
+background:#2563eb;
+}
+
+/* TOTALS */
+
+.totals{
+text-align:right;
+margin-top:20px;
+}
+
+.totals p{
+margin:4px 0;
+}
+
+.totals h2{
+margin-top:10px;
+}
+
+/* QR */
+
+.qr{
+margin-top:20px;
+text-align:center;
+}
+
+/* FOOTER */
+
+.footer{
+text-align:center;
+margin-top:40px;
+font-size:13px;
+color:#6b7280;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Create Invoice</h1>
+
+<div class="card">
+<div class="input-group">
+<label>Client</label>
+<input type="text" id="clientName" readonly>
+
+</div>
+<div class="input-group">
+<label>Invoice Date</label>
+<input type="date" id="invoiceDate">
+</div>
+
+<div class="input-group">
+<label>Due Date</label>
+<input type="date" id="dueDate">
+</div>
+
+<div class="input-group">
+<label>Currency</label>
+<select id="currency">
+<option value="USD">USD</option>
+<option value="EUR">EUR</option>
+<option value="GBP">GBP</option>
+<option value="ZMW">ZMW</option>
+</select>
+</div>
+
+</div>
+
+<div class="card">
+
+<h3>Invoice Items</h3>
+
+<table>
+
+<thead>
+<tr>
+<th>Description</th>
+<th>Qty</th>
+<th>Price</th>
+<th>Total</th>
+<th></th>
+</tr>
+</thead>
+
+<tbody id="lineItems"></tbody>
+
+</table>
+
+<button class="btn secondary" onclick="addLineItem()">Add Item</button>
+
+</div>
+
+<div class="card">
+
+<div class="input-group">
+<label>Tax %</label>
+<input id="taxRate" type="number" value="0" oninput="calculateTotals()">
+</div>
+
+<div class="totals">
+
+<p>Subtotal: <span id="subtotal">$0.00</span></p>
+
+<p>Tax: <span id="taxAmount">$0.00</span></p>
+
+<h2>Total: <span id="grandTotal">$0.00</span></h2>
+
+</div>
+
+<div class="qr">
+<canvas id="qr"></canvas>
+</div>
+
+<button class="btn" onclick="saveInvoice()">Save Invoice</button>
+
+<button class="btn" onclick="printInvoice()">Print Invoice</button>
+
+<button class="btn secondary" onclick="downloadPDF()">Download PDF</button>
+
+</div>
+
+<div class="footer">
+
+<strong>InvoiceFlow</strong> • Secure SaaS Billing System  
+Cloud Billing • Multi-Currency • Global Payments
+
+</div>
+
+</div>
+
+<script>
+
+
+const params = new URLSearchParams(window.location.search)
+
+const clientIdFromURL = params.get("id")
+const clientNameFromURL = params.get("client")
+
+
+/* Currency conversion */
+
+const currency = localStorage.getItem("currency") || "ZMW";
+
+const rates = {
+  USD:1,
+  EUR:0.92,
+  GBP:0.79,
+  ZMW:27
+};
+
+function formatMoney(amount){
+  return new Intl.NumberFormat("en-US",{
+    style:"currency",
+    currency: currency
+  }).format(amount);
+}
+
+/* Add line item */
+
+function addLineItem(){
+
+const tbody=document.getElementById("lineItems")
+
+const row=document.createElement("tr")
+
+row.innerHTML=`
+
+<td><input type="text" class="desc"></td>
+
+<td><input type="number" class="qty" value="1"></td>
+
+<td><input type="number" class="price" value="0"></td>
+
+<td class="lineTotal">$0.00</td>
+
+<td><button onclick="removeRow(this)">X</button></td>
+
+`
+
+tbody.appendChild(row)
+
+row.querySelectorAll("input").forEach(input=>{
+input.addEventListener("input",calculateTotals)
+})
+
+}
+
+/* Remove row */
+
+function removeRow(btn){
+
+btn.closest("tr").remove()
+
+calculateTotals()
+
+}
+
+/* Calculate totals */
+
+
+function calculateTotals(){
+
+let subtotal = 0
+
+document.querySelectorAll("#lineItems tr").forEach(row=>{
+
+const qty = Number(row.querySelector(".qty").value || 0)
+const price = Number(row.querySelector(".price").value || 0)
+
+const lineTotal = qty * price
+
+row.querySelector(".lineTotal").innerText = formatMoney(lineTotal)
+
+subtotal += lineTotal
+
+})
+
+const taxRate = Number(document.getElementById("taxRate").value || 0)
+
+const tax = subtotal * (taxRate / 100)
+
+const total = subtotal + tax
+
+document.getElementById("subtotal").innerText = formatMoney(subtotal)
+
+document.getElementById("taxAmount").innerText = formatMoney(tax)
+
+document.getElementById("grandTotal").innerText = formatMoney(total)
+
+generateQR(total)
+
+}
+
+
+
+
+
+/* QR Code */
+
+function generateQR(total){
+
+const client=document.getElementById("clientName").value
+
+const data=`InvoiceFlow Invoice | Client:${client} | Total:${total}`
+
+QRCode.toCanvas(document.getElementById("qr"),data)
+
+}
+
+/* Print */
+
+function printInvoice(){
+window.print()
+}
+
+/* PDF */
+
+function downloadPDF(){
+
+const content=document.body.innerHTML
+
+const win=window.open("")
+
+win.document.write(content)
+
+win.print()
+
+}
+
+/* Prefill client safely */
+
+document.addEventListener("DOMContentLoaded", function(){
+
+const params = new URLSearchParams(window.location.search)
+
+const client = params.get("client")
+
+if(client){
+
+const input = document.getElementById("clientName")
+
+if(input){
+input.value = client
+}
+
+}
+
+})
+
+
+/* Add first item */
+
+addLineItem()
+
+document.getElementById("currency").addEventListener("change", calculateTotals)
+
+
+async function saveInvoice(){
+
+const clientId = Number(clientIdFromURL)
+
+if(!clientId){
+alert("Client ID missing")
+return
+}
+
+const dueDate = document.getElementById("dueDate").value
+const taxRate = Number(document.getElementById("taxRate").value || 0)
+
+let items=[]
+
+document.querySelectorAll("#lineItems tr").forEach(row=>{
+
+const description=row.querySelector(".desc").value
+const quantity=Number(row.querySelector(".qty").value)
+const unit_price=Number(row.querySelector(".price").value)
+
+if(description && quantity && unit_price){
+items.push({
+description,
+quantity,
+unit_price
+})
+}
+
+})
+
+if(items.length===0){
+alert("Add at least one item")
+return
+}
+
+const invoiceData={
+client_id:clientId,
+items:items,
+tax_rate:taxRate,
+due_date:dueDate
+}
+
+try{
+
+const res=await fetch("/invoices",{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+...getAuthHeaders()
+},
+body:JSON.stringify(invoiceData)
+})
+
+console.log("Sending invoice:", invoiceData)
+
+const data=await res.json()
+
+if(res.ok){
+alert("Invoice created successfully")
+window.location="invoices.html"
+}else{
+alert(data.error || "Failed to save invoice")
+}
+
+}catch(err){
+console.error(err)
+alert("Server error")
+}
+
+}
+
+
+function getAuthHeaders(){
+
+const token = localStorage.getItem("token")
+
+if(!token){
+alert("You are not logged in")
+window.location = "login.html"
+return {}
+}
+
+return {
+"Authorization": "Bearer " + token
+}
+
+}
+
+
+
+</script>
+
+</body>
+</html>

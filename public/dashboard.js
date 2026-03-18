@@ -1,3 +1,18 @@
+const currency = localStorage.getItem("currency") || "ZMW";
+const rates = {
+  USD:1,
+  EUR:0.92,
+  GBP:0.79,
+  ZMW:27
+};
+
+function formatMoney(amount){
+  return new Intl.NumberFormat("en-US",{
+    style:"currency",
+    currency: currency
+  }).format(amount);
+}
+
 // =============================
 // LOAD DASHBOARD
 // =============================
@@ -62,8 +77,9 @@ monthlyRevenue[month] += amount;
 
 document.getElementById("totalClients").textContent = clients.size;
 document.getElementById("activeClients").textContent = clients.size;
-document.getElementById("totalRevenue").textContent = formatCurrency(revenue);
-document.getElementById("outstanding").textContent = formatCurrency(outstanding);
+document.getElementById("totalRevenue").textContent = formatMoney(revenue);
+document.getElementById("outstanding").textContent = formatMoney(outstanding);
+
 // ============================
 // RECENT INVOICES TABLE
 // ============================
@@ -89,7 +105,7 @@ table.insertAdjacentHTML("beforeend",`
 <td>#${invoice}</td>
 <td>${client}</td>
 <td class="status ${status}">${status}</td>
-<td>$${total}</td>
+<td>${formatMoney(Number(inv.total || 0))}</td>
 </tr>
 
 `);
@@ -159,14 +175,8 @@ scales:{y:{beginAtZero:true}}
 // =============================
 
 function formatCurrency(amount){
-
-return new Intl.NumberFormat("en-US",{
-style:"currency",
-currency:"USD"
-}).format(Number(amount) || 0);
-
+return formatMoney(amount);
 }
-
 
 
 const searchInput = document.getElementById("globalSearch");
@@ -251,3 +261,22 @@ results.style.display = "none";
 }
 
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

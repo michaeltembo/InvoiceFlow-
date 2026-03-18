@@ -1,3 +1,20 @@
+const currency = localStorage.getItem("currency") || "ZMW";
+
+const rates = {
+  USD:1,
+  EUR:0.92,
+  GBP:0.79,
+  ZMW:27
+};
+
+function formatMoney(amount){
+  return new Intl.NumberFormat("en-US",{
+    style:"currency",
+    currency: currency
+  }).format(amount);
+}
+
+
 /* ===============================
 GLOBAL STATE
 =============================== */
@@ -61,23 +78,37 @@ console.error("Client load error:",err);
 
 
 
+// ===============================
+// SAVE CLIENT
+// ===============================
 
-function formatCurrency(amount){
+async function saveClient(){
 
-return new Intl.NumberFormat("en-US",{
-style:"currency",
-currency:"USD"
-}).format(Number(amount)||0);
+  const token = localStorage.getItem("token");
 
+  const payload = {
+    name: document.getElementById("clientName").value,
+    email: document.getElementById("clientEmail").value,
+    phone: document.getElementById("clientPhone").value,
+    country: document.getElementById("clientCountry").value
+  };
+
+  await fetch("/clients",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      Authorization:"Bearer "+token
+    },
+    body:JSON.stringify(payload)
+  });
+
+  await loadClients(); // refresh list automatically
 }
 
-/* ===============================
-SAVE CLIENTS
-=============================== */
 
-function saveClients(){
-localStorage.setItem("clients", JSON.stringify(allClients));
-}
+
+
+
 
 
 /* ===============================
@@ -91,10 +122,41 @@ const email = document.getElementById("clientEmail").value.trim();
 const phone = document.getElementById("clientPhone").value.trim();
 const country = document.getElementById("clientCountry").value.trim();
 
+const file = document.getElementById("clientAvatar").files[0];
+
 if(!name){
 alert("Client name required");
 return;
 }
+
+let avatar = null;
+
+/* convert image to base64 */
+
+if(file){
+
+const reader = new FileReader();
+
+reader.onload = async function(e){
+
+avatar = e.target.result;
+
+await sendClient(name,email,phone,country,avatar);
+
+};
+
+reader.readAsDataURL(file);
+
+}else{
+
+await sendClient(name,email,phone,country,null);
+
+}
+
+}
+
+
+async function sendClient(name,email,phone,country,avatar){
 
 try{
 
@@ -108,7 +170,8 @@ body: JSON.stringify({
 name,
 email,
 phone,
-country
+country,
+avatar
 })
 });
 
@@ -116,8 +179,6 @@ if(!res.ok){
 alert("Failed to create client");
 return;
 }
-
-/* reload clients from database */
 
 await loadClients();
 
@@ -131,7 +192,6 @@ console.error("Create client error:",err);
 }
 
 }
-
 
 /* ===============================
 RENDER CLIENT TABLE
@@ -150,12 +210,20 @@ const row = document.createElement("tr");
 
 row.innerHTML = `
 
-<td>${client.name}</td>
+<td class="client-cell">
+
+${client.avatar ? 
+`<img src="${client.avatar}" class="client-avatar">` :
+`<div class="client-avatar placeholder">${client.name.charAt(0).toUpperCase()}</div>`
+}
+
+<span>${client.name}</span>
+
+</td>
 <td>${client.email ? client.email : "-"}</td>
 <td>${client.phone ? client.phone : "-"}</td>
 <td>${client.country ? client.country : "-"}</td>
-<td>${formatCurrency(client.total_revenue || 0)}</td>
-
+<td>${formatMoney(client.total_revenue || 0)}</td>
 <td>
 <span class="status-badge status-${client.status || "active"}">
 ${client.status || "active"}
@@ -171,11 +239,9 @@ ${client.status || "active"}
 </button>
 
 <button class="icon-btn delete-btn"
-onclick="event.stopPropagation(); deleteClient('${client.id}')">
+onclick="event.stopPropagation(); deleteClient(${client.id})">
 🗑
 </button>
-
-</td>
 
 `;
 
@@ -192,20 +258,35 @@ tbody.appendChild(row);
 DELETE CLIENT
 =============================== */
 
-function deleteClient(id){
+async function deleteClient(id){
 
 const confirmed = confirm("Delete this client?");
 if(!confirmed) return;
 
-allClients = allClients.filter(c => c.id !== id);
-filteredClients = filteredClients.filter(c => c.id !== id);
+try{
 
-saveClients();
-renderClients();
-updateKPIs();
+const res = await fetch(`/clients/${id}`,{
+method:"DELETE",
+headers:{
+Authorization: "Bearer " + localStorage.getItem("token")
+}
+});
+
+if(!res.ok){
+alert("Failed to delete client");
+return;
+}
+
+await loadClients();
+
+}catch(err){
+
+console.error("Delete error:", err);
+alert("Error deleting client");
 
 }
 
+}
 
 /* ===============================
 EDIT CLIENT
@@ -294,8 +375,7 @@ const revenue = allClients.reduce((sum,c)=>sum + Number(c.total_revenue || 0),0)
 setText("totalClients", total);
 setText("activeClients", active);
 setText("inactiveClients", inactive);
-setText("clientRevenue", formatCurrency(revenue));
-
+setText("clientRevenue", formatMoney(revenue));
 }
 
 
@@ -326,6 +406,8 @@ const invoices = await res.json();
 
 const clientInvoices = invoices.filter(inv =>
 (inv.client_name || inv.client || "").toLowerCase() === client.name.toLowerCase()
+
+
 );
 
 
@@ -343,14 +425,75 @@ if((inv.status || "").toLowerCase() === "paid") paid += amount;
 
 if((inv.status || "").toLowerCase() === "pending") pending += amount;
 
+
 });
 
+/* REVENUE CHART */
 
-document.getElementById("drawerRevenue").textContent = formatCurrency(revenue);
+const ctx = document.getElementById("drawerRevenueChart");
+
+if (ctx && typeof Chart !== "undefined") {
+
+if (window.drawerChart) {
+window.drawerChart.destroy();
+}
+
+window.drawerChart = new Chart(ctx, {
+type: "doughnut",
+data: {
+labels: ["Paid", "Pending"],
+datasets: [{
+data: [paid, pending],
+backgroundColor: ["#22c55e", "#f59e0b"]
+}]
+},
+options: {
+plugins: {
+legend: { position: "bottom" }
+}
+}
+});
+
+}
+
+/* CLIENT TIMELINE */
+
+const timeline = document.getElementById("drawerTimeline");
+
+if (timeline) {
+
+timeline.innerHTML = "";
+
+clientInvoices
+.sort((a,b)=>new Date(b.created_at)-new Date(a.created_at))
+.forEach(inv=>{
+
+const amount = Number(inv.total || 0);
+
+const item = document.createElement("div");
+
+item.className = "timeline-item";
+
+item.innerHTML = `
+<div class="timeline-date">
+${new Date(inv.created_at).toLocaleDateString()}
+</div>
+<div class="timeline-text">
+Invoice #${inv.id} • ${formatMoney(amount)} • ${inv.status}
+</div>
+`;
+
+timeline.appendChild(item);
+
+});
+
+}
+
+
+document.getElementById("drawerRevenue").textContent = formatMoney(revenue);
 document.getElementById("drawerInvoicesCount").textContent = clientInvoices.length;
-document.getElementById("drawerPaid").textContent = formatCurrency(paid);
-document.getElementById("drawerPending").textContent = formatCurrency(pending);
-
+document.getElementById("drawerPaid").textContent = formatMoney(paid);
+document.getElementById("drawerPending").textContent = formatMoney(pending);
 
 const table = document.getElementById("drawerInvoicesTable");
 
@@ -370,7 +513,8 @@ const row = document.createElement("tr");
 row.innerHTML = `
 <td>#${inv.id}</td>
 <td>${new Date(inv.created_at).toLocaleDateString()}</td>
-<td>${formatCurrency(inv.total)}</td>
+<td>${formatMoney(inv.total)}</td>
+
 <td class="status-${inv.status}">${inv.status}</td>
 `;
 
@@ -423,16 +567,8 @@ if(el) el.textContent = value;
 }
 
 function formatCurrency(amount){
-
-amount = Number(amount) || 0;
-
-return new Intl.NumberFormat("en-US",{
-style:"currency",
-currency:"USD"
-}).format(amount);
-
+return formatMoney(amount);
 }
-
 
 
 

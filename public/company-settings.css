@@ -95,21 +95,10 @@ font-weight:600;
 
 /* SETTINGS CONTENT */
 
-.settings-content{
-flex:1;
-background:white;
-padding:25px;
-border-radius:10px;
-box-shadow:0 8px 25px rgba(0,0,0,0.05);
-}
 
 
 /* PANELS */
 
-.settings-panel{
-display:none;
-animation:fadePanel .25s ease;
-}
 
 .settings-panel.active{
 display:block;
@@ -123,13 +112,6 @@ to{opacity:1; transform:translateY(0);}
 
 /* FORM GRID */
 
-.form-grid{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:15px;
-margin-top:15px;
-margin-bottom:20px;
-}
 
 .form-grid input,
 .form-grid select{
@@ -150,21 +132,7 @@ box-shadow:0 0 0 2px rgba(99,102,241,.2);
 
 /* BUTTONS */
 
-.primary-btn{
-background:#6366f1;
-color:white;
-border:none;
-padding:10px 18px;
-border-radius:6px;
-cursor:pointer;
-font-size:14px;
-transition:all .2s ease;
-}
 
-.primary-btn:hover{
-background:#4f46e5;
-transform:translateY(-1px);
-}
 
 .secondary-btn{
 background:#f3f4f6;
@@ -334,4 +302,168 @@ text-decoration:none;
 color:inherit;
 display:block;
 width:100%;
+}
+
+
+
+
+
+
+
+.left-section{
+display:flex;
+align-items:center;
+gap:15px;
+width:100%;
+}
+
+/* Back button */
+
+.back-btn{
+margin-left:auto; /* pushes it to the far right */
+
+background:#f3f4f6;
+border:none;
+padding:6px 12px;
+border-radius:8px;
+font-size:13px;
+font-weight:600;
+cursor:pointer;
+color:#374151;
+
+display:flex;
+align-items:center;
+}
+
+.back-btn:hover{
+background:#e5e7eb;
+}
+
+
+
+
+
+/* GLOBAL */
+
+.settings-content{
+max-width:900px;
+margin:auto;
+padding:30px;
+font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+}
+
+/* PANEL */
+
+.settings-panel{
+background:#ffffff;
+padding:30px;
+border-radius:14px;
+box-shadow:
+0 10px 25px rgba(0,0,0,0.04),
+0 2px 8px rgba(0,0,0,0.03);
+border:1px solid #f1f5f9;
+}
+
+/* HEADINGS */
+
+.settings-panel h2{
+font-size:22px;
+margin-bottom:25px;
+font-weight:600;
+color:#111827;
+}
+
+.settings-panel h3{
+margin-top:35px;
+margin-bottom:15px;
+font-size:16px;
+font-weight:600;
+color:#374151;
+}
+
+/* GRID */
+
+.form-grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:16px;
+margin-bottom:10px;
+}
+
+/* FORM GROUP */
+
+.form-group{
+display:flex;
+flex-direction:column;
+margin-bottom:16px;
+}
+
+/* LABEL */
+
+.form-group label{
+font-size:13px;
+font-weight:500;
+color:#6b7280;
+margin-bottom:6px;
+}
+
+/* INPUT */
+
+input{
+width:100%;
+padding:11px 12px;
+border-radius:8px;
+border:1px solid #e5e7eb;
+font-size:14px;
+transition:all .2s ease;
+background:#fafafa;
+}
+
+input:focus{
+outline:none;
+border-color:#2563eb;
+background:#fff;
+box-shadow:0 0 0 3px rgba(37,99,235,0.15);
+}
+
+/* BUTTON */
+
+.primary-btn{
+margin-top:20px;
+background:#2563eb;
+color:white;
+border:none;
+padding:12px 20px;
+border-radius:8px;
+font-size:14px;
+font-weight:600;
+cursor:pointer;
+transition:all .2s ease;
+}
+
+.primary-btn:hover{
+background:#1d4ed8;
+transform:translateY(-1px);
+}
+
+/* MESSAGE */
+
+#companyMessage{
+margin-top:12px;
+font-size:13px;
+color:#16a34a;
+}
+
+/* MOBILE */
+
+@media (max-width:700px){
+
+.form-grid{
+grid-template-columns:1fr;
+}
+
+.settings-content{
+padding:20px;
+}
+
 }

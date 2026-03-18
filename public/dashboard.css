@@ -453,6 +453,11 @@ color:#111827;
 }
 
 /* hover */
+.nav-links a:hover{
+background:#111827;
+color:white;
+}
+
 
 #recentInvoices tbody tr:hover{
 background:#f9fafb;
@@ -503,3 +508,217 @@ font-weight:600;
 text-transform:capitalize;
 display:inline-block;
 }
+
+
+
+/* NAVIGATION CONTAINER */
+
+
+
+/* ICON SIZE */
+
+.nav-links a i{
+width:16px;
+height:16px;
+}
+
+/* HOVER EFFECT */
+
+.nav-links{
+position:relative;
+display:flex;
+gap:10px;
+padding:6px;
+background:#f3f4f6;
+border-radius:10px;
+}
+
+/* Links */
+
+.nav-links a{
+position:relative;
+display:flex;
+align-items:center;
+gap:8px;
+padding:8px 14px;
+text-decoration:none;
+font-size:14px;
+color:#374151;
+z-index:2;
+}
+
+/* Highlight */
+
+.nav-highlight{
+position:absolute;
+height:36px;
+border-radius:8px;
+background:#16a34a;
+transition:all 0.25s ease;
+z-index:1;
+}
+
+/* Icon size */
+
+.nav-links i{
+width:16px;
+height:16px;
+}
+
+/* ACTIVE COLORS */
+
+.nav-links a.green{
+background:#16a34a;
+color:white;
+border-color:#16a34a;
+}
+
+.nav-links a.blue{
+background:#2563eb;
+color:white;
+border-color:#2563eb;
+}
+
+.nav-links a.orange{
+background:#f97316;
+color:white;
+border-color:#f97316;
+}
+/* ACTIVE PAGE */
+
+.nav-links a.active{
+background:#111827;
+color:white;
+border-color:#111827;
+}
+
+
+
+.nav-links{
+display:flex;
+gap:10px;
+padding:10px;
+
+overflow-x:auto;          /* allows horizontal scroll */
+overflow-y:hidden;
+
+white-space:nowrap;
+
+scroll-behavior:smooth;
+
+-webkit-overflow-scrolling:touch; /* smooth iOS swipe */
+}
+
+/* hide scrollbar for clean SaaS look */
+
+.nav-links::-webkit-scrollbar{
+display:none;
+}
+
+.nav-links{
+scrollbar-width:none;
+}
+
+/* links should not shrink */
+
+.nav-links a{
+flex:0 0 auto;
+
+display:flex;
+align-items:center;
+gap:8px;
+
+padding:8px 14px;
+
+text-decoration:none;
+font-size:14px;
+
+background:#f9fafb;
+border:1px solid #e5e7eb;
+border-radius:8px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.left-section{
+display:flex;
+align-items:center;
+gap:15px;
+width:100%;
+}
+
+/* Back button */
+
+.back-btn{
+margin-left:auto; /* pushes it to the far right */
+
+background:#f3f4f6;
+border:none;
+padding:6px 12px;
+border-radius:8px;
+font-size:13px;
+font-weight:600;
+cursor:pointer;
+color:#374151;
+
+display:flex;
+align-items:center;
+}
+
+.back-btn:hover{
+background:#e5e7eb;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

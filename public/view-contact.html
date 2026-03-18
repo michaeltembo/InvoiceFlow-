@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Contact Details • InvoiceFlow</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f4f6f9;
+padding:30px;
+}
+
+.container{
+max-width:500px;
+margin:auto;
+}
+
+.card{
+background:white;
+padding:25px;
+border-radius:10px;
+box-shadow:0 4px 12px rgba(0,0,0,0.07);
+}
+
+/* avatar */
+
+.avatar{
+width:70px;
+height:70px;
+border-radius:50%;
+background:#2563eb;
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:bold;
+font-size:28px;
+margin-bottom:15px;
+}
+
+/* rows */
+
+.row{
+display:flex;
+justify-content:space-between;
+padding:10px 0;
+border-bottom:1px solid #eee;
+}
+
+.btn{
+background:#111827;
+color:white;
+padding:10px;
+border-radius:6px;
+text-decoration:none;
+display:block;
+margin-top:10px;
+text-align:center;
+}
+
+.footer{
+text-align:center;
+margin-top:40px;
+color:#6b7280;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Contact Details</h1>
+
+<div class="card">
+
+<div class="avatar" id="avatar">-</div>
+
+<h2 id="name">-</h2>
+
+<div class="row">
+<span>Email</span>
+<span id="email">-</span>
+</div>
+
+<div class="row">
+<span>Phone</span>
+<span id="phone">-</span>
+</div>
+
+<div class="row">
+<span>Balance</span>
+<span id="balance">0</span>
+</div>
+
+<a class="btn" id="viewInvoices">View Invoices</a>
+
+<a class="btn" href="customers-suppliers.html">
+Back to Contacts
+</a>
+
+</div>
+
+<div class="footer">
+<strong>InvoiceFlow</strong> • Global SaaS Billing Platform
+</div>
+
+</div>
+
+<script>
+
+const params = new URLSearchParams(window.location.search)
+const clientId = params.get("id")
+
+async function load(){
+
+try{
+
+const res = await fetch("/contacts")
+const contacts = await res.json()
+
+const contact = contacts.find(c =>
+String(c.id) === String(clientId)
+)
+
+if(!contact){
+document.getElementById("name").innerText = "Contact not found"
+return
+}
+
+document.getElementById("name").innerText = contact.name
+document.getElementById("email").innerText = contact.email || "-"
+document.getElementById("phone").innerText = contact.phone || "-"
+
+document.getElementById("balance").innerText =
+new Intl.NumberFormat("en-US",{
+style:"currency",
+currency: localStorage.getItem("currency") || "ZMW"
+}).format(contact.balance || 0)
+
+document.getElementById("avatar").innerText =
+contact.name.charAt(0).toUpperCase()
+
+document.getElementById("viewInvoices").href =
+"invoices.html?client=" + encodeURIComponent(contact.name)
+
+}catch(err){
+
+console.error("Error loading contact:", err)
+
+}
+
+}
+
+document.addEventListener("DOMContentLoaded", load)
+
+</script>
+
+</body>
+</html>

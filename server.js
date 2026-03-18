@@ -24,9 +24,14 @@ const app = express();
 const crypto = require("crypto");
 const auth = require("./middleware/auth");
 const requireAdmin = require("./middleware/requireAdmin");
+const nodemailer = require("nodemailer");
+
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ limit: "10mb", extended: true }));
+
+
 app.use(express.static("public"));
 
 
@@ -42,6 +47,46 @@ app.get("/", (req, res) => {
 app.use("/invoices", invoiceRoutes);
 
 app.use(express.static("public"));
+
+let contacts = [
+
+{
+id:1,
+name:"MTN Zambia",
+type:"customer",
+email:"support@mtn.zm",
+phone:"+260960000000",
+balance:1800
+},
+
+{
+id:2,
+name:"Airtel Zambia",
+type:"customer",
+email:"support@airtel.com",
+phone:"+260970000000",
+balance:2500
+},
+
+{
+id:3,
+name:"Zamtel",
+type:"supplier",
+email:"info@zamtel.co.zm",
+phone:"+260950000000",
+balance:-1200
+},
+
+{
+id:4,
+name:"ZESCO Limited",
+type:"supplier",
+email:"info@zesco.co.zm",
+phone:"+260211000000",
+balance:-900
+}
+
+]
 
 
 // ===============================
@@ -152,7 +197,7 @@ app.post("/admin/login", async (req, res) => {
 
 app.post("/clients", auth, async (req, res) => {
   try {
-    const { name, email, phone, country } = req.body;
+const { name, email, phone, country, avatar } = req.body;
 
     if (!name) {
       return res.status(400).json({ error: "Client name required" });
@@ -167,17 +212,20 @@ app.post("/clients", auth, async (req, res) => {
 
     const result = await pool.query(
       `INSERT INTO clients
-       (name, email, phone, country, status, user_id, company_id)
-       VALUES ($1,$2,$3,$4,'active',$5,$6)
+(name, email, phone, country, avatar, status, user_id, company_id)
+VALUES ($1,$2,$3,$4,$5,'active',$6,$7)
        RETURNING *`,
-      [
-        name,
-        email || null,
-        phone || null,
-        country || null,
-        req.userId,
-        companyId
-      ]
+
+[
+  name,
+  email || null,
+  phone || null,
+  country || null,
+  avatar || null,
+  req.userId,
+  companyId
+]
+
     );
 
     res.status(201).json(result.rows[0]);
@@ -193,21 +241,31 @@ app.get("/clients", auth, async (req, res) => {
 
     const result = await pool.query(
       `
-      SELECT
-        c.id,
-        c.name,
-        c.email,
-        c.phone,
-        c.country,
-        c.status,
-        COALESCE(SUM(i.total),0) AS total_revenue,
-        COUNT(i.id) AS invoice_count
+
+SELECT
+  c.id,
+  c.name,
+  c.email,
+  c.phone,
+  c.country,
+  c.avatar,
+  c.status,
+  COALESCE(SUM(i.total),0) AS total_revenue,
+  COUNT(i.id) AS invoice_count
+
       FROM clients c
       LEFT JOIN invoices i 
         ON i.client_id = c.id
         AND i.company_id = $1
       WHERE c.company_id = $1
-      GROUP BY c.id
+     GROUP BY
+  c.id,
+  c.name,
+  c.email,
+  c.phone,
+  c.country,
+  c.avatar,
+  c.status
       ORDER BY c.created_at DESC
       `,
       [req.companyId]
@@ -230,26 +288,28 @@ app.delete("/clients/:id", auth, async (req, res) => {
     const id = req.params.id;
 
     console.log("Deleting client:", id);
-    console.log("Company making request:", req.companyId);
+    console.log("Company:", req.companyId);
 
     const result = await pool.query(
-      "DELETE FROM clients WHERE id = $1 AND company_id = $2",
+      `DELETE FROM clients
+       WHERE id = $1 AND company_id = $2`,
       [id, req.companyId]
     );
 
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Client not found for this company" });
+    console.log("Rows deleted:", result.rowCount);
+
+    if(result.rowCount === 0){
+      return res.status(404).json({error:"Client not found"});
     }
 
-    res.json({ message: "Client deleted successfully" });
+    res.json({message:"Client deleted successfully"});
 
-  } catch (err) {
-
-    console.error("Delete error:", err);
-    res.status(500).json({ error: "Delete failed" });
-
+  } catch(err){
+    console.error(err);
+    res.status(500).json({error:"Delete failed"});
   }
 });
+
 
 
 /* ================= INVOICES ================= */
@@ -481,6 +541,7 @@ const recentInvoices = await pool.query(`
 
 
 /* ================= PDF + QR + LOGO ================= */
+
 
 app.get("/invoices/:id/pdf", async (req, res) => {
   try {
@@ -919,8 +980,12 @@ const invoiceId = req.params.id;
 const companyId = req.companyId;
 
 // 1️⃣ Get invoice
+
 const invoiceResult = await pool.query(
-`SELECT invoices.*, clients.name AS client_name
+`SELECT 
+invoices.*, 
+clients.name AS client_name,
+clients.email AS client_email   -- ✅ ADD THIS LINE
 FROM invoices
 JOIN clients
 ON invoices.client_id = clients.id
@@ -1141,17 +1206,31 @@ app.post("/company/settings", authenticateToken, async (req, res) => {
 try {
 
 const companyId = req.user.companyId;
+const userId = req.user.userId;
 
 const {
-name,
+company_name,   // ✅ FIXED
 registration_number,
 email,
 phone,
 address,
-country
+country,
+
+bank_name,
+account_name,
+account_number,
+branch,
+swift,          // ✅ INCLUDED
+mobile_money,
+invoice_footer
+
 } = req.body;
 
-const result = await pool.query(
+const name = company_name; // ✅ MAP FIX
+
+/* UPDATE COMPANY INFO */
+
+await pool.query(
 `UPDATE companies
 SET
 name = $1,
@@ -1160,8 +1239,7 @@ email = $3,
 phone = $4,
 address = $5,
 country = $6
-WHERE id = $7
-RETURNING *`,
+WHERE id = $7`,
 [
 name,
 registration_number,
@@ -1173,7 +1251,35 @@ companyId
 ]
 );
 
-res.json(result.rows[0]);
+/* UPDATE COMPANY SETTINGS */
+
+await pool.query(
+`INSERT INTO company_settings
+(user_id, bank_name, account_name, account_number, branch, swift, mobile_money, invoice_footer)
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+
+ON CONFLICT (user_id)
+DO UPDATE SET
+bank_name = EXCLUDED.bank_name,
+account_name = EXCLUDED.account_name,
+account_number = EXCLUDED.account_number,
+branch = EXCLUDED.branch,
+swift = EXCLUDED.swift,                 -- ✅ FIX
+mobile_money = EXCLUDED.mobile_money,
+invoice_footer = EXCLUDED.invoice_footer`,
+[
+userId,
+bank_name,
+account_name,
+account_number,
+branch,
+swift,          // ✅ FIX
+mobile_money,
+invoice_footer
+]
+);
+
+res.json({ success: true });
 
 } catch (err) {
 
@@ -1193,14 +1299,16 @@ const companyId = req.user.companyId;
 
 const { currency, taxRate, taxName } = req.body;
 
+const rate = taxRate === "" ? 0 : Number(taxRate);
+
 const result = await pool.query(
 `UPDATE companies
-SET currency=$1,
-tax_rate=$2,
-tax_name=$3
-WHERE id=$4
-RETURNING *`,
-[currency, taxRate, taxName, companyId]
+ SET currency=$1,
+     tax_rate=$2,
+     tax_name=$3
+ WHERE id=$4
+ RETURNING *`,
+[currency, rate, taxName, companyId]
 );
 
 res.json(result.rows[0]);
@@ -1404,28 +1512,55 @@ app.post("/cancel-subscription", authenticateToken, async (req,res)=>{
 });
 
 
-app.post("/stripe-webhook", async (req,res)=>{
 
-  const event = req.body;
+app.post("/stripe-webhook", express.raw({ type: "application/json" }), async (req, res) => {
 
-  if(event.type === "invoice.payment_failed"){
+  const sig = req.headers["stripe-signature"];
 
-    const customerId = event.data.object.customer;
+  let event;
 
-    const user = await db.query(
-      "SELECT id FROM users WHERE stripe_customer_id=?",
-      [customerId]
+  try {
+
+    event = stripe.webhooks.constructEvent(
+      req.body,
+      sig,
+      process.env.STRIPE_WEBHOOK_SECRET
     );
 
-    await db.query(
-      "UPDATE users SET plan='free' WHERE id=?",
-      [user[0].id]
-    );
+  } catch (err) {
+
+    console.log("Webhook signature failed:", err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
 
   }
 
-  res.sendStatus(200);
+  // Payment failed
+  if (event.type === "invoice.payment_failed") {
+
+    const customerId = event.data.object.customer;
+
+    const user = await pool.query(
+      "SELECT id FROM users WHERE stripe_customer_id = $1",
+      [customerId]
+    );
+
+    if (user.rows.length > 0) {
+
+      await pool.query(
+        "UPDATE users SET plan='free' WHERE id = $1",
+        [user.rows[0].id]
+      );
+
+      console.log("User downgraded to free plan");
+
+    }
+
+  }
+
+  res.json({ received: true });
+
 });
+
 
 app.get("/notification-settings", authenticateToken, async (req,res)=>{
 
@@ -1624,9 +1759,10 @@ const stripeUrl =
 "&client_id=" + process.env.STRIPE_CLIENT_ID +
 "&scope=read_write" +
 "&state=" + token +
-"&redirect_uri=http://localhost:3000/stripe/callback";
+"&redirect_uri=https://invoiceflow-qlb6.onrender.com/stripe/callback";
 
 res.redirect(stripeUrl);
+
 
 });
 
@@ -1699,6 +1835,505 @@ app.post("/create-company", async (req, res) => {
 });
 
 
+app.get("/purchases",(req,res)=>{
+
+const purchases=[
+
+{
+id:1,
+supplier:"Huawei Zambia",
+date:"2026-03-01",
+status:"paid",
+description:"5G network equipment",
+reference:"INV-HUA-001",
+total:7000
+},
+
+{
+id:2,
+supplier:"MTN Zambia",
+date:"2026-03-05",
+status:"pending",
+description:"Mobile data packages",
+reference:"INV-MTN-204",
+total:1500
+},
+
+{
+id:3,
+supplier:"ZESCO Limited",
+date:"2026-02-28",
+status:"overdue",
+description:"Office electricity bill",
+reference:"BILL-778",
+total:900
+},
+
+{
+id:4,
+supplier:"Airtel Zambia",
+date:"2026-03-10",
+status:"paid",
+description:"Network infrastructure equipment",
+reference:"INV-AIR-320",
+total:2300
+},
+
+{
+id:5,
+supplier:"Zamtel Zambia",
+date:"2026-03-12",
+status:"pending",
+description:"Fiber internet service",
+reference:"INV-ZAM-550",
+total:1800
+}
+
+]
+
+res.json(purchases)
+
+})
+
+app.get("/cashbook", (req, res) => {
+
+const transactions = [
+
+{
+date:"2026-03-01",
+description:"Sales Invoice Payment",
+party:"Huawei Zambia",
+invoice:"INV-001",
+type:"income",
+amount:5000
+},
+
+{
+date:"2026-03-03",
+description:"Internet Services",
+party:"Airtel Zambia",
+invoice:"BILL-100",
+type:"expense",
+amount:1200
+},
+
+{
+date:"2026-03-05",
+description:"Network Maintenance",
+party:"Zamtel Zambia",
+invoice:"BILL-120",
+type:"expense",
+amount:800
+},
+
+{
+date:"2026-03-06",
+description:"Invoice Payment",
+party:"MTN Zambia",
+invoice:"INV-002",
+type:"income",
+amount:2500
+}
+
+]
+
+res.json(transactions)
+
+})
+
+
+app.get("/contacts",(req,res)=>{
+
+const type=req.query.type
+
+if(type && type!=="all"){
+
+const filtered=contacts.filter(c=>c.type===type)
+
+return res.json(filtered)
+
+}
+
+res.json(contacts)
+
+})
+
+
+app.get("/contacts/:id",(req,res)=>{
+
+const id=parseInt(req.params.id)
+
+const contact=contacts.find(c=>c.id===id)
+
+if(!contact){
+
+return res.status(404).json({error:"Contact not found"})
+
+}
+
+res.json(contact)
+
+})
+
+
+app.post("/contacts",(req,res)=>{
+
+const {name,type,email,phone}=req.body
+
+const newContact={
+
+id:contacts.length+1,
+name,
+type,
+email,
+phone,
+balance:0
+
+}
+
+contacts.push(newContact)
+
+res.json(newContact)
+
+})
+
+app.put("/contacts/:id",(req,res)=>{
+
+const id=parseInt(req.params.id)
+
+const contact=contacts.find(c=>c.id===id)
+
+if(!contact){
+
+return res.status(404).json({error:"Contact not found"})
+
+}
+
+const {name,type,email,phone}=req.body
+
+contact.name=name || contact.name
+contact.type=type || contact.type
+contact.email=email || contact.email
+contact.phone=phone || contact.phone
+
+res.json(contact)
+
+})
+
+app.delete("/contacts/:id",(req,res)=>{
+
+const id=parseInt(req.params.id)
+
+contacts=contacts.filter(c=>c.id!==id)
+
+res.json({message:"Contact deleted"})
+
+})
+
+let projects = [
+{
+id:1,
+name:"5G Network Deployment",
+client:"MTN Zambia",
+status:"active",
+revenue:12000,
+expenses:7000
+},
+{
+id:2,
+name:"Fiber Installation",
+client:"Airtel Zambia",
+status:"active",
+revenue:8000,
+expenses:3000
+},
+{
+id:3,
+name:"Billing System Upgrade",
+client:"Zamtel",
+status:"completed",
+revenue:10000,
+expenses:4000
+},
+{
+id:4,
+name:"Smart Meter System",
+client:"ZESCO Limited",
+status:"pending",
+revenue:6000,
+expenses:2500
+}
+]
+
+app.get("/projects",(req,res)=>{
+
+res.json(projects)
+
+})
+
+app.post("/projects",(req,res)=>{
+
+const {name,client,status,revenue,expenses} = req.body
+
+const newProject={
+id:projects.length+1,
+name,
+client,
+status,
+revenue:Number(revenue),
+expenses:Number(expenses)
+}
+
+projects.push(newProject)
+
+res.json(newProject)
+
+})
+
+app.delete("/projects/:id",(req,res)=>{
+
+const id=parseInt(req.params.id)
+
+projects=projects.filter(p=>p.id!==id)
+
+res.json({message:"Project deleted"})
+
+})
+
+
+app.put("/projects/:id", (req,res)=>{
+
+const id = Number(req.params.id)
+
+projects = projects.map(p => 
+p.id === id ? { ...p, ...req.body } : p
+)
+
+res.json({success:true})
+
+})
+
+/* PAYMENTS DATA */
+
+let payments = [
+
+{
+id:1,
+date:"2026-03-01",
+method:"MTN MoMo",
+description:"Invoice Payment",
+reference:"INV-001",
+amount:1800,
+type:"income"
+},
+
+{
+id:2,
+date:"2026-03-02",
+method:"Airtel Money",
+description:"Customer Payment",
+reference:"INV-002",
+amount:2500,
+type:"income"
+},
+
+{
+id:3,
+date:"2026-03-03",
+method:"Zamtel Kwacha",
+description:"Internet Purchase",
+reference:"BILL-201",
+amount:1200,
+type:"expense"
+},
+
+{
+id:4,
+date:"2026-03-05",
+method:"Bank Transfer",
+description:"Equipment Purchase",
+reference:"BILL-305",
+amount:900,
+type:"expense"
+}
+
+]
+
+
+/* GET PAYMENTS */
+
+app.get("/payments",(req,res)=>{
+
+res.json(payments)
+
+})
+
+
+/* ADD PAYMENT */
+
+app.post("/payments",(req,res)=>{
+
+const payment={
+
+id:Date.now(),
+date:req.body.date,
+method:req.body.method,
+description:req.body.description,
+reference:req.body.reference,
+amount:Number(req.body.amount),
+type:req.body.type
+
+}
+
+payments.push(payment)
+
+res.json(payment)
+
+})
+
+app.post("/purchases",(req,res)=>{
+
+console.log("New purchase:",req.body)
+
+res.json({message:"Purchase saved"})
+
+})
+
+app.get("/cashbook",(req,res)=>{
+
+const {start,end}=req.query
+
+const transactions=[
+
+{
+date:"2026-03-01",
+description:"Sales Invoice Payment",
+party:"Huawei Zambia",
+invoice:"INV-001",
+type:"income",
+amount:5000
+},
+
+{
+date:"2026-03-03",
+description:"Internet Services",
+party:"Airtel Zambia",
+invoice:"BILL-100",
+type:"expense",
+amount:1200
+},
+
+{
+date:"2026-03-05",
+description:"Network Maintenance",
+party:"Zamtel Zambia",
+invoice:"BILL-120",
+type:"expense",
+amount:800
+},
+
+{
+date:"2026-03-06",
+description:"Invoice Payment",
+party:"MTN Zambia",
+invoice:"INV-002",
+type:"income",
+amount:2500
+},
+
+{
+date:"2026-02-15",
+description:"Office Rent",
+party:"Property Manager",
+invoice:"BILL-090",
+type:"expense",
+amount:1500
+}
+
+]
+
+let filtered=transactions
+
+if(start && end){
+
+filtered=transactions.filter(t=>{
+
+const d=new Date(t.date)
+
+return d>=new Date(start) && d<=new Date(end)
+
+})
+
+}
+
+res.json(filtered)
+
+})
+
+
+
+app.post("/send-invoice-email", authenticateToken, async (req, res) => {
+
+try{
+
+const { email, invoiceId } = req.body;
+
+if(!email || !invoiceId){
+return res.status(400).json({ error: "Missing email or invoiceId" });
+}
+
+/* GET INVOICE */
+
+const invoiceRes = await pool.query(
+"SELECT * FROM invoices WHERE id = $1",
+[invoiceId]
+);
+
+const invoice = invoiceRes.rows[0];
+
+if(!invoice){
+return res.status(404).json({ error: "Invoice not found" });
+}
+
+/* EMAIL TRANSPORT */
+
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
+  auth: {
+    user: "yourrealemail@gmail.com",
+    pass: "xnhflsaucuzgtmra"
+  }
+});
+
+
+/* EMAIL CONTENT */
+
+const link = `http://localhost:3000/invoice.html?id=${invoiceId}`;
+
+await transporter.sendMail({
+from: '"InvoiceFlow" <your-email@gmail.com>',
+to: email,
+subject: `Invoice #INV-${invoiceId}`,
+html: `
+<h3>Invoice from InvoiceFlow</h3>
+<p>You have received an invoice.</p>
+<p><a href="${link}">View Invoice</a></p>
+`
+});
+
+res.json({ success: true });
+
+}catch(err){
+console.error("EMAIL ERROR:", err);
+res.status(500).json({ error: "Email failed" });
+}
+
+});
+
+
+
 /* ================= SERVER ================= */
 
 const PORT = process.env.PORT || 3000;
@@ -1713,4 +2348,7 @@ server.on("error", (err) => {
   console.error("SERVER ERROR:");
   console.error(err);
 });
+
+
+
 

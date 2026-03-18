@@ -67,17 +67,6 @@ gap:20px;
 
 /* ===== SIDEBAR ===== */
 
-.sidebar{
-position:fixed;
-top:0;
-left:-250px;
-width:250px;
-height:100%;
-background:#111;
-padding-top:70px;
-transition:0.3s;
-z-index:1000;
-}
 
 
 /* ===== SIDEBAR LINKS ===== */
@@ -237,3 +226,55 @@ color:#ef4444;
   transform: translateY(0);
   box-shadow: 0 3px 8px rgba(0,0,0,0.15);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+/* HEADER */
+
+header{
+position:relative;
+z-index:1000;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+position:fixed;
+top:60px;                     /* start below header */
+left:-250px;
+width:250px;
+height:calc(100vh - 60px);    /* fill remaining height */
+background:#111827;
+transition:left 0.3s ease;
+z-index:2000;
+}
+
+.sidebar.active{
+left:0;
+}
+
+
+/* MENU BUTTON */
+
+#menuToggle{
+position:relative;
+z-index:3000;
+cursor:pointer;
+}
+
+/* TOPBAR */
+
+.topbar{
+position:relative;
+z-index:2500;
+}
+

@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Projects • InvoiceFlow</title>
+
+<link rel="stylesheet" href="dashboard.css">
+
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+
+/* PAGE */
+
+body{
+font-family:Inter,system-ui;
+background:#f4f6f9;
+margin:0;
+padding:20px;
+}
+
+/* HEADER */
+
+/* ACTIONS */
+
+.actions{
+display:flex;
+gap:10px;
+}
+
+.actions input{
+padding:8px 10px;
+border:1px solid #ddd;
+border-radius:6px;
+}
+
+.btn{
+background:#111827;
+color:white;
+border:none;
+padding:8px 14px;
+border-radius:6px;
+cursor:pointer;
+}
+
+/* SUMMARY */
+
+.summary{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+gap:15px;
+margin-bottom:25px;
+}
+
+.card{
+background:white;
+padding:15px;
+border-radius:8px;
+box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+.card span{
+font-size:13px;
+color:#6b7280;
+}
+
+.card h3{
+margin:5px 0 0 0;
+}
+
+/* TABLE */
+
+
+
+th,td{
+padding:12px;
+border-bottom:1px solid #eee;
+text-align:left;
+}
+
+
+/* STATUS */
+
+
+
+
+.status.onhold{
+background:#fef3c7;
+color:#92400e;
+}
+
+/* PROFIT COLORS */
+
+.profit{
+color:#16a34a;
+font-weight:600;
+}
+
+.loss{
+color:#dc2626;
+font-weight:600;
+}
+
+/* ACTION LINKS */
+
+.action-links a{
+margin-right:10px;
+text-decoration:none;
+color:#2563eb;
+font-size:13px;
+}
+
+/* PAGE HEADER */
+
+.page-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:25px;
+flex-wrap:wrap;
+gap:10px;
+}
+
+.page-header h1{
+font-size:24px;
+font-weight:600;
+color:#111827;
+margin:0;
+}
+
+
+/* PRIMARY BUTTON */
+
+.btn-primary{
+background:#111827;
+color:white;
+border:none;
+padding:10px 18px;
+border-radius:8px;
+font-size:14px;
+cursor:pointer;
+transition:all 0.2s ease;
+}
+
+.btn-primary:hover{
+background:#1f2937;
+}
+
+
+/* STATS GRID */
+
+.stats-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:16px;
+margin-bottom:25px;
+}
+
+.stat-card{
+background:white;
+padding:18px;
+border-radius:12px;
+box-shadow:0 6px 18px rgba(0,0,0,0.05);
+}
+
+.stat-card span{
+font-size:13px;
+color:#6b7280;
+}
+
+.stat-card h3{
+margin-top:6px;
+font-size:20px;
+font-weight:600;
+color:#111827;
+}
+
+
+/* TABLE CARD */
+
+.table-wrapper{
+background:white;
+border-radius:12px;
+box-shadow:0 6px 20px rgba(0,0,0,0.05);
+overflow-x:auto;
+-webkit-overflow-scrolling:touch;
+}
+
+
+/* TABLE */
+
+table{
+width:100%;
+border-collapse:collapse;
+min-width:750px;
+}
+
+th{
+background:#f9fafb;
+padding:14px;
+font-size:13px;
+text-align:left;
+color:#374151;
+font-weight:600;
+}
+
+td{
+padding:14px;
+border-bottom:1px solid #f1f5f9;
+font-size:14px;
+}
+
+tr:hover{
+background:#f9fafb;
+}
+
+
+/* STATUS BADGES */
+
+.status{
+padding:4px 10px;
+border-radius:20px;
+font-size:12px;
+font-weight:500;
+}
+
+.status.active{
+background:#dcfce7;
+color:#15803d;
+}
+
+.status.pending{
+background:#fef3c7;
+color:#92400e;
+}
+
+.status.completed{
+background:#e0e7ff;
+color:#3730a3;
+}
+
+
+/* PROFIT COLORS */
+
+.profit-positive{
+color:#16a34a;
+font-weight:600;
+}
+
+.profit-negative{
+color:#dc2626;
+font-weight:600;
+}
+
+
+/* ACTION LINKS */
+
+.actions a{
+margin-right:10px;
+font-size:13px;
+color:#2563eb;
+text-decoration:none;
+}
+
+.actions a:hover{
+text-decoration:underline;
+}
+
+
+/* EMPTY STATE */
+
+.empty{
+text-align:center;
+padding:40px;
+color:#6b7280;
+font-size:14px;
+}
+
+
+/* MOBILE RESPONSIVE */
+
+@media(max-width:768px){
+
+.page-header{
+flex-direction:column;
+align-items:flex-start;
+}
+
+.stats-grid{
+grid-template-columns:1fr 1fr;
+}
+
+}
+
+.stats-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:20px;
+margin-bottom:30px;
+}
+
+.stat-card{
+background:white;
+padding:20px;
+border-radius:10px;
+box-shadow:0 4px 12px rgba(0,0,0,0.05);
+}
+
+.stat-card span{
+font-size:14px;
+color:#6b7280;
+}
+
+.stat-card h3{
+font-size:26px;
+margin-top:8px;
+}
+
+/* Project Dashboard Colors */
+
+.projects-card{
+border-left:4px solid #2563eb;
+}
+
+.projects-card h3{
+color:#2563eb;
+}
+
+.active-card{
+border-left:4px solid #16a34a;
+}
+
+.active-card h3{
+color:#16a34a;
+}
+
+.revenue-card{
+border-left:4px solid #6366f1;
+}
+
+.revenue-card h3{
+color:#6366f1;
+}
+
+.profit-card{
+border-left:4px solid #f59e0b;
+}
+
+.profit-card h3{
+color:#f59e0b;
+}
+
+
+/* ACTION LINKS CONTAINER */
+
+.action-links{
+display:flex;
+gap:8px;
+align-items:center;
+}
+
+/* BASE BUTTON STYLE */
+
+.action-links a{
+text-decoration:none;
+font-size:13px;
+font-weight:600;
+padding:6px 12px;
+border-radius:6px;
+transition:all .2s ease;
+display:inline-flex;
+align-items:center;
+}
+
+/* VIEW BUTTON */
+
+.action-links a:nth-child(1){
+background:#e0e7ff;
+color:#3730a3;
+}
+
+.action-links a:nth-child(1):hover{
+background:#c7d2fe;
+}
+
+/* EDIT BUTTON */
+
+.action-links a:nth-child(2){
+background:#dcfce7;
+color:#166534;
+}
+
+.action-links a:nth-child(2):hover{
+background:#bbf7d0;
+}
+
+
+</style>
+
+</head>
+
+<body>
+
+<header class="page-header">
+
+<h1>Projects</h1>
+
+<button class="btn-primary" onclick="createProject()">
+New Project
+</button>
+
+</header>
+
+
+<section class="stats-grid">
+
+<div class="stat-card projects-card">
+<span>Total Projects</span>
+<h3 id="totalProjects">0</h3>
+</div>
+
+<div class="stat-card active-card">
+<span>Active</span>
+<h3 id="activeProjects">0</h3>
+</div>
+
+<div class="stat-card revenue-card">
+<span>Total Revenue</span>
+<h3 id="projectRevenue">0</h3>
+</div>
+
+<div class="stat-card profit-card">
+<span>Total Profit</span>
+<h3 id="projectProfit">0</h3>
+</div>
+
+</section>
+
+<div class="table-wrapper">
+
+<table>
+
+<thead>
+<tr>
+<th>Project</th>
+<th>Client</th>
+<th>Status</th>
+<th>Revenue</th>
+<th>Expenses</th>
+<th>Profit</th>
+<th>Actions</th>
+</tr>
+</thead>
+
+<tbody id="projectsTable">
+
+<tr>
+<td colspan="7" class="empty">
+Loading projects...
+</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+<script>
+
+const currency = localStorage.getItem("currency") || "ZMW";
+
+const rates = {
+  USD:1,
+  EUR:0.92,
+  GBP:0.79,
+  ZMW:27
+};
+
+function formatMoney(amount){
+  return new Intl.NumberFormat("en-US",{
+    style:"currency",
+    currency: currency
+  }).format(amount);
+}
+
+
+lucide.createIcons()
+
+let projects=[]
+
+document.addEventListener("DOMContentLoaded",loadProjects)
+
+async function loadProjects(){
+
+try{
+
+const token=localStorage.getItem("token")
+
+const res=await fetch("/projects",{
+headers:{
+Authorization:"Bearer "+token
+}
+})
+
+projects=await res.json()
+
+renderProjects(projects)
+
+}catch(err){
+
+console.error(err)
+
+}
+
+}
+
+
+
+/* RENDER */
+
+function renderProjects(data){
+
+const table=document.getElementById("projectsTable")
+
+table.innerHTML=""
+
+let totalRevenue=0
+let totalProfit=0
+let activeCount=0
+
+if(!data.length){
+
+table.innerHTML=
+"<tr><td colspan='7' class='empty'>No projects yet</td></tr>"
+
+return
+
+}
+
+data.forEach(p=>{
+
+const profit=p.revenue-p.expenses
+
+const profitClass=profit>=0 ? "profit" : "loss"
+
+if(p.status==="active") activeCount++
+
+totalRevenue+=Number(p.revenue)
+totalProfit+=profit
+
+const row=document.createElement("tr")
+
+row.innerHTML=`
+
+<td>${p.name}</td>
+
+<td>${p.client||"-"}</td>
+
+<td>
+<span class="status ${p.status}">
+${p.status}
+</span>
+</td>
+
+<td>${formatCurrency(p.revenue)}</td>
+
+<td>${formatCurrency(p.expenses)}</td>
+
+<td class="${profitClass}">
+${formatCurrency(profit)}
+</td>
+
+<td class="action-links">
+
+<a href="view-project.html?id=${p.id}">
+View
+</a>
+
+<a href="edit-project.html?id=${p.id}">
+Edit
+</a>
+
+</td>
+
+`
+
+table.appendChild(row)
+
+})
+
+document.getElementById("totalProjects").innerText=data.length
+document.getElementById("activeProjects").innerText=activeCount
+document.getElementById("projectRevenue").innerText=formatCurrency(totalRevenue)
+document.getElementById("projectProfit").innerText=formatCurrency(totalProfit)
+
+}
+
+
+
+/* SEARCH */
+
+function searchProjects(){
+
+const term=document.getElementById("search").value.toLowerCase()
+
+const filtered=projects.filter(p=>
+
+p.name.toLowerCase().includes(term)
+
+)
+
+renderProjects(filtered)
+
+}
+
+
+
+/* FORMAT */
+
+function formatCurrency(value){
+return formatMoney(value);
+}
+
+
+/* CREATE */
+
+function createProject(){
+window.location="create-project.html"
+}
+
+
+</script>
+
+</body>
+
+</html>

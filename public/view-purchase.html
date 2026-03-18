@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Purchase Receipt • InvoiceFlow</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+
+<style>
+
+body{
+font-family:Inter,system-ui;
+background:#f4f6f9;
+margin:0;
+padding:30px;
+}
+
+.container{
+max-width:700px;
+margin:auto;
+background:white;
+padding:35px;
+border-radius:14px;
+box-shadow:0 10px 40px rgba(0,0,0,0.06);
+}
+
+/* HEADER */
+
+.header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+border-bottom:1px solid #eee;
+padding-bottom:15px;
+margin-bottom:25px;
+}
+
+.header h2{
+margin:0;
+}
+
+.status{
+padding:5px 12px;
+border-radius:20px;
+font-size:12px;
+background:#dcfce7;
+color:#15803d;
+}
+
+/* ROW */
+
+.row{
+display:flex;
+justify-content:space-between;
+margin-bottom:16px;
+padding-bottom:10px;
+border-bottom:1px dashed #eee;
+}
+
+.label{
+color:#6b7280;
+font-size:13px;
+}
+
+.value{
+font-weight:600;
+}
+
+/* TOTAL */
+
+.total{
+font-size:22px;
+font-weight:700;
+color:#111827;
+}
+
+/* QR */
+
+.qr-box{
+margin-top:25px;
+text-align:center;
+}
+
+#qrcode{
+margin:auto;
+background:white;
+padding:10px;
+border-radius:10px;
+border:1px solid #eee;
+width:160px;
+}
+
+/* ACTIONS */
+
+.actions{
+margin-top:30px;
+display:flex;
+gap:10px;
+justify-content:center;
+}
+
+button{
+background:#111827;
+color:white;
+border:none;
+padding:10px 18px;
+border-radius:8px;
+cursor:pointer;
+font-size:14px;
+}
+
+button.secondary{
+background:#e5e7eb;
+color:#111827;
+}
+
+/* FOOTER */
+
+.footer{
+margin-top:30px;
+font-size:13px;
+color:#6b7280;
+text-align:center;
+}
+
+/* PRINT */
+
+@media print{
+
+body{
+background:white;
+padding:0;
+}
+
+.actions{
+display:none;
+}
+
+}
+
+.footer{
+margin-top:40px;
+padding-top:20px;
+border-top:1px solid #e5e7eb;
+text-align:center;
+font-size:13px;
+color:#6b7280;
+}
+
+.footer-brand{
+font-size:16px;
+font-weight:700;
+color:#111827;
+margin-bottom:6px;
+}
+
+.footer-brand span{
+font-weight:500;
+color:#4b5563;
+margin-left:6px;
+}
+
+.footer-meta{
+font-size:12px;
+color:#6b7280;
+margin-bottom:6px;
+}
+
+.footer-copy{
+font-size:12px;
+color:#9ca3af;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="header">
+
+<h2>Purchase Receipt</h2>
+
+<span class="status">Recorded</span>
+
+</div>
+
+<div class="row">
+<div class="label">Date</div>
+<div class="value" id="date"></div>
+</div>
+
+<div class="row">
+<div class="label">Supplier</div>
+<div class="value" id="supplier"></div>
+</div>
+
+<div class="row">
+<div class="label">Description</div>
+<div class="value" id="description"></div>
+</div>
+
+<div class="row">
+<div class="label">Reference</div>
+<div class="value" id="reference"></div>
+</div>
+
+<div class="row total">
+<div class="label">Amount</div>
+<div class="value" id="amount"></div>
+</div>
+
+<div class="qr-box">
+
+<p style="font-size:13px;color:#6b7280">Scan to verify purchase</p>
+
+<div id="qrcode"></div>
+
+</div>
+
+<div class="actions">
+
+<button onclick="window.print()">Print</button>
+
+<button onclick="downloadPDF()">Download PDF</button>
+
+<button class="secondary" onclick="goBack()">Back</button>
+
+</div>
+
+<div class="footer">
+<footer class="footer"><div class="footer-brand">
+<strong>InvoiceFlow</strong>
+<span>Global Billing Platform</span>
+</div><div class="footer-meta">
+Secure • Cloud Based • Multi-Currency • QR Verified
+</div><div class="footer-copy">
+© <span id="year"></span> InvoiceFlow Technologies • All Rights Reserved
+</div></footer>
+</div>
+
+</div>
+
+<script>
+
+/* ===============================
+Currency Engine
+=============================== */
+
+const currency = localStorage.getItem("currency") || "ZMW";
+
+const rates = {
+  USD:1,
+  EUR:0.92,
+  GBP:0.79,
+  ZMW:27
+};
+
+function formatMoney(amount){
+  return new Intl.NumberFormat("en-US",{
+    style:"currency",
+    currency: currency
+  }).format(amount);
+}
+
+
+function formatCurrency(v){
+return formatMoney(v);
+}
+
+/* ===============================
+Load Purchase
+=============================== */
+
+const params = new URLSearchParams(window.location.search)
+const id = params.get("id")
+
+loadPurchase()
+
+async function loadPurchase(){
+
+const res = await fetch("/purchases")
+
+const data = await res.json()
+
+const purchase = data.find(p => p.id == id)
+
+if(!purchase) return
+
+document.getElementById("date").innerText =
+new Date(purchase.date).toLocaleDateString()
+
+document.getElementById("supplier").innerText =
+purchase.supplier
+
+document.getElementById("description").innerText =
+purchase.description || "-"
+
+document.getElementById("reference").innerText =
+purchase.reference || "-"
+
+document.getElementById("amount").innerText =
+formatCurrency(purchase.total)
+
+/* Generate QR */
+
+generateQR(purchase)
+
+}
+
+/* ===============================
+QR Code
+=============================== */
+
+function generateQR(p){
+
+const qr = document.getElementById("qrcode")
+
+qr.innerHTML=""
+
+const data =
+"Purchase:"+p.id+
+"|Supplier:"+p.supplier+
+"|Amount:"+p.total
+
+QRCode.toCanvas(data,{width:150},function(err,canvas){
+
+if(!err) qr.appendChild(canvas)
+
+})
+
+}
+
+/* ===============================
+PDF Download
+=============================== */
+
+function downloadPDF(){
+
+window.print()
+
+}
+
+/* ===============================
+Back
+=============================== */
+
+function goBack(){
+window.location="purchases.html"
+}
+
+
+document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>

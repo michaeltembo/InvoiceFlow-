@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>View Project • InvoiceFlow</title>
+
+<style>
+
+body{
+font-family:Inter,system-ui;
+background:#f4f6f9;
+margin:0;
+padding:20px;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+background:white;
+padding:25px;
+border-radius:10px;
+box-shadow:0 2px 10px rgba(0,0,0,0.05);
+}
+
+h1{
+margin-top:0;
+}
+
+.info{
+margin-bottom:12px;
+}
+
+.label{
+font-weight:600;
+color:#6b7280;
+}
+
+.value{
+font-size:16px;
+}
+
+.profit{
+color:#16a34a;
+font-weight:600;
+}
+
+.loss{
+color:#dc2626;
+font-weight:600;
+}
+
+.back{
+margin-top:20px;
+display:inline-block;
+padding:8px 14px;
+background:#111827;
+color:white;
+border-radius:6px;
+text-decoration:none;
+}
+
+/* NEW SAAS UI */
+
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+gap:15px;
+margin:20px 0;
+}
+
+.card{
+background:#f9fafb;
+padding:15px;
+border-radius:8px;
+}
+
+.card-title{
+font-size:13px;
+color:#6b7280;
+}
+
+.card-value{
+font-size:18px;
+font-weight:600;
+margin-top:4px;
+}
+
+.section{
+margin-top:30px;
+}
+
+.timeline{
+border-left:3px solid #e5e7eb;
+padding-left:15px;
+}
+
+.timeline-item{
+margin-bottom:12px;
+font-size:14px;
+}
+
+.team{
+display:flex;
+gap:10px;
+margin-top:10px;
+}
+
+.avatar{
+width:36px;
+height:36px;
+border-radius:50%;
+background:#4f46e5;
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:600;
+}
+
+.notes{
+background:#f9fafb;
+padding:15px;
+border-radius:8px;
+margin-top:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1 id="projectName">Project</h1>
+
+<div class="info">
+<span class="label">Client:</span>
+<span class="value" id="client"></span>
+</div>
+
+<div class="info">
+<span class="label">Status:</span>
+<span class="value" id="status"></span>
+</div>
+
+<div class="info">
+<span class="label">Revenue:</span>
+<span class="value" id="revenue"></span>
+</div>
+
+<div class="info">
+<span class="label">Expenses:</span>
+<span class="value" id="expenses"></span>
+</div>
+
+<div class="info">
+<span class="label">Profit:</span>
+<span class="value" id="profit"></span>
+</div>
+
+
+<!-- FINANCIAL DASHBOARD -->
+
+<div class="cards">
+
+<div class="card">
+<div class="card-title">Revenue</div>
+<div class="card-value" id="cardRevenue"></div>
+</div>
+
+<div class="card">
+<div class="card-title">Expenses</div>
+<div class="card-value" id="cardExpenses"></div>
+</div>
+
+<div class="card">
+<div class="card-title">Profit</div>
+<div class="card-value" id="cardProfit"></div>
+</div>
+
+<div class="card">
+<div class="card-title">Profit Margin</div>
+<div class="card-value" id="profitMargin"></div>
+</div>
+
+</div>
+
+
+<!-- ACTIVITY TIMELINE -->
+
+<div class="section">
+
+<h3>Activity Timeline</h3>
+
+<div class="timeline" id="timeline">
+
+<div class="timeline-item">Project created</div>
+<div class="timeline-item">Client engagement started</div>
+<div class="timeline-item">Development completed</div>
+<div class="timeline-item">Project delivered</div>
+
+</div>
+
+</div>
+
+
+<!-- TEAM MEMBERS -->
+
+<div class="section">
+
+<h3>Team</h3>
+
+<div class="team">
+
+<div class="avatar">E</div>
+<div class="avatar">M</div>
+<div class="avatar">A</div>
+
+</div>
+
+</div>
+
+
+<!-- PROJECT NOTES -->
+
+<div class="section">
+
+<h3>Project Notes</h3>
+
+<div class="notes" id="projectNotes">
+No notes available for this project.
+</div>
+
+</div>
+
+
+<a href="/projects.html" class="back">
+Back to Projects
+</a>
+
+</div>
+
+<script>
+
+const currency = localStorage.getItem("currency") || "ZMW";
+
+function formatMoney(amount){
+  return new Intl.NumberFormat("en-US",{
+    style:"currency",
+    currency: currency
+  }).format(amount);
+}
+
+const params = new URLSearchParams(window.location.search)
+const id = params.get("id")
+
+loadProject(id)
+
+async function loadProject(id){
+
+try{
+
+const res = await fetch("/projects")
+const projects = await res.json()
+
+const project = projects.find(p=>p.id==id)
+
+if(!project){
+alert("Project not found")
+return
+}
+
+const profit = project.revenue - project.expenses
+const margin = project.revenue ? ((profit/project.revenue)*100).toFixed(1) : 0
+
+document.getElementById("projectName").innerText = project.name
+document.getElementById("client").innerText = project.client
+document.getElementById("status").innerText = project.status
+document.getElementById("revenue").innerText = formatMoney(project.revenue)
+document.getElementById("expenses").innerText = formatMoney(project.expenses)
+
+const profitEl = document.getElementById("profit")
+profitEl.innerText = formatMoney(profit)
+profitEl.className = profit>=0 ? "profit" : "loss"
+
+/* DASHBOARD CARDS */
+
+document.getElementById("cardRevenue").innerText = formatMoney(project.revenue)
+document.getElementById("cardExpenses").innerText = formatMoney(project.expenses)
+document.getElementById("cardProfit").innerText = formatMoney(profit)
+document.getElementById("profitMargin").innerText = margin + "%"
+
+}catch(err){
+console.error(err)
+}
+
+}
+
+</script>
+
+</body>
+</html>

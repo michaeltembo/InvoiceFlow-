@@ -136,6 +136,8 @@ const currency = document.getElementById("currency").value;
 const taxRate = document.getElementById("taxRate").value;
 const taxName = document.getElementById("taxName").value;
 
+localStorage.setItem("currency", currency);   // ⭐ SAVE CURRENCY LOCALLY
+
 try{
 
 const res = await fetch("/settings/tax",{
@@ -155,17 +157,19 @@ if(!res.ok){
 throw new Error("Save failed");
 }
 
-document.getElementById("taxMessage").innerText = "Settings saved successfully";
+document.getElementById("taxMessage").innerText =
+"Settings saved successfully";
 
 }catch(err){
 
 console.error(err);
-document.getElementById("taxMessage").innerText = "Failed to save settings";
+
+document.getElementById("taxMessage").innerText =
+"Failed to save settings";
 
 }
 
 }
-
 
 </script>
 

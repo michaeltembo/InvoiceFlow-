@@ -34,8 +34,6 @@
 
 <header>
 
-
-
 <div class="topbar">
 
 <div class="left-section">
@@ -43,22 +41,55 @@
 <button id="menuToggle">☰</button>
 
 <div class="logo">InvoiceFlow</div>
+
 <input id="globalSearch">
 <div id="searchResults"></div>
 
-
-<div class="nav-menu">
-</div>
+<div class="nav-menu"></div>
 
 </div>
+
+</div>
+
+<div class="nav-links" id="navLinks">
+
+<div class="nav-highlight"></div>
+
+<a href="/sales.html" data-color="green">
+<i data-lucide="receipt"></i>
+Sales Invoices
+</a>
+
+<a href="/purchases.html" data-color="blue">
+<i data-lucide="shopping-cart"></i>
+Purchase Invoices
+</a>
+
+<a href="/cashbook.html" data-color="orange">
+<i data-lucide="book-open"></i>
+Cash Book
+</a>
+
+<a href="/customers-suppliers.html">
+<i data-lucide="users"></i>
+Customers / Suppliers
+</a>
+
+<a href="/projects.html">
+<i data-lucide="folder"></i>
+Projects
+</a>
+
+<a href="/payments.html">
+<i data-lucide="credit-card"></i>
+Payment Methods
+</a>
 
 </div>
 
 </header>
 
-
 <div id="sidebar" class="sidebar">
-
 <div class="sidebar-logo">
 <span class="logo-icon">IF</span>
 </div>
@@ -168,7 +199,33 @@ Settings
 
 
 </main>
+<script>
 
+const nav = document.getElementById("navLinks")
+const highlight = nav.querySelector(".nav-highlight")
+const links = nav.querySelectorAll("a")
+
+links.forEach(link=>{
+
+link.addEventListener("click",e=>{
+
+const rect = link.getBoundingClientRect()
+const parent = nav.getBoundingClientRect()
+
+highlight.style.width = rect.width+"px"
+highlight.style.left = (rect.left-parent.left)+"px"
+
+const color = link.dataset.color
+
+if(color==="green") highlight.style.background="#16a34a"
+if(color==="blue") highlight.style.background="#2563eb"
+if(color==="orange") highlight.style.background="#f97316"
+
+})
+
+})
+
+</script>
 
 
 <script src="dashboard.js"></script>

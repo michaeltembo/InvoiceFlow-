@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Edit Contact</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f5f6fa;
+padding:30px;
+}
+
+.container{
+max-width:600px;
+margin:auto;
+background:white;
+padding:25px;
+border-radius:10px;
+box-shadow:0 3px 10px rgba(0,0,0,0.1);
+}
+
+h1{
+margin-bottom:20px;
+}
+
+.form-group{
+margin-bottom:15px;
+}
+
+label{
+display:block;
+margin-bottom:5px;
+font-weight:bold;
+}
+
+input,select{
+width:100%;
+padding:10px;
+border:1px solid #ddd;
+border-radius:6px;
+}
+
+button{
+padding:10px 20px;
+border:none;
+background:#2563eb;
+color:white;
+border-radius:6px;
+cursor:pointer;
+}
+
+button:hover{
+background:#1d4ed8;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>Edit Contact</h1>
+
+<form id="contactForm">
+
+<div class="form-group">
+<label>Name</label>
+<input type="text" id="name">
+</div>
+
+<div class="form-group">
+<label>Type</label>
+<select id="type">
+<option value="customer">Customer</option>
+<option value="supplier">Supplier</option>
+</select>
+</div>
+
+<div class="form-group">
+<label>Email</label>
+<input type="email" id="email">
+</div>
+
+<div class="form-group">
+<label>Phone</label>
+<input type="text" id="phone">
+</div>
+
+<div class="form-group">
+<label>Balance</label>
+<input type="number" id="balance">
+</div>
+
+<button type="submit">Update Contact</button>
+
+</form>
+
+<br>
+
+<a href="customers-suppliers.html">Back</a>
+
+</div>
+
+<script>
+
+let contactId = null
+
+document.addEventListener("DOMContentLoaded", loadContact)
+
+async function loadContact(){
+
+const params = new URLSearchParams(window.location.search)
+contactId = params.get("id")
+
+const res = await fetch("/contacts")
+const contacts = await res.json()
+
+const contact = contacts.find(c => c.id == contactId)
+
+if(!contact) return
+
+document.getElementById("name").value = contact.name
+document.getElementById("type").value = contact.type
+document.getElementById("email").value = contact.email
+document.getElementById("phone").value = contact.phone
+document.getElementById("balance").value = contact.balance
+
+}
+
+document.getElementById("contactForm").addEventListener("submit", updateContact)
+
+async function updateContact(e){
+
+e.preventDefault()
+
+const updatedContact = {
+
+name: document.getElementById("name").value,
+type: document.getElementById("type").value,
+email: document.getElementById("email").value,
+phone: document.getElementById("phone").value,
+balance: document.getElementById("balance").value
+
+}
+
+await fetch(`/contacts/${contactId}`,{
+method:"PUT",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify(updatedContact)
+})
+
+alert("Contact updated")
+
+window.location="customers-suppliers.html"
+
+}
+
+</script>
+
+</body>
+</html>

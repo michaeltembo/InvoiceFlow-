@@ -18,6 +18,7 @@
 
 <header>
 
+
 <div class="topbar">
 
 <div class="left-section">
@@ -41,7 +42,6 @@
 <div class="sidebar-logo">
 <span class="logo-icon">IF</span>
 </div>
-
 <a href="trash.html">
 <i data-lucide="trash-2"></i>
 Trash Bin
@@ -82,7 +82,6 @@ Track billing, payments and revenue in one place
 </p>
 
 </div>
-
 <button class="primary-btn" onclick="openInvoiceModal()">
  Create Invoice
 </button>
@@ -134,7 +133,6 @@ Track billing, payments and revenue in one place
 <div class="form-section">
 
 <h3>Invoice Items</h3>
-
 <table class="items-table">
 <thead>
 <tr>
@@ -167,17 +165,17 @@ Track billing, payments and revenue in one place
 
 <div class="summary-row">
 <span>Subtotal</span>
-<span id="subtotal">$0.00</span>
+<span id="subtotal">0.00</span>
 </div>
 
 <div class="summary-row">
 <span>Tax</span>
-<span id="taxAmount">$0.00</span>
+<span id="taxAmount">0.00</span>
 </div>
 
 <div class="summary-row total-row">
 <span>Total</span>
-<span id="grandTotal">$0.00</span>
+<span id="grandTotal">0.00</span>
 </div>
 
 </div>
@@ -201,37 +199,36 @@ Cancel
 
 <div class="stats-grid">
 
-<div class="stat-card">
+<div class="stat-card total-card">
 <p class="stat-number" id="totalInvoices">0</p>
 <p class="stat-label">Total Invoices</p>
 </div>
 
-<div class="stat-card">
+<div class="stat-card paid-card">
 <p class="stat-number" id="paidInvoices">0</p>
 <p class="stat-label">Paid</p>
 </div>
 
-<div class="stat-card">
+<div class="stat-card pending-card">
 <p class="stat-number" id="pendingInvoices">0</p>
 <p class="stat-label">Pending</p>
 </div>
 
-<div class="stat-card">
+<div class="stat-card revenue-card">
 <p class="stat-number" id="totalRevenue">$0</p>
 <p class="stat-label">Total Revenue</p>
 </div>
 
-<div class="stat-card">
+<div class="stat-card outstanding-card">
 <p class="stat-number" id="outstandingRevenue">$0</p>
 <p class="stat-label">Outstanding</p>
 </div>
 
 </div>
 
-
 <div class="card">
 
-<table>
+<table class="invoice-table">
 
 <thead>
 <tr>
@@ -248,8 +245,6 @@ Cancel
 <tbody id="invoiceTableBody"></tbody>
 
 </table>
-
-</div>
 
 </div>
 

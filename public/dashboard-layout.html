@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>InvoiceFlow Dashboard</title>
+
+<link rel="stylesheet" href="/css/dashboard.css">
+
+</head>
+
+<body>
+
+<div class="dashboard">
+
+<aside class="sidebar">
+
+<h2>InvoiceFlow</h2>
+
+<nav>
+<a href="/sales">Sales Invoices</a>
+<a href="/purchases">Purchase Invoices</a>
+<a href="/cashbook">Cash Book</a>
+<a href="/clients">Customers / Suppliers</a>
+<a href="/projects">Projects</a>
+<a href="/payments">Payment Methods</a>
+<a href="/logout">Logout</a>
+</nav>
+
+</aside>
+
+
+<main class="main">
+
+<header class="dashboard-header">
+
+<h1>Welcome</h1>
+
+<div class="storage">
+Used space: <strong>0.000 MB</strong> / 100 MB
+</div>
+
+</header>
+
+
+<section class="filters">
+
+<button>Last Month</button>
+<button>This Month</button>
+
+</section>
+
+
+<section class="cashbook">
+
+<h2>Cashbook Activity</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>Date</th>
+<th>Description</th>
+<th>Client</th>
+<th>Invoice #</th>
+<th>Income</th>
+<th>Expenses</th>
+<th>Balance</th>
+</tr>
+</thead>
+
+<tbody id="cashbookRows">
+
+<tr>
+<td colspan="7" class="empty">
+No activities within selected period
+</td>
+</tr>
+
+</tbody>
+
+</table>
+
+</section>
+
+</main>
+
+</div>
+
+</body>
+</html>

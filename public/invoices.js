@@ -1,3 +1,23 @@
+const currency = localStorage.getItem("currency") || "ZMW";
+
+const rates = {
+  USD:1,
+  EUR:0.92,
+  GBP:0.79,
+  ZMW:27
+};
+
+function formatMoney(amount){
+  return new Intl.NumberFormat("en-US",{
+    style:"currency",
+    currency: currency
+  }).format(amount);
+}
+
+
+
+
+
 // ===============================
 // GLOBAL STATE
 // ===============================
@@ -5,7 +25,7 @@
 let clients = [];
 let allClients = [];
 let filteredClients = [];
-
+let invoices = [];
 // ===============================
 // AUTH HEADER
 // ===============================
@@ -28,11 +48,37 @@ function getAuthHeaders() {
 // ===============================
 
 document.addEventListener("DOMContentLoaded", async () => {
+
   setupSidebar();
+
   await loadClients();
   await loadInvoices();
+
   setupFilters();
+
+  const params = new URLSearchParams(window.location.search);
+  const clientId = params.get("client_id");
+
+  if(clientId){
+
+    const interval = setInterval(()=>{
+
+      const select = document.getElementById("invoiceClient");
+
+      if(select && select.querySelector(`option[value="${clientId}"]`)){
+
+        select.value = clientId;
+
+        clearInterval(interval);
+
+      }
+
+    },100);
+
+  }
+
 });
+
 
 // ===============================
 // VIEW INVOICE (REDIRECT)
@@ -57,39 +103,98 @@ async function loadClients() {
       throw new Error("Failed to fetch clients");
     }
 
-    clients = await res.json();   // IMPORTANT: remove "const"
+    clients = await res.json();
 
-    // save clients to storage
     localStorage.setItem("clients", JSON.stringify(clients));
 
-    // update global state
     allClients = clients;
     filteredClients = [...clients];
 
     renderClients();
     updateKPIs();
 
+    /* =========================
+       POPULATE INVOICE DROPDOWN
+       ========================= */
+
+    const select = document.getElementById("invoiceClient");
+
+    if(select){
+
+      select.innerHTML = `<option value="">Select client</option>`;
+
+      clients.forEach(c => {
+
+        const option = document.createElement("option");
+
+        option.value = c.id;      // IMPORTANT
+        option.textContent = c.name;
+
+        select.appendChild(option);
+
+      });
+
+      /* AUTO SELECT CLIENT FROM CONTACT PAGE */
+
+      const params = new URLSearchParams(window.location.search);
+      const clientId = params.get("client_id");
+
+      if(clientId){
+        select.value = clientId;
+      }
+
+    }
+
   } catch (err) {
     console.error("Load clients error:", err);
   }
 }
 
+function openInvoiceFromURL(){
+
+const params = new URLSearchParams(window.location.search);
+const clientId = params.get("client_id");
+
+if(!clientId) return;
+
+/* open modal first */
+
+openInvoiceModal();
+
+/* wait for clients dropdown to populate */
+
+setTimeout(()=>{
+
+const select = document.getElementById("invoiceClient");
+
+if(select){
+select.value = clientId;
+}
+
+},200);
+
+}
 
 // ===============================
 // LOAD INVOICES
 // ===============================
 
-async function loadInvoices() {
+async function loadInvoices(){
 
-const res = await fetch("/invoices", {
-headers: getAuthHeaders()
+const res = await fetch("/invoices",{
+headers:getAuthHeaders()
 });
 
-invoices = await res.json();
+if(!res.ok){
+console.error("Failed to load invoices");
+return;
+}
 
-localStorage.setItem("invoices", JSON.stringify(invoices)); // MUST BE HERE
+const data = await res.json();
 
-invoices = updateInvoiceStatuses(invoices);
+invoices = updateInvoiceStatuses(data);
+
+localStorage.setItem("invoices", JSON.stringify(invoices));
 
 renderInvoices(invoices);
 updateKPIs(invoices);
@@ -192,7 +297,7 @@ function addLineItem() {
     <td><input type="text" class="desc"></td>
     <td><input type="number" class="qty" value="1"></td>
     <td><input type="number" class="price" value="0"></td>
-    <td class="lineTotal">$0.00</td>
+   <td class="lineTotal">${money(0)}</td>
     <td><button onclick="this.closest('tr').remove(); calculateTotals()">X</button></td>
   `;
 
@@ -203,25 +308,48 @@ function addLineItem() {
   );
 }
 
-function calculateTotals() {
-  let subtotal = 0;
+function calculateTotals(){
 
-  document.querySelectorAll("#lineItems tr").forEach(row => {
-    const qty = Number(row.querySelector(".qty").value);
-    const price = Number(row.querySelector(".price").value);
-    const total = qty * price;
+let subtotal = 0;
 
-    row.querySelector(".lineTotal").textContent = `$${total.toFixed(2)}`;
-    subtotal += total;
-  });
+/* Calculate line totals */
 
-  const taxRate = Number(document.getElementById("taxRate").value);
-  const taxAmount = subtotal * (taxRate / 100);
-  const grandTotal = subtotal + taxAmount;
+document.querySelectorAll("#lineItems tr").forEach(row => {
 
-  document.getElementById("subtotal").textContent = `$${subtotal.toFixed(2)}`;
-  document.getElementById("taxAmount").textContent = `$${taxAmount.toFixed(2)}`;
-  document.getElementById("grandTotal").textContent = `$${grandTotal.toFixed(2)}`;
+const qty = Number(row.querySelector(".qty").value) || 0;
+const price = Number(row.querySelector(".price").value) || 0;
+
+const lineTotal = qty * price;
+
+subtotal += lineTotal;
+
+/* update line total */
+
+row.querySelector(".lineTotal").textContent = formatMoney(lineTotal);
+
+});
+
+/* tax calculation */
+
+const taxRate = Number(document.getElementById("taxRate").value) || 0;
+
+const taxAmount = subtotal * (taxRate / 100);
+
+/* final total */
+
+const grandTotal = subtotal + taxAmount;
+
+/* update UI */
+
+document.getElementById("subtotal").textContent =
+formatMoney(subtotal);
+
+document.getElementById("taxAmount").textContent =
+formatMoney(taxAmount);
+
+document.getElementById("grandTotal").textContent =
+formatMoney(grandTotal);
+
 }
 
 // ===============================
@@ -230,6 +358,7 @@ function calculateTotals() {
 
 
 async function saveInvoice() {
+
   const items = [];
 
   document.querySelectorAll("#lineItems tr").forEach(row => {
@@ -240,30 +369,42 @@ async function saveInvoice() {
     });
   });
 
-const payload = {
-client_id: Number(document.getElementById("invoiceClient").value),
-created_at: document.getElementById("invoiceDate").value,
-due_date: document.getElementById("dueDate").value,
-status: document.getElementById("invoiceStatus").value,
-tax_rate: Number(document.getElementById("taxRate").value),
-items
-};
+  const payload = {
+    client_id: Number(document.getElementById("invoiceClient").value),
+    created_at: document.getElementById("invoiceDate").value,
+    due_date: document.getElementById("dueDate").value,
+    status: document.getElementById("invoiceStatus").value,
+    tax_rate: Number(document.getElementById("taxRate").value),
+    items
+  };
 
   try {
-   await fetch("/invoices", {
+
+    const res = await fetch("/invoices", {
       method: "POST",
       headers: getAuthHeaders(),
       body: JSON.stringify(payload)
     });
 
+    if(!res.ok){
+      const err = await res.text();
+      console.error(err);
+      alert("Failed to save invoice");
+      return;
+    }
+
+    /* clear form */
+
+    document.getElementById("lineItems").innerHTML = "";
+
     closeInvoiceModal();
+
     await loadInvoices();
 
   } catch (err) {
     console.error("Save invoice error:", err);
   }
 }
-
 // ===============================
 // MARK AS PAID
 // ===============================
@@ -435,12 +576,6 @@ document.getElementById("invoiceModal").style.display = "flex";
 
 }
 
-function closeInvoiceModal() {
-  const modal = document.getElementById("invoiceModal");
-  if (!modal) return;
-
-  modal.style.display = "none";
-}
 
 
 function closeInvoiceModal() {
@@ -501,12 +636,6 @@ Delete
 }
 
 
-function formatMoney(amount){
-  return new Intl.NumberFormat("en-US",{
-    style:"currency",
-    currency:"USD"
-  }).format(Number(amount) || 0);
-}
 
 
 function updateInvoiceStatuses(invoices){
@@ -563,5 +692,17 @@ option.textContent = client.name;
 select.appendChild(option);
 
 });
+
+}
+
+
+function money(amount){
+
+const converted = amount * rates[currency];
+
+return new Intl.NumberFormat("en-ZM",{
+style:"currency",
+currency:currency
+}).format(converted);
 
 }

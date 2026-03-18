@@ -11,6 +11,8 @@
 <link rel="stylesheet" href="menu.css">
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+
 </head>
 
 <body>
@@ -24,7 +26,6 @@
 <button id="menuToggle">☰</button>
 
 <div class="logo">InvoiceFlow</div>
-
 <div class="nav-menu"></div>
 
 </div>
@@ -111,7 +112,7 @@ class="search-input"
 
 <div class="kpi-card highlight">
 <span class="kpi-title">Revenue</span>
-<h2 class="kpi-number" id="clientRevenue">$0</h2>
+<h2 class="kpi-number" id="clientRevenue">0</h2>
 </div>
 
 </div>
@@ -189,6 +190,8 @@ class="search-input"
 
 <input type="text" id="clientCountry" placeholder="Country">
 
+<input type="file" id="clientAvatar" accept="image/*">
+
 </div>
 
 <div class="modal-actions">
@@ -249,7 +252,7 @@ class="search-input"
 
 <div class="stat-box">
 <span>Revenue</span>
-<strong id="drawerRevenue">$0</strong>
+<strong id="drawerRevenue">0</strong>
 </div>
 
 <div class="stat-box">
@@ -259,15 +262,28 @@ class="search-input"
 
 <div class="stat-box">
 <span>Paid</span>
-<strong id="drawerPaid">$0</strong>
+<strong id="drawerPaid">0</strong>
 </div>
 
 <div class="stat-box">
 <span>Pending</span>
-<strong id="drawerPending">$0</strong>
+<strong id="drawerPending">0</strong>
 </div>
 
 </div>
+
+
+<!-- REVENUE CHART -->
+
+<h3 class="drawer-section">Revenue Overview</h3>
+
+<canvas id="drawerRevenueChart" height="220"></canvas>
+
+<!-- CLIENT TIMELINE -->
+
+<h3 class="drawer-section">Client Timeline</h3>
+
+<div id="drawerTimeline"></div>
 
 
 <!-- INVOICE TABLE -->
@@ -301,7 +317,6 @@ class="search-input"
 
 </div>
 
-
 <!-- FOOTER -->
 
 <footer class="app-footer">
@@ -325,11 +340,11 @@ class="search-input"
 
 
 <script src="layout.js"></script>
-<script src="clients.js"></script>
 <script src="menu.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="clients.js"></script>
 
 <script src="https://unpkg.com/lucide@latest"></script>
-
 <script>
 lucide.createIcons();
 </script>

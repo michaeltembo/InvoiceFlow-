@@ -1,562 +1,1030 @@
+
 <!DOCTYPE html>
 <html>
+
 <head>
-<title>Invoice</title>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Invoice • InvoiceFlow</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
 <style>
 
+*{
+box-sizing:border-box;
+}
 
 body{
-font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
 background:#f4f6f9;
 margin:0;
 padding:40px;
 color:#111827;
-min-height:100vh;
-display:flex;
-flex-direction:column;
 }
 
-/* MAIN CONTAINER */
+/* MAIN CARD */
 
-.invoice-container{
-max-width:900px;
+.container{
+max-width:1000px;
 margin:auto;
-background:#fff;
-padding:40px;
-border-radius:12px;
-box-shadow:0 12px 35px rgba(0,0,0,0.08);
-flex:1;
+background:white;
+padding:25px;
+border-radius:14px;
+box-shadow:
+0 20px 40px rgba(0,0,0,0.05),
+0 5px 15px rgba(0,0,0,0.04);
 }
+
 /* HEADER */
 
 .invoice-header{
 display:flex;
 justify-content:space-between;
-align-items:flex-start;
-border-bottom:1px solid #e5e7eb;
-padding-bottom:20px;
-margin-bottom:30px;
-}
-
-.invoice-header h1{
-margin:0;
-font-size:26px;
-font-weight:600;
-}
-
-.invoice-header p{
-margin:3px 0;
-font-size:14px;
-color:#6b7280;
-}
-
-.invoice-meta{
-text-align:right;
-font-size:14px;
-}
-
-.invoice-meta h2{
-margin:0 0 6px 0;
-font-size:20px;
-font-weight:600;
-}
-
-/* STATUS */
-
-.status{
-display:inline-block;
-padding:6px 14px;
-border-radius:20px;
-font-size:12px;
-font-weight:600;
-text-transform:capitalize;
-margin-top:6px;
-}
-
-.status.paid{
-background:#dcfce7;
-color:#16a34a;
-}
-
-.status.pending{
-background:#fff7ed;
-color:#f97316;
-}
-
-.status.overdue{
-background:#fee2e2;
-color:#dc2626;
-}
-
-/* BILLING SECTIONS */
-
-.invoice-addresses{
-display:flex;
-justify-content:space-between;
-gap:50px;
-margin-bottom:30px;
-}
-
-.invoice-addresses h4{
-margin-bottom:6px;
-font-size:13px;
-color:#6b7280;
-font-weight:600;
-}
-
-.invoice-addresses p{
-margin:2px 0;
-font-size:14px;
-}
-
-/* TABLE */
-
-
-thead{
-background:#f9fafb;
-}
-
-th{
-text-align:left;
-padding:12px;
-font-size:13px;
-color:#6b7280;
-border-bottom:2px solid #e5e7eb;
-}
-
-td{
-padding:12px;
-border-bottom:1px solid #f3f4f6;
-}
-
-/* ALIGN COLUMNS */
-
-td:nth-child(2){
-text-align:center;
-}
-
-td:nth-child(3),
-td:nth-child(4){
-text-align:right;
-font-variant-numeric:tabular-nums;
-}
-
-table{
-width:100%;
-border-collapse:collapse;
-margin-top:20px;
-font-size:14px;
-table-layout:fixed;
-}
-
-th:nth-child(1), td:nth-child(1){width:50%;}
-th:nth-child(2), td:nth-child(2){width:10%;}
-th:nth-child(3), td:nth-child(3){width:20%;}
-th:nth-child(4), td:nth-child(4){width:20%;}
-
-table + .invoice-summary{
-margin-top:40px;
-}
-
-table td,
-table th{
-display:table-cell;
-}
-
-/* TOTALS */
-
-.invoice-summary{
-width:320px;
-margin-left:auto;
-margin-top:35px;
-}
-
-.summary-row{
-display:flex;
-justify-content:space-between;
 align-items:center;
-padding:8px 0;
-font-size:14px;
+margin-bottom:35px;
 }
 
-.summary-row span:first-child{
-color:#6b7280;
+.brand{
+display:flex;
+align-items:center;
+gap:10px;
 }
 
-.summary-row span:last-child{
-text-align:right;
-min-width:140px;
+.logo{
+width:40px;
+height:40px;
+border-radius:8px;
+background:#111827;
+color:white;
+display:flex;
+align-items:center;
+justify-content:center;
+font-weight:700;
 }
 
-.summary-row.total{
-border-top:2px solid #e5e7eb;
-margin-top:10px;
-padding-top:12px;
+.company-name{
 font-size:18px;
 font-weight:700;
 }
 
-/* PAYMENT SECTION */
-
-.payment-info{
-margin-top:45px;
-font-size:14px;
+.invoice-title{
+text-align:right;
 }
 
-.payment-info h4{
-margin-bottom:10px;
-font-size:15px;
+.invoice-title h1{
+margin:0;
+font-size:26px;
 }
 
-.payment-info p{
-margin:4px 0;
-}
-
-/* QR CODE */
-
-#qrcode{
-margin-top:12px;
-padding:12px;
-background:white;
-border:1px solid #e5e7eb;
-border-radius:8px;
-width:160px;
-display:flex;
-justify-content:center;
-align-items:center;
-}
-
-/* SIGNATURE */
-
-.signature{
-margin-top:60px;
-font-size:14px;
-}
-
-.signature-line{
-border-bottom:1px solid #111827;
-width:220px;
-margin:12px 0;
-}
-
-/* FOOTER */
-
-.invoice-footer{
-margin-top:40px;
-border-top:1px solid #e5e7eb;
-padding-top:15px;
+.invoice-number{
 color:#6b7280;
+font-size:14px;
+}
+
+/* FROM / BILL TO */
+
+.address-grid{
+display:flex;
+justify-content:space-between;
+margin-bottom:35px;
+gap:40px;
+}
+
+.address-block h4{
 font-size:13px;
+text-transform:uppercase;
+color:#6b7280;
+margin-bottom:8px;
 }
 
-.invoice-footer h4{
-margin-bottom:6px;
+.address-block div{
+font-weight:500;
+margin-bottom:4px;
 }
 
-/* BUTTONS */
+/* INFO GRID */
+
+.info-grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:20px;
+margin-bottom:30px;
+}
+
+.info-label{
+font-size:12px;
+color:#6b7280;
+}
+
+.info-value{
+font-weight:600;
+margin-top:2px;
+}
+
+/* STATUS BADGE */
+
+.status-badge{
+display:inline-block;
+padding:4px 10px;
+border-radius:6px;
+font-size:12px;
+font-weight:600;
+}
+
+.paid{
+background:#dcfce7;
+color:#15803d;
+}
+
+.pending{
+background:#fef3c7;
+color:#b45309;
+}
+
+/* TABLE */
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:15px;
+}
+
+th{
+text-align:left;
+font-size:13px;
+color:#6b7280;
+border-bottom:1px solid #e5e7eb;
+padding:12px 10px;
+}
+
+td{
+padding:12px 10px;
+border-bottom:1px solid #f3f4f6;
+}
+
+/* TOTALS */
+
+.totals{
+max-width:320px;
+margin-left:auto;
+margin-top:25px;
+}
+
+.total-row{
+display:flex;
+justify-content:space-between;
+margin-bottom:8px;
+font-size:14px;
+}
+
+.total-grand{
+font-size:18px;
+font-weight:700;
+}
+
+/* QR */
+
+.qr-section{
+margin-top:40px;
+text-align:center;
+}
+
+.qr-section p{
+font-size:13px;
+color:#6b7280;
+margin-bottom:8px;
+}
+
+/* ACTIONS */
 
 .actions{
-text-align:center;
-margin-top:30px;
+margin-top:35px;
+display:flex;
+gap:10px;
 }
 
 button{
-padding:10px 18px;
-margin:5px;
+padding:10px 16px;
 border:none;
-background:#111827;
-color:white;
-border-radius:6px;
+border-radius:8px;
+font-weight:600;
 cursor:pointer;
-font-size:14px;
-transition:background 0.2s;
 }
 
-button:hover{
-background:#000;
+.print{
+background:#111827;
+color:white;
+}
+
+.pdf{
+background:#2563eb;
+color:white;
+}
+
+.back{
+background:#e5e7eb;
 }
 
 /* PRINT */
 
 @media print{
 
-body{
-background:white;
-padding:0;
-}
-
-.invoice-container{
-box-shadow:none;
-border-radius:0;
-}
-
 .actions{
 display:none;
 }
 
+body{
+padding:0;
+background:white;
 }
 
-section{
-margin-bottom:25px;
+.container{
+box-shadow:none;
 }
+
+}
+
+.payment-section{
+display:flex;
+justify-content:space-between;
+margin-top:40px;
+gap:40px;
+}
+
+.payment-details{
+flex:1;
+}
+
+.payment-details h4{
+font-size:13px;
+text-transform:uppercase;
+color:#6b7280;
+margin-bottom:10px;
+}
+
+.payment-row{
+display:flex;
+justify-content:space-between;
+font-size:14px;
+margin-bottom:6px;
+}
+
+.signature{
+flex:1;
+text-align:right;
+}
+
+.signature-line{
+width:220px;
+border-bottom:2px solid #111827;
+margin-left:auto;
+margin-top:20px;
+}
+
+.signature-label{
+font-size:12px;
+color:#6b7280;
+margin-top:6px;
+}
+
+.due-note{
+margin-top:25px;
+font-size:13px;
+color:#6b7280;
+}
+
+.invoice-footer{
+margin-top:40px;
+text-align:center;
+font-size:13px;
+color:#6b7280;
+border-top:1px solid #e5e7eb;
+padding-top:12px;
+}
+
+
+.totals,
+.payment-section,
+.qr-section{
+page-break-inside: avoid;
+}
+
+
+@media print{
+
+.container{
+padding:20px;
+}
+
+body{
+padding:0;
+}
+
+}
+
+/* PDF MODE FIX */
+
+.pdf-mode{
+background:white !important;
+padding:0 !important;
+}
+
+.pdf-mode body{
+padding:0 !important;
+margin:0 !important;
+background:white !important;
+}
+
+.pdf-mode .container{
+width:794px !important; /* A4 width */
+max-width:794px !important;
+margin:0 auto !important;
+padding:25px !important;
+box-shadow:none !important;
+border-radius:0 !important;
+}
+
+
+
+/* MOBILE RESPONSIVE */
+
+@media (max-width:768px){
+
+body{
+padding:15px;
+}
+
+/* container full width */
+
+.container{
+max-width:100%;
+padding:18px;
+}
+
+/* header stack */
+
+.invoice-header{
+flex-direction:column;
+align-items:flex-start;
+gap:10px;
+}
+
+.invoice-title{
+text-align:left;
+}
+
+/* addresses stack */
+
+.address-grid{
+flex-direction:column;
+gap:20px;
+}
+
+/* info grid becomes 2 columns */
+
+.info-grid{
+grid-template-columns:1fr 1fr;
+gap:15px;
+}
+
+/* payment section stack */
+
+.payment-section{
+flex-direction:column;
+gap:25px;
+}
+
+.signature{
+text-align:left;
+}
+
+.signature-line{
+margin-left:0;
+}
+
+/* table scroll */
+
+table{
+display:block;
+overflow-x:auto;
+white-space:nowrap;
+}
+
+/* totals full width */
+
+.totals{
+max-width:100%;
+}
+
+/* buttons stack */
+
+.actions{
+flex-direction:column;
+}
+
+button{
+width:100%;
+}
+
+}
+
 
 </style>
 
 </head>
+
 <body>
 
-<div class="invoice-container">
+<div class="container" id="invoiceArea">
 
-<header class="invoice-header">
+<!-- HEADER -->
 
-<div>
-<h1>Your Company Name</h1>
-<p>company@email.com</p>
+<div class="invoice-header">
+
+<div class="brand">
+<div class="logo">IF</div>
+<div class="company-name">InvoiceFlow</div>
 </div>
 
-<div class="invoice-meta">
-<h2 id="invoiceNumber">Invoice #INV-44</h2>
-<p id="invoiceDate">Issue Date</p>
-<p id="invoiceDue">Due Date</p>
-<span id="invoiceStatus" class="status pending">Pending</span>
+<div class="invoice-title">
+<h1>Invoice</h1>
+<div class="invoice-number" id="invoiceNumber"></div>
 </div>
 
-</header>
-
-<section class="invoice-addresses">
-
-<div>
-<h4>Bill From</h4>
-<p>Your Company Ltd</p>
-<p>Business Address</p>
 </div>
 
-<div>
+<!-- ADDRESSES -->
+
+<div class="address-grid">
+
+<div class="address-block">
+
+<h4>From</h4>
+
+<div id="companyName"></div>
+<div id="companyEmail"></div>
+<div id="companyPhone"></div>
+
+</div>
+
+<div class="address-block">
+
 <h4>Bill To</h4>
-<p id="clientName">Client</p>
+
+<div id="client"></div>
+<div id="clientEmail"></div>
+<div id="clientPhone"></div>
+
 </div>
 
-</section>
+</div>
+
+<!-- INFO -->
+
+<div class="info-grid">
+
+<div>
+<div class="info-label">Status</div>
+<div id="status" class="info-value"></div>
+</div>
+
+<div>
+<div class="info-label">Invoice Date</div>
+<div id="date" class="info-value"></div>
+</div>
+
+<div>
+<div class="info-label">Due Date</div>
+<div id="dueDate" class="info-value"></div>
+</div>
+
+<div>
+<div class="info-label">Client</div>
+<div id="clientName" class="info-value"></div>
+</div>
+
+</div>
+
+<!-- ITEMS -->
 
 <table>
 
 <thead>
+
 <tr>
 <th>Description</th>
 <th>Qty</th>
 <th>Price</th>
 <th>Total</th>
 </tr>
+
 </thead>
 
-<tbody id="itemsTable"></tbody>
+<tbody id="items"></tbody>
 
 </table>
 
-<section class="invoice-summary">
+<!-- TOTALS -->
 
-<div class="summary-row">
+<div class="totals">
+
+<div class="total-row">
 <span>Subtotal</span>
-<span id="subtotal">$0</span>
+<span id="subtotal"></span>
 </div>
 
-<div class="summary-row">
+<div class="total-row">
 <span>Tax</span>
-<span id="tax">$0</span>
+<span id="tax"></span>
 </div>
 
-<div class="summary-row total">
+<div class="total-row total-grand">
 <span>Total</span>
-<span id="grandTotal">$0</span>
+<span id="total"></span>
 </div>
 
-</section>
+</div>
 
-<section class="payment-info">
+<div class="payment-section">
 
-<h4>Payment Information</h4>
+<div class="payment-details">
 
-<p><strong>Bank:</strong> Zanaco</p>
-<p><strong>Account Name:</strong> Your Company Ltd</p>
-<p><strong>Account Number:</strong> 5512876345</p>
-<p><strong>Reference:</strong> <span id="paymentRef"></span></p>
+<h4>Payment Details</h4>
 
-<h4>Scan to Pay</h4>
-<div id="qrcode"></div>
+<div class="payment-row">
+<span>Bank</span>
+<span id="bankName"></span>
+</div>
 
-</section>
+<div class="payment-row">
+<span>Account Name</span>
+<span id="accountName"></span>
+</div>
 
-<section class="signature">
+<div class="payment-row">
+<span>Account Number</span>
+<span id="accountNumber"></span>
+</div>
 
-<p>Authorized Signature</p>
+<div class="payment-row">
+<span>SWIFT</span>
+<span id="swift"></span>
+</div>
+
+</div>
+
+<div class="signature">
+
+<img id="signatureImage" style="max-width:200px;display:none">
+
 <div class="signature-line"></div>
-<p>Your Company Name</p>
+<div id="signatoryName" class="signature-label"></div>
 
-</section>
+</div>
 
-<footer class="invoice-footer">
+</div>
 
-<h4>Notes</h4>
-<p>Thank you for your business. Payment is due by the due date above.</p>
+<!-- DUE DATE NOTE -->
 
-</footer>
+<div id="dueNote" class="due-note"></div>
+
+<!-- FOOTER -->
+
+<div id="invoiceFooter" class="invoice-footer"></div>
+
+
+<!-- QR -->
+
+<div class="qr-section">
+
+<p>Scan to verify this invoice</p>
+
+<canvas id="qrcode"></canvas>
+
+</div>
+
+</div>
+
+<!-- ACTIONS -->
 
 <div class="actions">
-<button onclick="window.print()">Print</button>
-<button onclick="window.print()">Download PDF</button>
-</div>
+
+<button class="print" onclick="window.print()">Print</button>
+
+<button class="pdf" onclick="downloadPDF()">Download PDF</button>
+
+<button class="pdf" onclick="sendInvoiceEmail()">
+Email Invoice
+</button>
+
+<button class="back" onclick="window.location='invoices.html'">Back</button>
 
 </div>
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 
 <script>
 
-document.addEventListener("DOMContentLoaded",loadInvoice)
+/* Currency */
+
+const currency = localStorage.getItem("currency") || "USD"
+
+function formatMoney(amount){
+return new Intl.NumberFormat("en-US",{
+style:"currency",
+currency:currency
+}).format(Number(amount || 0))
+}
+
+/* GET INVOICE ID */
+
+const params = new URLSearchParams(window.location.search)
+const id = params.get("id")
+
+if(!id){
+alert("Invoice ID missing in URL")
+throw new Error("No invoice id")
+}
+
+/* LOAD INVOICE */
 
 async function loadInvoice(){
 
 try{
 
-const params=new URLSearchParams(window.location.search)
-const id=params.get("id")
-if(!id)return
 
-const token=localStorage.getItem("token")
 
-const res=await fetch("/invoices/"+id,{
-headers:{Authorization:"Bearer "+token}
+console.log("Invoice ID:", id)
+
+const token = localStorage.getItem("token")
+
+if(!token){
+alert("You are not logged in")
+window.location = "login.html"
+return
+}
+
+
+const res = await fetch(`/invoices/${id}`,{
+headers:{
+"Authorization":"Bearer "+token
+}
 })
 
-const data=await res.json()
+console.log("Status:",res.status)
 
-renderInvoice({
-...data.invoice,
-items:data.items
-})
-
-}catch(err){
-
-console.error(err)
-
+if(!res.ok){
+throw new Error("Server error: "+res.status)
 }
 
+let data = {};
+
+try{
+data = await res.json();
+}catch(e){
+throw new Error("Invalid JSON from /invoices API");
 }
 
-function renderInvoice(inv){
 
-setText("invoiceNumber","Invoice #INV-"+(inv.invoice_number||inv.id))
+console.log("API Data:",data)
 
-setText("invoiceDate","Issue Date: "+formatDate(inv.created_at))
-setText("invoiceDue","Due Date: "+formatDate(inv.due_date||inv.created_at))
+const invoice = data.invoice || {}
+const items = data.items || []
 
-setText("clientName",inv.client_name||"-")
+/* COMPANY (temporary placeholder) */
 
-setText("paymentRef","INV-"+inv.id)
 
-const subtotal=Number(inv.subtotal||0)
-const taxRate=Number(inv.tax_rate||0)
-const taxAmount=subtotal*taxRate/100
-const total=subtotal+taxAmount
+/* CLIENT */
 
-setText("subtotal",formatCurrency(subtotal))
-setText("tax",formatCurrency(taxAmount))
-setText("grandTotal",formatCurrency(total))
+document.getElementById("client").innerText =
+invoice.client_name || "Client"
 
-renderItems(inv.items||[])
+document.getElementById("clientName").innerText =
+invoice.client_name || ""
 
-generateQRCode(inv.id)
+document.getElementById("clientEmail").innerText =
+invoice.client_email || invoice.email || "";
 
-updateStatus(inv)
+console.log("INVOICE:", invoice);
 
-}
+console.log("CLIENT EMAIL FROM API:", invoice.client_email, invoice.email);
 
-function renderItems(items){
+/* INVOICE INFO */
 
-const table = document.getElementById("itemsTable")
-table.innerHTML = ""
+document.getElementById("invoiceNumber").innerText =
+"INV-" + (invoice.id || "")
+
+document.getElementById("status").innerHTML =
+invoice.status === "paid"
+? '<span class="status-badge paid">Paid</span>'
+: '<span class="status-badge pending">Pending</span>'
+
+document.getElementById("date").innerText =
+invoice.created_at
+? new Date(invoice.created_at).toLocaleDateString()
+: ""
+
+document.getElementById("dueDate").innerText =
+invoice.due_date
+? new Date(invoice.due_date).toLocaleDateString()
+: ""
+
+/* ITEMS */
+
+const table = document.getElementById("items")
+table.innerHTML=""
+
+let subtotal = 0
 
 items.forEach(item => {
 
-const qty = Number(item.quantity || 1)
-const price = Number(item.price ?? item.unit_price ?? 0)
+const qty = Number(item.quantity) || 0
+
+const price = Number(item.unit_price ?? item.price ?? 0)
+
 const total = qty * price
 
-const row = document.createElement("tr")
+subtotal += total
 
-row.innerHTML = `
-<td>${item.description}</td>
+table.innerHTML += `
+<tr>
+<td>${item.description || ""}</td>
 <td>${qty}</td>
-<td>${formatCurrency(price)}</td>
-<td>${formatCurrency(total)}</td>
+<td>${formatMoney(price)}</td>
+<td>${formatMoney(total)}</td>
+</tr>
 `
 
-table.appendChild(row)
-
 })
 
+/* TOTALS */
+
+const taxRate = Number(invoice.tax_rate || 0)
+const tax = subtotal*(taxRate/100)
+const grandTotal = subtotal+tax
+
+document.getElementById("subtotal").innerText =
+formatMoney(subtotal)
+
+document.getElementById("tax").innerText =
+formatMoney(tax)
+
+document.getElementById("total").innerText =
+formatMoney(grandTotal)
+
+/* LOAD COMPANY SETTINGS */
+
+let company = {};
+
+const resCompany = await fetch("/company-settings",{
+headers:{
+Authorization:"Bearer " + token
+}
+});
+
+if(resCompany.ok){
+
+const result = await resCompany.json();
+company = result.company || result.data || result || {};
+
+/* ✅ NOW USE company AFTER ASSIGNING */
+
+document.getElementById("companyName").innerText =
+company.company_name || "InvoiceFlow";
+
+document.getElementById("companyEmail").innerText =
+company.email || "";
+
+document.getElementById("companyPhone").innerText =
+company.phone || "";
+
+/* PAYMENT DETAILS */
+
+document.getElementById("bankName").innerText =
+company.bank_name || "";
+
+document.getElementById("accountName").innerText =
+company.account_name || "";
+
+document.getElementById("accountNumber").innerText =
+company.account_number || "";
+
+document.getElementById("swift").innerText =
+company.swift || company.swift_code || "ZANACZLX";
+
+}
+
+/* SIGNATURE (SAFE) */
+
+if(company && company.signature_path){
+
+const img = document.getElementById("signatureImage")
+
+img.src = company.signature_path
+img.style.display = "block"
+
+}
+
+document.getElementById("signatoryName").innerText =
+company?.signatory || "Authorized Signature"
+
+/* FOOTER */
+
+document.getElementById("invoiceFooter").innerText =
+company?.invoice_footer || "Thank you for your business"
+
+
+
+
+const due = invoice.due_date ? new Date(invoice.due_date) : null;
+const today = new Date();
+
+let dueMessage = "";
+
+if(due){
+  const diffDays = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+
+  if(diffDays < 0){
+    dueMessage = "⚠️ Payment is overdue";
+  } else if(diffDays === 0){
+    dueMessage = "⚠️ Payment due today";
+  } else if(diffDays <= 3){
+    dueMessage = `⏳ Payment due in ${diffDays} day(s)`;
+  } else {
+    dueMessage = `Due in ${diffDays} days`;
+  }
+}
+
+document.getElementById("dueNote").innerText = dueMessage;
+
+
+
+/* QR */
+
+try{
+QRCode.toCanvas(
+document.getElementById("qrcode"),
+window.location.href,
+{width:120}
+)
+}catch(e){
+console.log("QR error:", e);
+}
+
+}catch(err){
+
+console.error("FULL ERROR:", err);
+alert("Error loading invoice: " + err.message);
+
 }
 
 
-function updateStatus(inv){
-
-let status=inv.status||"pending"
-
-if(status!=="paid"&&inv.due_date){
-
-const due=new Date(inv.due_date)
-const today=new Date()
-
-if(due<today)status="overdue"
-
 }
 
-const el=document.getElementById("invoiceStatus")
 
-el.className="status "+status
-el.innerText=status
 
+function downloadPDF(){
+
+const element = document.getElementById("invoiceArea")
+
+/* switch to PDF layout */
+document.documentElement.classList.add("pdf-mode")
+
+setTimeout(()=>{
+
+const opt = {
+margin:0,
+filename:"invoice-"+id+".pdf",
+
+image:{
+type:"jpeg",
+quality:1
+},
+
+html2canvas:{
+scale:2,
+scrollX:0,
+scrollY:0,
+windowWidth:794
+},
+
+jsPDF:{
+unit:"pt",
+format:"a4",
+orientation:"portrait"
+}
 }
 
-function generateQRCode(id){
-
-const container=document.getElementById("qrcode")
-
-container.innerHTML=""
-
-const url=window.location.origin+"/pay/"+id
-
-QRCode.toCanvas(url,{width:150},function(err,canvas){
-
-if(!err)container.appendChild(canvas)
-
+html2pdf()
+.set(opt)
+.from(element)
+.save()
+.then(()=>{
+document.documentElement.classList.remove("pdf-mode")
 })
 
-}
-
-function formatCurrency(value){
-
-return new Intl.NumberFormat("en-US",{
-style:"currency",
-currency:"USD"
-}).format(value||0)
+},200)
 
 }
 
-function formatDate(date){
 
-if(!date)return "-"
+async function loadCompany(){
 
-return new Date(date).toLocaleDateString()
+const token = localStorage.getItem("token")
+
+const res = await fetch("/company-settings",{
+headers:{
+Authorization:"Bearer "+token
+}
+})
+
+const company = await res.json()
+
+document.getElementById("companyName").innerText =
+company.company_name || ""
+
+document.getElementById("companyEmail").innerText =
+company.email || ""
+
+document.getElementById("companyPhone").innerText =
+company.phone || ""
+
+document.getElementById("bankName").innerText =
+company.bank_name || ""
+
+document.getElementById("accountName").innerText =
+company.account_name || ""
+
+document.getElementById("accountNumber").innerText =
+company.account_number || ""
+
+document.getElementById("invoiceFooter").innerText =
+company.invoice_footer || ""
 
 }
 
-function setText(id,val){
 
-const el=document.getElementById(id)
-if(el) el.textContent = val
+
+async function sendInvoiceEmail(){
+
+const token = localStorage.getItem("token");
+
+const emailElement = document.getElementById("clientEmail");
+
+console.log("ELEMENT:", emailElement);
+
+if(!emailElement){
+alert("clientEmail element not found");
+return;
+}
+
+const raw = emailElement.innerText || "";
+console.log("INNER TEXT RAW:", raw);
+
+const email = raw.trim();
+
+console.log("FINAL EMAIL:", email);
+
+if(!email){
+alert("Client email missing");
+return;
+}
+
+try{
+
+const res = await fetch("/send-invoice-email",{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+Authorization:"Bearer " + token
+},
+body: JSON.stringify({
+email: email,
+invoiceId: id
+})
+});
+
+if(!res.ok){
+const err = await res.json();
+throw new Error(err.error || "Failed to send");
+}
+
+alert("Invoice sent successfully");
+
+}catch(err){
+console.error(err);
+alert("Error sending email: " + err.message);
+}
 
 }
+
+
+/* RUN */
+
+loadInvoice()
+
 
 
 </script>
