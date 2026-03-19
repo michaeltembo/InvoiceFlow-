@@ -1427,8 +1427,9 @@ app.post("/create-checkout-session", authenticateToken, async (req,res)=>{
 
     client_reference_id: req.user.id,   // ← IMPORTANT
 
-    success_url:"http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}",
-    cancel_url:"http://localhost:3000/dashboard.html"
+success_url:"https://your-render-url.onrender.com/success?session_id={CHECKOUT_SESSION_ID}",
+cancel_url:"https://your-frontend-url.com/dashboard.html"
+
 
   });
 
@@ -1459,41 +1460,31 @@ app.get("/success", async (req,res)=>{
 });
 
 
-app.post("/billing-portal", authenticateToken, async (req,res)=>{
-
-  const result = await pool.query(
-    "SELECT stripe_customer_id,email FROM users WHERE id=$1",
-    [req.user.userId]
-  );
-
-  const user = result.rows[0];
-
-  let customerId = user.stripe_customer_id;
-
-  if(!customerId){
-
-    const customer = await stripe.customers.create({
-      email: user.email
-    });
-
-    customerId = customer.id;
-
-    await pool.query(
-      "UPDATE users SET stripe_customer_id=$1 WHERE id=$2",
-      [customerId, req.user.userId]
+app.get("/success", async (req, res) => {
+  try {
+    const session = await stripe.checkout.sessions.retrieve(
+      req.query.session_id
     );
 
+    if (session && session.subscription) {
+
+      const userId = session.client_reference_id;
+
+      await pool.query(
+        "UPDATE users SET plan = 'pro' WHERE id = $1",
+        [userId]
+      );
+
+      console.log("User upgraded to PRO:", userId);
+    }
+
+    res.redirect("/dashboard.html");
+
+  } catch (err) {
+    console.error("SUCCESS ERROR:", err);
+    res.send("Error processing payment");
   }
-
-  const session = await stripe.billingPortal.sessions.create({
-    customer: customerId,
-    return_url: "http://localhost:3000/dashboard.html"
-  });
-
-  res.json({url:session.url});
-
 });
-
 
 app.post("/cancel-subscription", authenticateToken, async (req,res)=>{
 
