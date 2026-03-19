@@ -629,13 +629,13 @@ Email Invoice
 
 /* Currency */
 
-const currency = localStorage.getItem("currency") || "USD"
+const currency = localStorage.getItem("currency") || "ZMW";
 
 function formatMoney(amount){
-return new Intl.NumberFormat("en-US",{
-style:"currency",
-currency:currency
-}).format(Number(amount || 0))
+  return new Intl.NumberFormat("en-ZM",{
+    style:"currency",
+    currency:currency
+  }).format(Number(amount || 0));
 }
 
 /* GET INVOICE ID */

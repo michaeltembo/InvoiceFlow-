@@ -19,7 +19,9 @@ const pool = require("./db");
 const invoiceRoutes = require("./routes/invoices");
 
 const app = express();
-
+app.get("/ping", (req, res) => {
+  res.status(200).send("OK");
+});
 
 const crypto = require("crypto");
 const auth = require("./middleware/auth");
