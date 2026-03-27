@@ -273,10 +273,6 @@ font-size:14px;
 margin-bottom:6px;
 }
 
-.signature{
-flex:1;
-text-align:right;
-}
 
 .signature-line{
 width:220px;
@@ -433,6 +429,40 @@ width:100%;
 }
 
 
+.due-paid{
+  color:#16a34a;
+  font-weight:600;
+}
+
+.due-overdue{
+  color:#dc2626;
+  font-weight:600;
+}
+
+.due-warning{
+  color:#d97706;
+  font-weight:600;
+}
+
+.signature-sub{
+  font-size:12px;
+  color:#9ca3af;
+  margin-top:2px;
+}
+
+
+.signature-line{
+  width:220px;
+  border-bottom:2px solid #111827;
+  margin-left:auto;
+  margin-top:20px;
+}
+
+.signature{
+  text-align:right;
+}
+
+
 </style>
 
 </head>
@@ -538,7 +568,7 @@ width:100%;
 </div>
 
 <div class="total-row">
-<span>Tax</span>
+<span>VAT (%)</span>
 <span id="tax"></span>
 </div>
 
@@ -579,12 +609,16 @@ width:100%;
 
 <div class="signature">
 
-<img id="signatureImage" style="max-width:200px;display:none">
+  <img id="signatureImage" style="max-width:200px;display:none">
 
-<div class="signature-line"></div>
-<div id="signatoryName" class="signature-label"></div>
+  <div class="signature-line"></div>
+
+  <div id="authorizedBy" class="signature-label"></div>
+
+  <div id="signatoryRole" class="signature-sub"></div>
 
 </div>
+
 
 </div>
 
@@ -792,7 +826,7 @@ company = result.company || result.data || result || {};
 /* ✅ NOW USE company AFTER ASSIGNING */
 
 document.getElementById("companyName").innerText =
-company.company_name || "InvoiceFlow";
+company.company_name || ""
 
 document.getElementById("companyEmail").innerText =
 company.email || "";
@@ -827,8 +861,15 @@ img.style.display = "block"
 
 }
 
-document.getElementById("signatoryName").innerText =
-company?.signatory || "Authorized Signature"
+const authorName =
+company?.signatory || company?.company_name || "Authorized Signatory";
+
+document.getElementById("authorizedBy").innerText =
+"Authorized by: " + authorName;
+
+document.getElementById("signatoryRole").innerText =
+company?.role || "Finance Department";
+
 
 /* FOOTER */
 
@@ -839,26 +880,52 @@ company?.invoice_footer || "Thank you for your business"
 
 
 const due = invoice.due_date ? new Date(invoice.due_date) : null;
+
+/* safer date (no timezone bugs) */
 const today = new Date();
+today.setHours(0,0,0,0);
 
 let dueMessage = "";
+const dueEl = document.getElementById("dueNote");
 
-if(due){
-  const diffDays = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
+/* reset styles */
+dueEl.className = "due-note";
+
+/* ✅ STATUS FIRST (CRITICAL FIX) */
+if(invoice.status === "paid"){
+  dueMessage = "✅ Paid";
+  dueEl.classList.add("due-paid");
+}
+
+else if(due){
+
+  due.setHours(0,0,0,0);
+
+  const diffDays = Math.ceil(
+    (due - today) / (1000 * 60 * 60 * 24)
+  );
 
   if(diffDays < 0){
     dueMessage = "⚠️ Payment is overdue";
-  } else if(diffDays === 0){
+    dueEl.classList.add("due-overdue");
+  }
+
+  else if(diffDays === 0){
     dueMessage = "⚠️ Payment due today";
-  } else if(diffDays <= 3){
+    dueEl.classList.add("due-warning");
+  }
+
+  else if(diffDays <= 3){
     dueMessage = `⏳ Payment due in ${diffDays} day(s)`;
-  } else {
+    dueEl.classList.add("due-warning");
+  }
+
+  else{
     dueMessage = `Due in ${diffDays} days`;
   }
 }
 
-document.getElementById("dueNote").innerText = dueMessage;
-
+dueEl.innerText = dueMessage;
 
 
 /* QR */

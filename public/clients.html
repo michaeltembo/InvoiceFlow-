@@ -37,18 +37,43 @@
 
 <!-- SIDEBAR -->
 
-<div id="sidebar" class="sidebar">
 
-<div class="sidebar-logo">
-<span class="logo-icon">IF</span>
-</div>
+<div id="sidebar" class="sidebar">  
+<div class="sidebar-logo">  
+<span class="logo-icon">IF</span>  
+</div>  
 
-<a href="trash.html">Recycle bin</a>
-<a href="dashboard.html">Dashboard</a>
-<a href="clients.html">Clients</a>
-<a href="invoices.html">Invoices</a>
-<a href="company-settings.html">Settings</a>
-<button onclick="logout()">Logout</button>
+
+<a href="trash.html" class="sidebar-link">
+  <i data-lucide="trash-2"></i>
+  <span>Recycle bin</span>
+</a>
+
+<a href="dashboard.html" class="sidebar-link">
+  <i data-lucide="layout-dashboard"></i>
+  <span>Dashboard</span>
+</a>
+
+<a href="clients.html" class="sidebar-link">
+  <i data-lucide="users"></i>
+  <span>Clients</span>
+</a>
+
+<a href="invoices.html" class="sidebar-link">
+  <i data-lucide="file-text"></i>
+  <span>Invoices</span>
+</a>
+
+<a href="company-settings.html" class="sidebar-link">
+  <i data-lucide="settings"></i>
+  <span>Settings</span>
+</a>
+
+<button onclick="logout()" class="logout-btn">
+  <i data-lucide="log-out"></i>
+  <span>Logout</span>
+</button>
+
 </div>
 
 
@@ -217,8 +242,7 @@ class="search-input"
 
 <h2 id="drawerClientName">Client</h2>
 
-<button onclick="closeDrawer()">✕</button>
-
+<button class="drawer-close" onclick="closeDrawer()">✕</button>
 </div>
 
 <div class="drawer-body">

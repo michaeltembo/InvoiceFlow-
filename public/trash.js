@@ -1,112 +1,253 @@
 function getToken(){
-return localStorage.getItem("token")
+  return localStorage.getItem("token");
 }
 
 // =======================
-// LOAD TRASH
+// LOAD TRASH FROM SERVER
 // =======================
 
-const trash = JSON.parse(localStorage.getItem("trash")) || []
+document.addEventListener("DOMContentLoaded", () => {
 
-const table = document.getElementById("trashTable")
+  const token = localStorage.getItem("token");
 
-trash.forEach((item,i)=>{
+  console.log("TOKEN:", token);
 
-table.insertAdjacentHTML("beforeend",`
-<tr>
-<td>${item.data?.name || item.data?.invoice || "Item"}</td>
-<td>
-<button onclick="restoreItem(${i})">Restore</button>
-<button onclick="deleteForever(${i})">Delete</button>
-</td>
-</tr>
-`)
+  if (!token) {
+    alert("Please login first");
+    window.location.href = "/login.html";
+    return;
+  }
 
-})
+  loadTrash(token);
+});
+
+
+async function loadTrash(token){
+
+  try{
+
+    const res = await fetch("http://localhost:3000/recycle-bin", {
+      headers: {
+        Authorization: "Bearer " + token
+      }
+    });
+
+    if(!res.ok){
+      throw new Error("Failed to load recycle bin");
+    }
+
+    const data = await res.json();
+
+    const table = document.getElementById("trashTable");
+    table.innerHTML = "";
+
+    data.clients.forEach(client => {
+      table.insertAdjacentHTML("beforeend",`
+        <tr>
+          <td>${client.name}</td>
+          <td>Client</td>
+          <td>
+            <button onclick="restoreClient(${client.id})">Restore</button>
+          </td>
+        </tr>
+      `);
+    });
+
+    data.invoices.forEach(inv => {
+      table.insertAdjacentHTML("beforeend",`
+        <tr>
+          <td>Invoice #${inv.id}</td>
+          <td>Invoice</td>
+          <td>
+            <button onclick="restoreInvoice(${inv.id})">Restore</button>
+          </td>
+        </tr>
+      `);
+    });
+
+  }catch(err){
+    console.error("ERROR:", err);
+    alert("Failed to load recycle bin");
+  }
+}
+
+
+    // =======================
+    // CLIENTS
+    // =======================
+
+    data.clients.forEach(client => {
+
+      table.insertAdjacentHTML("beforeend",`
+        <tr>
+          <td>${client.name || "Client"}</td>
+          <td>
+            <button onclick="restoreClient(${client.id})">Restore</button>
+            <button onclick="deleteClientForever(${client.id})">Delete</button>
+          </td>
+        </tr>
+      `);
+
+    });
+
+    // =======================
+    // INVOICES
+    // =======================
+
+    data.invoices.forEach(inv => {
+
+      table.insertAdjacentHTML("beforeend",`
+        <tr>
+          <td>INV-${inv.id}</td>
+          <td>
+            <button onclick="restoreInvoice(${inv.id})">Restore</button>
+            <button onclick="deleteInvoiceForever(${inv.id})">Delete</button>
+          </td>
+        </tr>
+      `);
+
+    });
+
+  }catch(err){
+
+    console.error("TRASH LOAD ERROR:", err);
+    alert("Failed to load recycle bin");
+
+  }
+
+}
 
 // =======================
-// RESTORE ITEM
+// RESTORE CLIENT
 // =======================
 
-async function restoreItem(index){
+async function restoreClient(id){
 
-let trash = JSON.parse(localStorage.getItem("trash")) || []
-let item = trash[index]
+  const token = localStorage.getItem("token");
 
-if(!item) return
+  await fetch(`/restore/client/${id}`,{
+    method:"POST",
+    headers:{ Authorization:"Bearer "+token }
+  });
 
-const token = localStorage.getItem("token")
-
-try{
-
-if(item.type === "client"){
-
-await fetch("/clients",{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-"Authorization":"Bearer "+token
-},
-body:JSON.stringify(item.data)
-})
-
+  loadTrash();
 }
 
-if(item.type === "invoice"){
+async function restoreInvoice(id){
 
-const inv = item.data
+  const token = localStorage.getItem("token");
 
-await fetch("/invoices",{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-"Authorization":"Bearer "+token
-},
-body:JSON.stringify({
-client_id: inv.client_id,
-created_at: inv.created_at,
-due_date: inv.due_date,
-status: inv.status || "pending",
-tax_rate: inv.tax_rate || 0,
-items: inv.items || [
-{
-description:"Restored invoice",
-quantity:1,
-price:inv.total || 0
-}
-]
-})
-})
+  await fetch(`/restore/invoice/${id}`,{
+    method:"POST",
+    headers:{ Authorization:"Bearer "+token }
+  });
 
+  loadTrash();
 }
 
-trash.splice(index,1)
 
-localStorage.setItem("trash", JSON.stringify(trash))
+// =======================
+// RESTORE INVOICE
+// =======================
 
-location.reload()
+async function restoreInvoice(id){
 
-}catch(err){
+  const token = getToken();
 
-console.error(err)
-alert("Restore failed")
+  try{
 
-}
+    const res = await fetch(`/restore/invoice/${id}`,{
+      method:"POST",
+      headers:{
+        Authorization:"Bearer "+token
+      }
+    });
+
+    if(!res.ok){
+      throw new Error("Restore failed");
+    }
+
+    loadTrash();
+
+  }catch(err){
+
+    console.error(err);
+    alert("Failed to restore invoice");
+
+  }
 
 }
 
 // =======================
-// DELETE FOREVER
+// DELETE CLIENT FOREVER
 // =======================
 
-function deleteForever(index){
+async function deleteClientForever(id){
 
-let trash = JSON.parse(localStorage.getItem("trash")) || []
+  const token = getToken();
 
-trash.splice(index,1)
+  if(!confirm("Delete client permanently?")) return;
 
-localStorage.setItem("trash", JSON.stringify(trash))
+  try{
 
-location.reload()
+    const res = await fetch(`/permanent/client/${id}`,{
+      method:"DELETE",
+      headers:{
+        Authorization:"Bearer "+token
+      }
+    });
+
+    if(!res.ok){
+      throw new Error("Delete failed");
+    }
+
+    loadTrash();
+
+  }catch(err){
+
+    console.error(err);
+    alert("Failed to delete client");
+
+  }
 
 }
+
+// =======================
+// DELETE INVOICE FOREVER
+// =======================
+
+async function deleteInvoiceForever(id){
+
+  const token = getToken();
+
+  if(!confirm("Delete invoice permanently?")) return;
+
+  try{
+
+    const res = await fetch(`/permanent/invoice/${id}`,{
+      method:"DELETE",
+      headers:{
+        Authorization:"Bearer "+token
+      }
+    });
+
+    if(!res.ok){
+      throw new Error("Delete failed");
+    }
+
+    loadTrash();
+
+  }catch(err){
+
+    console.error(err);
+    alert("Failed to delete invoice");
+
+  }
+
+}
+
+// =======================
+// INIT
+// =======================
+
+loadTrash();

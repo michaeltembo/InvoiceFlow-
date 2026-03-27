@@ -17,7 +17,18 @@ function formatMoney(amount){
 // LOAD DASHBOARD
 // =============================
 
-document.addEventListener("DOMContentLoaded", loadDashboard);
+document.addEventListener("DOMContentLoaded", () => {
+
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    window.location.href = "/login.html";
+    return;
+  }
+
+  loadDashboard();
+});
+
 
 async function loadDashboard(){
 
@@ -39,7 +50,6 @@ const monthlyRevenue = {
 Jan:0, Feb:0, Mar:0, Apr:0, May:0, Jun:0,
 Jul:0, Aug:0, Sep:0, Oct:0, Nov:0, Dec:0
 };
-
 // ============================
 // PROCESS INVOICES
 // ============================

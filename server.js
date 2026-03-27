@@ -262,6 +262,7 @@ SELECT
         ON i.client_id = c.id
         AND i.company_id = $1
       WHERE c.company_id = $1
+AND COALESCE(c.deleted, FALSE) = FALSE
      GROUP BY
   c.id,
   c.name,
@@ -295,26 +296,25 @@ app.delete("/clients/:id", auth, async (req, res) => {
     console.log("Company:", req.companyId);
 
     const result = await pool.query(
-      `DELETE FROM clients
+      `UPDATE clients
+       SET deleted = TRUE
        WHERE id = $1 AND company_id = $2`,
       [id, req.companyId]
     );
 
-    console.log("Rows deleted:", result.rowCount);
+    console.log("Rows updated:", result.rowCount);
 
     if(result.rowCount === 0){
       return res.status(404).json({error:"Client not found"});
     }
 
-    res.json({message:"Client deleted successfully"});
+    res.json({message:"Client moved to recycle bin"});
 
   } catch(err){
     console.error(err);
     res.status(500).json({error:"Delete failed"});
   }
 });
-
-
 
 /* ================= INVOICES ================= */
 	
@@ -454,7 +454,8 @@ app.get("/invoices", auth, async (req, res) => {
 app.delete("/invoices/:id", auth, async (req, res) => {
   try {
     const result = await pool.query(
-      `DELETE FROM invoices
+      `UPDATE invoices
+       SET deleted = TRUE
        WHERE id = $1
        AND company_id = $2
        RETURNING *`,
@@ -465,13 +466,14 @@ app.delete("/invoices/:id", auth, async (req, res) => {
       return res.status(404).json({ error: "Invoice not found" });
     }
 
-    res.json({ message: "Invoice deleted" });
+    res.json({ message: "Invoice moved to recycle bin" });
 
   } catch (err) {
     console.error("DELETE INVOICE ERROR:", err);
     res.status(500).json({ error: "Delete failed" });
   }
 });
+
 
 /* ================= DASHBOARD ================= */
 
@@ -482,49 +484,59 @@ app.get("/dashboard-summary", authenticateToken, async (req, res) => {
 
     console.log("Dashboard company:", companyId);
 
-    // Total Clients
-    const clients = await pool.query(
-      "SELECT COUNT(*) AS total FROM clients WHERE company_id = $1",
-      [companyId]
-    );
 
-    // Active Clients (clients with invoices)
-    const activeClients = await pool.query(
-      `SELECT COUNT(DISTINCT client_id) AS total
-       FROM invoices
-       WHERE company_id = $1`,
-      [companyId]
-    );
+// Total Clients
+console.time("clients");
+const clients = await pool.query(
+  "SELECT COUNT(*) AS total FROM clients WHERE company_id = $1",
+  [companyId]
+);
+console.timeEnd("clients");
 
-    // Total Revenue (paid invoices)
-    const revenue = await pool.query(
-      `SELECT COALESCE(SUM(total),0) AS total
-       FROM invoices
-       WHERE company_id = $1 AND status = 'paid'`,
-      [companyId]
-    );
+// Active Clients
+console.time("activeClients");
+const activeClients = await pool.query(
+  `SELECT COUNT(DISTINCT client_id) AS total
+   FROM invoices
+   WHERE company_id = $1`,
+  [companyId]
+);
+console.timeEnd("activeClients");
 
-    // Outstanding
-    const outstanding = await pool.query(
-      `SELECT COALESCE(SUM(total),0) AS total
-       FROM invoices
-       WHERE company_id = $1 AND status != 'paid'`,
-      [companyId]
-    );
+// Revenue
+console.time("revenue");
+const revenue = await pool.query(
+  `SELECT COALESCE(SUM(total),0) AS total
+   FROM invoices
+   WHERE company_id = $1 AND status = 'paid'`,
+  [companyId]
+);
+console.timeEnd("revenue");
 
-    // Recent invoices
+// Outstanding
+console.time("outstanding");
+const outstanding = await pool.query(
+  `SELECT COALESCE(SUM(total),0) AS total
+   FROM invoices
+   WHERE company_id = $1 AND status IN ('pending','overdue')`,
+  [companyId]
+);
+console.timeEnd("outstanding");
 
+// Recent invoices
 const recentInvoices = await pool.query(`
-  SELECT 
-    invoices.id,
-    clients.name AS client_name,
-    invoices.status,
-    invoices.total,
-    invoices.due_date
-  FROM invoices
-  JOIN clients ON invoices.client_id = clients.id
-  WHERE invoices.company_id = $1
-  ORDER BY invoices.created_at DESC
+  SELECT
+    i.id,
+    c.name AS client_name,
+    i.status,
+    i.total,
+    i.due_date
+  FROM invoices i
+  JOIN clients c 
+    ON i.client_id = c.id 
+    AND c.company_id = $1
+  WHERE i.company_id = $1
+  ORDER BY i.created_at DESC
   LIMIT 5
 `, [companyId]);
 
@@ -1113,66 +1125,32 @@ app.put("/company-settings", auth, async (req, res) => {
 app.get("/company-settings", auth, async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT * FROM company_settings WHERE user_id = $1",
+      `
+      SELECT 
+        c.name AS company_name,
+        c.email,
+        cs.phone,
+        cs.bank_name,
+        cs.account_name,
+        cs.account_number,
+        cs.swift,
+        cs.invoice_footer,
+        cs.signature_path
+      FROM users u
+      JOIN companies c ON u.company_id = c.id
+      LEFT JOIN company_settings cs ON cs.user_id = u.id
+      WHERE u.id = $1
+      `,
       [req.userId]
     );
 
-    res.status(200).json(result.rows[0] || {});
+    res.json(result.rows[0] || {});
+    
   } catch (err) {
     console.error("GET COMPANY SETTINGS ERROR:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
-
-app.use("/invoices", invoiceRoutes);
-
-app.post("/register", async (req,res)=>{
-
-try{
-
-const { company_name, company_code, email, password } = req.body;
-
-if(!company_name || !company_code || !email || !password){
-return res.status(400).json({error:"All fields required"});
-}
-
-const companyCheck = await pool.query(
-"SELECT id FROM companies WHERE code=$1",
-[company_code]
-);
-
-if(companyCheck.rows.length > 0){
-return res.status(400).json({error:"Company code already taken"});
-}
-
-const hashedPassword = await bcrypt.hash(password,10);
-
-const companyResult = await pool.query(
-`INSERT INTO companies (name,email,password,code)
-VALUES ($1,$2,$3,$4)
-RETURNING id`,
-[company_name,email,hashedPassword,company_code]
-);
-
-const companyId = companyResult.rows[0].id;
-
-await pool.query(
-`INSERT INTO users (email,password,role,company_id)
-VALUES ($1,$2,'admin',$3)`,
-[email,hashedPassword,companyId]
-);
-
-res.json({message:"Company created successfully"});
-
-}catch(err){
-
-console.error(err);
-res.status(500).json({error:"Registration failed"});
-
-}
-
-});
-
 
 app.get("/admin-test", auth, requireAdmin, (req, res) => {
   res.json({ message: "Admin access granted" });
@@ -2308,7 +2286,77 @@ app.post("/send-invoice-email", authenticateToken, async (req, res) => {
 });
 
 
+app.post("/restore/client/:id", auth, async (req, res) => {
+  await pool.query(
+    `UPDATE clients SET deleted = FALSE
+     WHERE id = $1 AND company_id = $2`,
+    [req.params.id, req.companyId]
+  );
 
+  res.json({ message: "Client restored" });
+});
+
+app.post("/restore/invoice/:id", auth, async (req, res) => {
+  await pool.query(
+    `UPDATE invoices SET deleted = FALSE
+     WHERE id = $1 AND company_id = $2`,
+    [req.params.id, req.companyId]
+  );
+
+  res.json({ message: "Invoice restored" });
+});
+/* RESTORE INVOICE */
+app.post("/restore/invoice/:id", auth, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `UPDATE invoices
+       SET deleted = FALSE
+       WHERE id = $1 AND company_id = $2
+       RETURNING *`,
+      [req.params.id, req.companyId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Invoice not found" });
+    }
+
+    res.json({ message: "Invoice restored successfully" });
+
+  } catch (err) {
+    console.error("RESTORE INVOICE ERROR:", err);
+    res.status(500).json({ error: "Restore failed" });
+  }
+});
+
+app.get("/recycle-bin", auth, async (req, res) => {
+  try {
+
+    const clients = await pool.query(
+      `SELECT id, name, email
+       FROM clients
+       WHERE company_id = $1
+       AND COALESCE(deleted, FALSE) = TRUE`,
+      [req.companyId]
+    );
+
+    const invoices = await pool.query(
+      `SELECT id, total, status
+       FROM invoices
+       WHERE company_id = $1
+       AND COALESCE(deleted, FALSE) = TRUE`,
+      [req.companyId]
+    );
+
+    res.json({
+      clients: clients.rows,
+      invoices: invoices.rows
+    });
+
+  } catch (err) {
+    console.error("RECYCLE BIN ERROR:", err);
+    res.status(500).json({ error: "Failed to load recycle bin" });
+  }
+});
 
 
 /* ================= SERVER ================= */

@@ -967,3 +967,47 @@ color:white;
 font-weight:600;
 font-size:14px;
 }
+
+
+
+
+.drawer-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+
+  width: 40px;
+  height: 40px;
+
+  border: none;
+  border-radius: 50%;
+
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+
+  font-size: 18px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  transition: all 0.25s ease;
+}
+
+/* Hover effect */
+.drawer-close:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.08);
+}
+
+/* Active click */
+.drawer-close:active {
+  transform: scale(0.95);
+}
+
+/* Optional dark theme glow */
+.drawer-close:hover {
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
