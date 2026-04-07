@@ -1,20 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Recycle Bin</title>
+
+  <!-- ✅ CSS MUST BE HERE -->
+  <link rel="stylesheet" href="trash.css">
+</head>
+
+<body>
+
 <div class="trash-container">
 
-<h2 class="trash-title">Recycle Bin</h2>
-<link rel="stylesheet" href="trash.css">
-<table class="trash-table">
+  <h2 class="trash-title">Recycle Bin</h2>
 
-<thead>
-<tr>
-<th>Item</th>
-<th>Actions</th>
-</tr>
-</thead>
+  <table class="trash-table">
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
 
-<tbody id="trashTable"></tbody>
-
-</table>
+    <tbody id="trashTable"></tbody>
+  </table>
 
 </div>
 
-<script src="trash.js"></script>
+<!-- ✅ JS MUST BE AT THE VERY BOTTOM -->
+<script src="./trash.js"></script>
+</body>
+</html>

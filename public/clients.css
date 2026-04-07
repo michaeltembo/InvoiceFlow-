@@ -1011,3 +1011,1928 @@ font-size:14px;
 .drawer-close:hover {
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
 }
+
+
+
+
+
+
+
+
+
+/* PAGE BACKGROUND */
+body.dark {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+/* HEADER */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+/* DEFAULT (LIGHT MODE) */
+.page-title {
+  color: #0f172a; /* dark text */
+}
+
+/* DARK MODE */
+body.dark .page-title {
+  color: #ffffff; /* white text */
+}
+
+
+/* SEARCH INPUT */
+.search-input {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #111827;
+  outline: none;
+  transition: 0.2s;
+}
+
+/* DARK */
+body.dark .search-input {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+}
+
+/* BUTTON */
+.primary-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.primary-btn:hover {
+  background: #1d4ed8;
+}
+
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+/* LIGHT */
+.kpi-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+}
+
+/* DARK */
+body.dark .kpi-card {
+  background: #1e293b;
+  box-shadow: none;
+}
+
+/* TEXT */
+.kpi-title {
+  font-size: 13px;
+  color: #64748b;
+}
+
+body.dark .kpi-title {
+  color: #94a3b8;
+}
+
+.kpi-number {
+  font-size: 24px;
+  font-weight: 700;
+  margin-top: 6px;
+  color: #111827;
+}
+
+body.dark .kpi-number {
+  color: #ffffff;
+}
+
+/* HIGHLIGHT CARD */
+.kpi-card.highlight {
+  border-left: 4px solid #6366f1;
+}
+
+
+.filter-bar {
+  margin-bottom: 15px;
+}
+
+#statusFilter {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+/* DARK */
+body.dark #statusFilter {
+  background: #1e293b;
+  color: #e2e8f0;
+  border: 1px solid #334155;
+}
+
+
+
+/* CARD WRAPPER */
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+/* DARK */
+body.dark .card {
+  background: #1e293b;
+}
+
+/* TABLE */
+.premium-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* HEADER */
+.premium-table thead {
+  background: #f9fafb;
+}
+
+.premium-table th {
+  text-align: left;
+  padding: 14px;
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: uppercase;
+}
+
+/* DARK HEADER */
+body.dark .premium-table thead {
+  background: #0f172a;
+}
+
+body.dark .premium-table th {
+  color: #94a3b8;
+}
+
+/* BODY */
+.premium-table td {
+  padding: 14px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #111827;
+}
+
+/* DARK BODY */
+body.dark .premium-table td {
+  color: #e2e8f0;
+  border-bottom: 1px solid #334155;
+}
+
+/* HOVER */
+.premium-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+body.dark .premium-table tbody tr:hover {
+  background: #0f172a;
+}
+
+/* ACTIVE */
+#clientsTableBody .active {
+  background: #dcfce7;
+  color: #16a34a;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* INACTIVE */
+#clientsTableBody .inactive {
+  background: #fee2e2;
+  color: #dc2626;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* DARK */
+body.dark #clientsTableBody .active {
+  background: rgba(34,197,94,0.2);
+  color: #4ade80;
+}
+
+body.dark #clientsTableBody .inactive {
+  background: rgba(239,68,68,0.2);
+  color: #f87171;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* 🚨 FORCE CLIENT TABLE STYLING */
+
+/* CARD */
+.card {
+  background: #ffffff !important;
+  border-radius: 12px !important;
+}
+
+/* DARK CARD */
+body.dark .card {
+  background: #1e293b !important;
+}
+
+/* TABLE */
+.premium-table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  background: transparent !important;
+}
+
+/* HEADER */
+.premium-table thead {
+  background: #f9fafb !important;
+}
+
+.premium-table th {
+  padding: 14px !important;
+  font-size: 12px !important;
+  color: #6b7280 !important;
+  text-transform: uppercase !important;
+}
+
+/* BODY */
+.premium-table td {
+  padding: 14px !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  color: #111827 !important;
+}
+
+/* HOVER */
+.premium-table tbody tr:hover {
+  background: #f9fafb !important;
+}
+
+/* 🌙 DARK MODE */
+body.dark .premium-table thead {
+  background: #0f172a !important;
+}
+
+body.dark .premium-table th {
+  color: #94a3b8 !important;
+}
+
+body.dark .premium-table td {
+  color: #e2e8f0 !important;
+  border-bottom: 1px solid #334155 !important;
+}
+
+body.dark .premium-table tbody tr:hover {
+  background: #0f172a !important;
+}
+
+
+
+/* STATUS */
+#clientsTableBody .active {
+  background: #dcfce7 !important;
+  color: #16a34a !important;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+#clientsTableBody .inactive {
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* DARK */
+body.dark #clientsTableBody .active {
+  background: rgba(34,197,94,0.2) !important;
+  color: #4ade80 !important;
+}
+
+body.dark #clientsTableBody .inactive {
+  background: rgba(239,68,68,0.2) !important;
+  color: #f87171 !important;
+}
+
+
+
+
+
+
+/* 🚨 FIX TABLE HEADER VISIBILITY */
+
+/* LIGHT MODE */
+.premium-table th {
+  color: #111827 !important;   /* dark bold text */
+  font-weight: 700 !important;
+}
+
+/* DARK MODE */
+body.dark .premium-table th {
+  color: #f1f5f9 !important;   /* bright white */
+}
+
+
+.premium-table th {
+  letter-spacing: 0.05em;
+  font-size: 11px;
+}
+
+
+
+/* 🚨 FINAL HEADER FIX — GUARANTEED */
+
+.card .premium-table thead tr th {
+  color: #111827 !important;
+  font-weight: 700 !important;
+  background: #ffffff !important;
+}
+
+/* DARK MODE */
+body.dark .card .premium-table thead tr th {
+  color: #f9fafb !important;
+  background: #0f172a !important;
+}
+
+
+
+
+
+/* OVERLAY */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55); /* darker, premium */
+  backdrop-filter: blur(6px);
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+/* SHOW */
+.modal.open {
+  display: flex;
+}
+
+
+
+.modal-content {
+  width: 420px;
+  max-width: 95%;
+  padding: 24px;
+  border-radius: 14px;
+
+  background: #ffffff;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+
+  animation: modalFade 0.25s ease;
+}
+
+/* DARK MODE */
+body.dark .modal-content {
+  background: #1e293b;
+  box-shadow: none;
+}
+
+
+.modal-content h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #0f172a;
+}
+
+body.dark .modal-content h2 {
+  color: #f1f5f9;
+}
+
+
+
+.form-grid input {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #111827;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+/* FOCUS */
+.form-grid input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+}
+
+/* DARK */
+body.dark .form-grid input {
+  background: #0f172a;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+}
+
+
+
+#clientAvatar {
+  padding: 6px;
+  background: transparent;
+  border: none;
+}
+
+body.dark #clientAvatar {
+  color: #cbd5f5;
+}
+
+
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* CANCEL */
+.secondary-btn {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.secondary-btn:hover {
+  background: #d1d5db;
+}
+
+/* DARK */
+body.dark .secondary-btn {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+
+
+@keyframes modalFade {
+  from {
+    transform: translateY(10px) scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+
+
+
+
+/* PAGE TITLE — STRONG & CLEAN */
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: #0f172a; /* strong dark */
+}
+
+/* DARK MODE */
+body.dark .page-title {
+  color: #f8fafc; /* bright white */
+}
+
+
+
+.page-title {
+  background: linear-gradient(to right, #4f46e5, #6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+
+
+/* FILTER BAR */
+.filter-bar {
+  margin-bottom: 20px;
+}
+
+/* SELECT */
+#statusFilter {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 8px;
+
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  color: #111827;
+
+  font-size: 14px;
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+/* HOVER */
+#statusFilter:hover {
+  border-color: #6366f1;
+}
+
+/* FOCUS */
+#statusFilter:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+}
+
+
+
+body.dark #statusFilter {
+  background: #1e293b;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+}
+
+
+
+#statusFilter {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%236366f1' height='20' viewBox='0 0 20 20' width='20'><path d='M5 7l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+}
+
+
+
+
+
+
+
+/* 🚨 FORCE SELECT STYLING (FINAL FIX) */
+
+.filter-bar select#statusFilter {
+  height: 42px !important;
+  padding: 0 14px !important;
+
+  border-radius: 8px !important;
+  border: 1px solid #6366f1 !important;
+
+  background-color: #ffffff !important;
+  color: #111827 !important;
+
+  font-size: 14px !important;
+  font-weight: 500;
+
+  cursor: pointer;
+
+  /* 🔥 VERY IMPORTANT */
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+}
+
+/* HOVER */
+.filter-bar select#statusFilter:hover {
+  border-color: #4f46e5 !important;
+}
+
+/* FOCUS */
+.filter-bar select#statusFilter:focus {
+  outline: none !important;
+  border-color: #4f46e5 !important;
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.2) !important;
+}
+
+/* 🌙 DARK MODE */
+body.dark .filter-bar select#statusFilter {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+  border: 1px solid #334155 !important;
+}
+
+
+
+.filter-bar {
+  position: relative;
+}
+
+.filter-bar select#statusFilter {
+  padding-right: 35px !important;
+
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%236366f1' height='20' viewBox='0 0 20 20' width='20'><path d='M5 7l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 16px;
+}
+
+
+
+
+
+
+/* FINAL DROPDOWN FIX */
+
+#statusFilter {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+  border: 1px solid #334155 !important;
+
+  appearance: none !important;
+  -webkit-appearance: none !important;
+}
+
+/* OPTIONALLY FORCE TEXT */
+#statusFilter option {
+  background: #1e293b;
+  color: #f1f5f9;
+}
+
+
+
+.page-title {
+  color: #0f172a !important;
+}
+
+body.dark .page-title {
+  color: #ffffff !important;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* =============================
+   DARK MODE
+============================= */
+
+body.dark .app-footer {
+  border-top: 1px solid #1e293b;
+  background: #020617;
+}
+
+/* LINKS */
+body.dark .footer-links a {
+  color: #94a3b8;
+}
+
+body.dark .footer-links a:hover {
+  color: #ffffff;
+}
+
+/* COPYRIGHT */
+body.dark .footer-copy {
+  color: #64748b;
+}
+
+
+
+
+.kpi-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.kpi-icon {
+  font-size: 18px;
+}
+
+.kpi-trend {
+  font-size: 12px;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+.kpi-trend.up {
+  color: #10b981; /* green */
+}
+
+.kpi-trend.down {
+  color: #ef4444; /* red */
+}
+
+.kpi-trend.neutral {
+  color: #6b7280; /* gray */
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===============================
+KPI GRID
+=============================== */
+.kpi-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(240px,1fr));
+  gap:20px;
+  margin-bottom:24px;
+}
+
+/* ===============================
+KPI CARD BASE
+=============================== */
+.kpi-card{
+  background:#ffffff;
+  border-radius:16px;
+  padding:20px 18px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.06);
+  border:1px solid #f1f1f1;
+
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+
+  min-height:140px;
+  transition:all 0.25s ease;
+}
+
+.kpi-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 14px 34px rgba(0,0,0,0.08);
+}
+
+/* ===============================
+HEADER
+=============================== */
+.kpi-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:12px;
+}
+
+.kpi-icon{
+  font-size:20px;
+}
+
+.kpi-title{
+  font-size:14px;
+  color:#6b7280; /* neutral gray */
+  font-weight:500;
+}
+
+/* ===============================
+NUMBER
+=============================== */
+.kpi-number{
+  font-size:28px;
+  font-weight:700;
+  color:#111827;
+  margin:6px 0;
+}
+
+/* ===============================
+TREND
+=============================== */
+.kpi-trend{
+  font-size:13px;
+  font-weight:600;
+  margin-top:auto;
+}
+
+/* POSITIVE */
+.kpi-trend.up{
+  color:#16a34a; /* green */
+}
+
+/* NEGATIVE */
+.kpi-trend.down{
+  color:#dc2626; /* red */
+}
+
+/* NEUTRAL */
+.kpi-trend.neutral{
+  color:#6b7280;
+}
+
+/* ===============================
+CARD VARIANTS (SAAS COLORS)
+=============================== */
+
+/* CLIENTS - BLUE */
+#clientsCard{
+  border-left:4px solid #3b82f6;
+}
+
+/* ACTIVE - GREEN */
+#activeClientsCard{
+  border-left:4px solid #22c55e;
+}
+
+/* INACTIVE - ORANGE */
+#inactiveClientsCard{
+  border-left:4px solid #f59e0b;
+}
+
+/* REVENUE - PREMIUM PURPLE */
+#revenueCard{
+  border-left:4px solid #7c3aed;
+}
+
+/* ===============================
+HIGHLIGHT (REVENUE CARD)
+=============================== */
+.kpi-card.highlight{
+  transform:scale(1.02);
+  box-shadow:0 12px 36px rgba(124,58,237,0.15);
+}
+
+/* ===============================
+RESPONSIVE (MOBILE FRIENDLY)
+=============================== */
+@media(max-width:768px){
+
+  .kpi-card{
+    min-height:120px;
+    padding:16px;
+  }
+
+  .kpi-number{
+    font-size:24px;
+  }
+
+}
+
+
+
+
+
+/* ===============================
+PREMIUM BORDER UPGRADE
+=============================== */
+
+.kpi-card{
+  position:relative;
+  background:#ffffff;
+  border-radius:16px;
+  padding:20px 18px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.06);
+
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+
+  min-height:140px;
+  transition:all 0.25s ease;
+  overflow:hidden;
+}
+
+/* 🔥 GRADIENT LEFT BORDER */
+.kpi-card::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  width:5px;
+  height:100%;
+  border-radius:16px 0 0 16px;
+}
+
+/* ===============================
+CARD COLORS (PREMIUM GRADIENTS)
+=============================== */
+
+/* 🔵 CLIENTS (BLUE GRADIENT) */
+#clientsCard::before{
+  background:linear-gradient(180deg,#3b82f6,#06b6d4);
+  box-shadow:0 0 12px rgba(59,130,246,0.5);
+}
+
+/* 🟢 ACTIVE (GREEN GRADIENT) */
+#activeClientsCard::before{
+  background:linear-gradient(180deg,#22c55e,#4ade80);
+  box-shadow:0 0 12px rgba(34,197,94,0.5);
+}
+
+/* 🟠 INACTIVE (ORANGE GRADIENT) */
+#inactiveClientsCard::before{
+  background:linear-gradient(180deg,#f59e0b,#fb923c);
+  box-shadow:0 0 12px rgba(245,158,11,0.5);
+}
+
+/* 🟣 REVENUE (PURPLE PREMIUM) */
+#revenueCard::before{
+  background:linear-gradient(180deg,#7c3aed,#a855f7);
+  box-shadow:0 0 14px rgba(124,58,237,0.6);
+}
+
+/* ===============================
+HOVER PREMIUM EFFECT
+=============================== */
+.kpi-card:hover{
+  transform:translateY(-5px) scale(1.01);
+  box-shadow:0 16px 40px rgba(0,0,0,0.08);
+}
+
+/* ===============================
+OPTIONAL SOFT GLOW BACKGROUND
+=============================== */
+#clientsCard{
+  background:linear-gradient(135deg,#f0f9ff,#ffffff);
+}
+
+#activeClientsCard{
+  background:linear-gradient(135deg,#f0fdf4,#ffffff);
+}
+
+#inactiveClientsCard{
+  background:linear-gradient(135deg,#fff7ed,#ffffff);
+}
+
+#revenueCard{
+  background:linear-gradient(135deg,#faf5ff,#ffffff);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===============================
+TABLE CARD
+=============================== */
+.card{
+  position:relative;
+  background:#ffffff;
+  border-radius:18px;
+  padding:20px;
+  margin-top:20px;
+
+  box-shadow:0 10px 30px rgba(0,0,0,0.06);
+  border:1px solid #f1f1f1;
+  overflow:hidden;
+}
+
+/* 🔥 LEFT ACCENT BORDER */
+.card::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  width:6px;
+  height:100%;
+  border-radius:18px 0 0 18px;
+
+  background:linear-gradient(180deg,#3b82f6,#06b6d4);
+  box-shadow:0 0 14px rgba(59,130,246,0.5);
+}
+
+/* ===============================
+TABLE CONTAINER
+=============================== */
+.table-container{
+  overflow-x:auto;
+}
+
+/* ===============================
+TABLE
+=============================== */
+.premium-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+}
+
+/* HEADER */
+.premium-table thead{
+  background:#f9fafb;
+}
+
+.premium-table th{
+  text-align:left;
+  padding:14px 12px;
+  font-weight:600;
+  color:#6b7280;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+  border-bottom:1px solid #e5e7eb;
+}
+
+/* BODY */
+.premium-table td{
+  padding:14px 12px;
+  border-bottom:1px solid #f1f5f9;
+  color:#111827;
+}
+
+/* ROW HOVER */
+.premium-table tbody tr{
+  transition:all 0.2s ease;
+}
+
+.premium-table tbody tr:hover{
+  background:#f9fafb;
+  transform:scale(1.002);
+}
+
+/* ===============================
+CLIENT CELL
+=============================== */
+.client-cell{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.client-avatar{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  object-fit:cover;
+}
+
+.client-avatar.placeholder{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#3b82f6;
+  color:#fff;
+  font-weight:600;
+}
+
+/* ===============================
+STATUS BADGE
+=============================== */
+.status-badge{
+  padding:4px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:600;
+}
+
+/* ACTIVE */
+.status-active{
+  background:#dcfce7;
+  color:#16a34a;
+}
+
+/* INACTIVE */
+.status-inactive{
+  background:#fef3c7;
+  color:#d97706;
+}
+
+/* ===============================
+ACTIONS
+=============================== */
+.actions{
+  display:flex;
+  gap:8px;
+}
+
+.icon-btn{
+  border:none;
+  background:#f3f4f6;
+  padding:6px 8px;
+  border-radius:8px;
+  cursor:pointer;
+  transition:all 0.2s ease;
+}
+
+.icon-btn:hover{
+  background:#e5e7eb;
+}
+
+.delete-btn{
+  background:#fee2e2;
+}
+
+.delete-btn:hover{
+  background:#fecaca;
+}
+
+/* ===============================
+🌙 DARK MODE
+=============================== */
+.dark .card,
+[data-theme="dark"] .card{
+  background:#0f172a;
+  border:1px solid #1e293b;
+  box-shadow:0 10px 30px rgba(0,0,0,0.7);
+}
+
+/* border glow */
+.dark .card::before,
+[data-theme="dark"] .card::before{
+  background:linear-gradient(180deg,#60a5fa,#22d3ee);
+}
+
+/* header */
+.dark .premium-table thead,
+[data-theme="dark"] .premium-table thead{
+  background:#111827;
+}
+
+.dark .premium-table th,
+[data-theme="dark"] .premium-table th{
+  color:#9ca3af;
+  border-bottom:1px solid #1f2937;
+}
+
+/* body */
+.dark .premium-table td,
+[data-theme="dark"] .premium-table td{
+  color:#e5e7eb;
+  border-bottom:1px solid #1f2937;
+}
+
+/* row hover */
+.dark .premium-table tbody tr:hover,
+[data-theme="dark"] .premium-table tbody tr:hover{
+  background:#1f2937;
+}
+
+/* avatar placeholder */
+.dark .client-avatar.placeholder,
+[data-theme="dark"] .client-avatar.placeholder{
+  background:#2563eb;
+}
+
+/* buttons */
+.dark .icon-btn,
+[data-theme="dark"] .icon-btn{
+  background:#1f2937;
+  color:#e5e7eb;
+}
+
+.dark .icon-btn:hover,
+[data-theme="dark"] .icon-btn:hover{
+  background:#374151;
+}
+
+/* delete */
+.dark .delete-btn,
+[data-theme="dark"] .delete-btn{
+  background:#7f1d1d;
+}
+
+.dark .delete-btn:hover,
+[data-theme="dark"] .delete-btn:hover{
+  background:#991b1b;
+}
+
+/* status badges dark */
+.dark .status-active,
+[data-theme="dark"] .status-active{
+  background:#052e16;
+  color:#4ade80;
+}
+
+.dark .status-inactive,
+[data-theme="dark"] .status-inactive{
+  background:#451a03;
+  color:#fbbf24;
+}
+
+/* ===============================
+RESPONSIVE
+=============================== */
+@media(max-width:768px){
+  .premium-table th,
+  .premium-table td{
+    padding:10px 8px;
+    font-size:12px;
+  }
+
+  .client-avatar{
+    width:28px;
+    height:28px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===============================
+STICKY TABLE HEADER
+=============================== */
+.premium-table thead th{
+  position:sticky;
+  top:0;
+  z-index:2;
+  backdrop-filter:blur(6px);
+}
+
+
+
+/* ===============================
+SKELETON LOADING
+=============================== */
+/* ===============================
+TABLE SKELETON (PREMIUM)
+=============================== */
+
+.skeleton-row td{
+  padding: 14px 10px;
+}
+
+.skeleton-box{
+  height: 12px;
+  width: 100%;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    #f3f4f6,
+    #e5e7eb,
+    #f3f4f6
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+.skeleton-avatar{
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(
+    90deg,
+    #f3f4f6,
+    #e5e7eb,
+    #f3f4f6
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer{
+  0%{ background-position: -200% 0; }
+  100%{ background-position: 200% 0; }
+}
+
+/* DARK MODE */
+.dark .skeleton-box,
+[data-theme="dark"] .skeleton-box{
+  background:linear-gradient(90deg,#1f2937,#374151,#1f2937);
+}
+
+
+/* ===============================
+PAGINATION
+=============================== */
+.pagination{
+  display:flex;
+  justify-content:flex-end;
+  gap:6px;
+  margin-top:12px;
+}
+
+.page-btn{
+  padding:6px 10px;
+  border-radius:8px;
+  border:1px solid #e5e7eb;
+  background:#fff;
+  cursor:pointer;
+  font-size:13px;
+}
+
+.page-btn.active{
+  background:#3b82f6;
+  color:#fff;
+  border:none;
+}
+
+/* DARK */
+.dark .page-btn,
+[data-theme="dark"] .page-btn{
+  background:#1f2937;
+  border:1px solid #374151;
+  color:#e5e7eb;
+}
+
+.dark .page-btn.active,
+[data-theme="dark"] .page-btn.active{
+  background:#2563eb;
+}
+
+
+
+/* ===============================
+ROW ENTRY ANIMATION
+=============================== */
+.premium-table tbody tr{
+  opacity:0;
+  transform:translateY(6px);
+  animation:fadeInRow 0.3s ease forwards;
+}
+
+@keyframes fadeInRow{
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+/* HEADER ELEMENTS */
+.search-input.skeleton-box::after{
+  height: 36px;
+  width: 180px;
+}
+
+.primary-btn.skeleton-box::after{
+  height: 36px;
+  width: 120px;
+}
+
+/* KPI TEXT TUNING */
+.kpi-title.skeleton-text::after{
+  width: 60%;
+}
+
+.kpi-number.skeleton-text::after{
+  height: 26px;
+  width: 50%;
+}
+
+.kpi-trend.skeleton-text::after{
+  width: 40px;
+}
+
+
+
+/* ===============================
+SKELETON SYSTEM (PREMIUM SaaS)
+=============================== */
+
+.kpi-card.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+/* shimmer animation */
+.kpi-card.loading::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.6),
+    transparent
+  );
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    left: 150%;
+  }
+}
+
+/* ICON SKELETON */
+.kpi-card.loading .kpi-icon {
+  background: #e5e7eb;
+  color: transparent;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+}
+
+/* TITLE */
+.kpi-card.loading .kpi-title {
+  background: #e5e7eb;
+  color: transparent;
+  border-radius: 6px;
+  width: 80px;
+  height: 12px;
+}
+
+/* NUMBER */
+.kpi-card.loading .kpi-number {
+  background: #e5e7eb;
+  color: transparent;
+  border-radius: 6px;
+  width: 70px;
+  height: 24px;
+}
+
+/* TREND */
+.kpi-card.loading .kpi-trend {
+  background: #e5e7eb;
+  color: transparent;
+  border-radius: 6px;
+  width: 60px;
+  height: 12px;
+}
+
+
+
+
+
+
+/* ===============================
+SKELETON BASE
+=============================== */
+
+.skeleton-card{
+  position: relative;
+  overflow: hidden;
+}
+
+/* shimmer effect */
+.skeleton-card::after{
+  content:"";
+  position:absolute;
+  top:0;
+  left:-150px;
+  width:150px;
+  height:100%;
+  background:linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.6),
+    transparent
+  );
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer{
+  0%{ left:-150px; }
+  100%{ left:100%; }
+}
+
+/* text skeleton */
+.skeleton-text{
+  color: transparent !important;
+  background: #e5e7eb;
+  border-radius: 6px;
+}
+
+/* icon skeleton */
+.skeleton-box{
+  display:inline-block;
+  width:24px;
+  height:24px;
+  background:#e5e7eb;
+  border-radius:6px;
+  color: transparent !important;
+}
+
+
+
+
+
+
+/* TEXT SKELETON */
+
+.skeleton-text{
+  color: transparent !important;
+  position: relative;
+}
+
+.skeleton-text::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+
+  background: linear-gradient(
+    90deg,
+    #f3f4f6,
+    #e5e7eb,
+    #f3f4f6
+  );
+
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+
+/* Different sizes for realism */
+
+.page-title.skeleton-text::after{
+  height: 28px;
+  width: 180px;
+}
+
+.subtitle.skeleton-text::after{
+  height: 14px;
+  width: 260px;
+  margin-top: 6px;
+}
+
+
+
+
+
+
+
+/* ===============================
+INPUT SKELETON
+=============================== */
+
+.skeleton-input{
+  color: transparent !important;
+  background: linear-gradient(
+    90deg,
+    #f3f4f6,
+    #e5e7eb,
+    #f3f4f6
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+  border: none !important;
+  pointer-events: none; /* disable typing while loading */
+}
+
+/* ===============================
+BUTTON SKELETON
+=============================== */
+
+.skeleton-button{
+  color: transparent !important;
+  background: linear-gradient(
+    90deg,
+    #f3f4f6,
+    #e5e7eb,
+    #f3f4f6
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+  border: none !important;
+  pointer-events: none; /* disable click */
+}
+
+/* shimmer animation (reuse if already added) */
+@keyframes shimmer{
+  0%{ background-position: -200% 0; }
+  100%{ background-position: 200% 0; }
+}
+
+
+
+
+
+
+
+.kpi-trend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.kpi-trend.up {
+  color: #16a34a; /* green */
+}
+
+.kpi-trend.down {
+  color: #dc2626; /* red */
+}
+
+.kpi-trend.neutral {
+  color: #6b7280; /* gray */
+}
+
+.kpi-icon {
+  width: 18px;
+  height: 18px;
+}
+
+
+.kpi-trend.up {
+  background: rgba(22,163,74,0.1);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+
+
+
+
+
+
+
+
+.client-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+
+
+
+#revenueCard .kpi-number{
+  background: linear-gradient(90deg,#4f46e5,#6366f1);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 700;
+}
+
+
+
+
+
+
+.client-avatar{
+  cursor:pointer;
+  transition:0.2s;
+}
+
+.client-avatar:hover{
+  transform:scale(1.1);
+}
+
+
+.client-avatar{
+  cursor: pointer;
+}
+
+
+
+
+
+
+
+.drawer-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: #4f46e5;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  overflow: hidden;
+}
+
+
+
+
+
+
+
+.timeline-item {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding-left: 10px;
+  border-left: 2px solid #e5e7eb;
+}
+
+.timeline-date {
+  font-size: 11px;
+  color: #9ca3af;
+  min-width: 80px;
+}
+
+.timeline-text {
+  font-size: 13px;
+}
+
+
+.drawer-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+
+
+
+
+
+
+
+.status-paid {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.status-pending {
+  color: #f59e0b;
+  font-weight: 600;
+}
+
+.status-default {
+  color: #6b7280;
+}
+
+
+.timeline-item {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.timeline-dot {
+  width: 10px;
+  height: 10px;
+  background: #4f46e5;
+  border-radius: 50%;
+  margin-top: 6px;
+}
+
+.timeline-content {
+  background: #f9fafb;
+  padding: 10px;
+  border-radius: 8px;
+  width: 100%;
+}
+
+
+
+
+
+
+
+/* ===============================
+ELITE DRAWER HEADER
+=============================== */
+.drawer-header.elite {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #ffffff;
+}
+
+/* ===============================
+PROFILE BLOCK
+=============================== */
+.drawer-profile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* ===============================
+AVATAR (PREMIUM)
+=============================== */
+.drawer-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  font-weight: 600;
+  font-size: 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.25);
+}
+
+/* ===============================
+NAME
+=============================== */
+#drawerClientName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+
+/* ===============================
+STATUS BADGE (🔥 PREMIUM)
+=============================== */
+#drawerClientStatus {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 999px;
+
+  background: rgba(34, 197, 94, 0.1);
+  color: #16a34a;
+}
+
+/* ===============================
+STATUS VARIANTS (INTERNATIONAL SaaS)
+=============================== */
+.status-active {
+  background: rgba(34, 197, 94, 0.12);
+  color: #16a34a;
+}
+
+.status-inactive {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+}
+
+.status-pending {
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+}

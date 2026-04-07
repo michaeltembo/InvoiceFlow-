@@ -213,6 +213,7 @@ function applyLanguage(lang) {
   document.getElementById("loginLinkText").innerText = t.loginLinkText;
 }
 
+
 async function register() {
 
   const company_name = document.getElementById("company_name").value;
@@ -220,11 +221,11 @@ async function register() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  const res = await fetch("/create-company", {
+  const res = await fetch("/signup", { // ✅ FIXED
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      company_name,
+     companyName: company_name,
       company_code,
       email,
       password
@@ -232,13 +233,16 @@ async function register() {
   });
 
   const data = await res.json();
-  alert(data.message || data.error);
+
+  if (res.ok) {
+    localStorage.setItem("verifyEmail", email);
+    window.location.href = "/verify.html";
+  } else {
+    alert(data.error || data.message);
+  }
 }
 
 
-const savedLang = localStorage.getItem("language") || "en";
-document.getElementById("languageSelect").value = savedLang;
-applyLanguage(savedLang);
 </script>
 
 <script>

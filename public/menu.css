@@ -435,3 +435,158 @@ z-index:2500;
   padding-top:16px;
   border-top:1px solid rgba(255,255,255,0.05);
 }
+
+
+
+
+
+/* LIGHT MODE (default) */
+body {
+  background: #f8fafc;
+  color: #0f172a;
+  transition: all 0.3s ease;
+}
+
+/* DARK MODE */
+body.dark {
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+/* TABLE */
+table {
+  background: white;
+  border-radius: 10px;
+}
+
+body.dark table {
+  background: #1e293b;
+}
+
+/* BUTTONS */
+button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  background: #e2e8f0;
+}
+
+body.dark button {
+  background: #334155;
+  color: white;
+}
+
+/* CARDS */
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+body.dark .card {
+  background: #1e293b;
+}
+
+
+
+.theme-toggle {
+  width: 50px;
+  height: 26px;
+  background: #ccc;
+  border-radius: 50px;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.toggle-circle {
+  width: 22px;
+  height: 22px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s ease;
+}
+
+/* DARK MODE ACTIVE */
+body.dark .theme-toggle {
+  background: #25D366; /* WhatsApp green */
+}
+
+body.dark .toggle-circle {
+  transform: translateX(24px);
+}
+
+
+
+
+
+header {
+  width: 100%;
+}
+
+/* TOPBAR */
+.topbar {
+  height: 60px;
+  padding: 0 20px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* DARK MODE */
+body.dark .topbar {
+  background: #020617;
+  border-bottom: 1px solid #1e293b;
+}
+
+
+
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+
+
+#menuToggle {
+  font-size: 18px;
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  color: #0f172a;
+}
+
+/* DARK */
+body.dark #menuToggle {
+  color: #ffffff;
+}
+
+
+
+
+
+.logo {
+  font-size: 18px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+/* DARK MODE */
+body.dark .logo {
+  color: #ffffff;
+}
+
+
+
+
+

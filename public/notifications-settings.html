@@ -91,6 +91,67 @@ input:checked + .slider:before{
   transform:translateX(22px);
 }
 
+
+
+/* =============================
+   DARK MODE - EMAIL NOTIFICATIONS
+============================= */
+
+body.dark {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+/* CARD */
+body.dark .card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+/* TITLE */
+body.dark .card h2 {
+  color: #f9fafb;
+}
+
+/* EACH ROW */
+body.dark .notification {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #334155;
+}
+
+body.dark .notification span {
+  color: #e5e7eb;
+}
+
+/* =============================
+   TOGGLE SWITCH
+============================= */
+
+/* switch background */
+body.dark .switch .slider {
+  background: #334155;
+}
+
+/* when checked */
+body.dark .switch input:checked + .slider {
+  background: #4f46e5;
+}
+
+/* circle */
+body.dark .switch .slider:before {
+  background: #ffffff;
+}
+
+/* subtle glow when active */
+body.dark .switch input:checked + .slider {
+  box-shadow: 0 0 6px rgba(79,70,229,0.5);
+}
+
 </style>
 </head>
 
@@ -134,7 +195,7 @@ input:checked + .slider:before{
 </label>
 </div>
 
-</body>
+
 
 <script>
 
@@ -181,8 +242,46 @@ document.querySelectorAll("input[type=checkbox]").forEach(toggle=>{
 
 loadNotifications();
 
+
+
+
+
+// =============================
+// LOAD SAVED THEME
+// =============================
+document.addEventListener("DOMContentLoaded", () => {
+const savedTheme = localStorage.getItem("theme");
+
+if (savedTheme === "dark") {
+document.body.classList.add("dark");
+}
+
+// SYSTEM DARK MODE (FIXED)
+const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+if (!savedTheme && prefersDark) {
+document.body.classList.add("dark");
+}
+});
+
+
+// =============================
+// TOGGLE THEME
+// =============================
+function toggleTheme() {
+document.body.classList.toggle("dark");
+
+if (document.body.classList.contains("dark")) {
+localStorage.setItem("theme", "dark");
+} else {
+localStorage.setItem("theme", "light");
+}
+}
+
+
 </script>
 
-
+</body>
 
 </html>
+

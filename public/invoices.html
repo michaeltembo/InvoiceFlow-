@@ -10,6 +10,9 @@
 <link rel="stylesheet" href="invoices.css">
 <link rel="stylesheet" href="menu.css">
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
 </head>
 
 
@@ -41,10 +44,6 @@
 <span class="logo-icon">IF</span>  
 </div>  
 
-<a href="trash.html" class="sidebar-link">
-  <i data-lucide="trash-2"></i>
-  <span>Recycle bin</span>
-</a>
 
 <a href="dashboard.html" class="sidebar-link">
   <i data-lucide="layout-dashboard"></i>
@@ -66,28 +65,64 @@
   <span>Settings</span>
 </a>
 
+<a href="reports.html" class="sidebar-link">
+  <i data-lucide="bar-chart-3"></i>
+  <span>Reports</span>
+</a>
+
+
 <button onclick="logout()" class="logout-btn">
   <i data-lucide="log-out"></i>
   <span>Logout</span>
 </button>
+
+<div class="theme-toggle" onclick="toggleTheme()">
+  <span class="icon sun">☀️</span>
+  <span class="icon moon">🌙</span>
+  <div class="toggle-circle"></div>
+</div>
+
 </div>
 
 <!-- PAGE -->
 
 
-<div class="page-header">
+<div class="page-header skeleton-header">
 
-<div>
-<h1>Invoices</h1>
-<p class="page-subtitle">
-Track billing, payments and revenue in one place
-</p>
+  <div>
+    <h1 class="skeleton-text">Invoices</h1>
+    <p class="page-subtitle skeleton-text">
+      Track billing, payments and revenue in one place
+    </p>
+  </div>
+
+  <button class="primary-btn create-btn skeleton-button" onclick="openInvoiceModal()">
+    Create Invoice
+  </button>
 
 </div>
-<button class="primary-btn" onclick="openInvoiceModal()">
- Create Invoice
-</button>
+
+<div class="usage-card skeleton-card">
+
+  <div class="usage-top">
+    <span class="usage-label skeleton-text">Usage</span>
+
+    <div class="usage-actions">
+      <span id="usageInfo" class="usage-text skeleton-text"></span>
+
+      <button id="upgradeBtn" class="upgrade-mini skeleton-button">
+        Upgrade
+      </button>
+    </div>
+  </div>
+
+  <div class="usage-bar">
+    <div id="usageFill" class="usage-fill skeleton-fill"></div>
+  </div>
+
 </div>
+
+
 <div id="invoiceModal" class="modal">
 
   <div class="modal-box">
@@ -157,7 +192,7 @@ Track billing, payments and revenue in one place
 <!-- TAX -->
 <div class="form-section">
 
-<label>Tax %</label>
+<label>VAT (%)</label>
 <input type="number" id="taxRate" value="0" oninput="calculateTotals()">
 
 </div>
@@ -171,7 +206,7 @@ Track billing, payments and revenue in one place
 </div>
 
 <div class="summary-row">
-<span>Tax</span>
+<span>VAT</span>
 <span id="taxAmount">0.00</span>
 </div>
 
@@ -201,34 +236,60 @@ Cancel
 
 <div class="stats-grid">
 
-<div class="stat-card total-card">
-<p class="stat-number" id="totalInvoices">0</p>
-<p class="stat-label">Total Invoices</p>
-</div>
+  <div class="stat-card total-card skeleton-card">
+    <div class="stat-top">
+      <span class="stat-icon skeleton-box"><i data-lucide="file-text"></i></span>
+      <span class="stat-trend skeleton-text" id="totalInvoicesTrend">→ 0%</span>
+    </div>
+    <p class="stat-number skeleton-text" id="totalInvoices">0</p>
+    <p class="stat-label skeleton-text">Total Invoices</p>
+    <canvas class="sparkline" id="clientsSpark"></canvas>
+  </div>
 
-<div class="stat-card paid-card">
-<p class="stat-number" id="paidInvoices">0</p>
-<p class="stat-label">Paid</p>
-</div>
+  <div class="stat-card paid-card skeleton-card">
+    <div class="stat-top">
+      <span class="stat-icon skeleton-box"><i data-lucide="check-circle"></i></span>
+      <span class="stat-trend skeleton-text" id="paidTrend">+0%↑</span>
+    </div>
+    <p class="stat-number skeleton-text" id="paidInvoices">0</p>
+    <p class="stat-label skeleton-text">Paid</p>
+    <canvas class="sparkline" id="activeSpark"></canvas>
+  </div>
 
-<div class="stat-card pending-card">
-<p class="stat-number" id="pendingInvoices">0</p>
-<p class="stat-label">Pending</p>
-</div>
+  <div class="stat-card pending-card skeleton-card">
+    <div class="stat-top">
+      <span class="stat-icon skeleton-box"><i data-lucide="clock"></i></span>
+      <span class="stat-trend skeleton-text" id="pendingTrend">+0%↑</span>
+    </div>
+    <p class="stat-number skeleton-text" id="pendingInvoices">0</p>
+    <p class="stat-label skeleton-text">Pending</p>
+    <canvas class="sparkline" id="pendingSpark"></canvas>
+  </div>
 
-<div class="stat-card revenue-card">
-<p class="stat-number" id="totalRevenue">$0</p>
-<p class="stat-label">Total Revenue</p>
-</div>
+  <div class="stat-card revenue-card skeleton-card" id="totalRevenueCard">
+    <div class="stat-top">
+      <span class="stat-icon skeleton-box"><i data-lucide="dollar-sign"></i></span>
+      <span class="stat-trend skeleton-text" id="revenueTrend">+0%↑</span>
+    </div>
+    <p class="stat-number skeleton-text" id="totalRevenue">0</p>
+    <p class="stat-label skeleton-text">Total Revenue</p>
+    <canvas class="sparkline" id="revenueSpark"></canvas>
+  </div>
 
-<div class="stat-card outstanding-card">
-<p class="stat-number" id="outstandingRevenue">$0</p>
-<p class="stat-label">Outstanding</p>
-</div>
+  <div class="stat-card outstanding-card skeleton-card">
+    <div class="stat-top">
+      <span class="stat-icon skeleton-box"><i data-lucide="alert-triangle"></i></span>
+      <span class="stat-trend skeleton-text" id="outstandingTrend">+0%↑</span>
+    </div>
+    <p class="stat-number skeleton-text" id="outstandingRevenue">0</p>
+    <p class="stat-label skeleton-text">Outstanding</p>
+    <canvas class="sparkline" id="outstandingSpark"></canvas>
+  </div>
 
 </div>
 
 <div class="card">
+
 
 <table class="invoice-table">
 

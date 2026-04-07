@@ -69,6 +69,57 @@ transform:translateY(-2px);
 box-shadow:0 8px 20px rgba(16,185,129,0.35);
 }
 
+
+
+
+/* =============================
+   DARK MODE - SECURITY
+============================= */
+
+body.dark {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+/* CARD */
+body.dark .card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+/* TITLE */
+body.dark .card h2 {
+  color: #f9fafb;
+}
+
+/* BUTTONS */
+body.dark .card button {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: #e5e7eb;
+  text-align: left;
+}
+
+/* HOVER */
+body.dark .card button:hover {
+  background: #1e293b;
+}
+
+/* PRIMARY ACTION (2FA) */
+body.dark .card button:last-child {
+  background: #4f46e5;
+  color: #ffffff;
+  border: none;
+}
+
+
+
 </style>
 
 
@@ -99,6 +150,41 @@ function changePassword(){
 function enable2FA(){
   window.location.href = "/two-factor.html";
 }
+
+
+
+// =============================
+// LOAD SAVED THEME
+// =============================
+document.addEventListener("DOMContentLoaded", () => {
+const savedTheme = localStorage.getItem("theme");
+
+if (savedTheme === "dark") {
+document.body.classList.add("dark");
+}
+
+// SYSTEM DARK MODE (FIXED)
+const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+if (!savedTheme && prefersDark) {
+document.body.classList.add("dark");
+}
+});
+
+
+// =============================
+// TOGGLE THEME
+// =============================
+function toggleTheme() {
+document.body.classList.toggle("dark");
+
+if (document.body.classList.contains("dark")) {
+localStorage.setItem("theme", "dark");
+} else {
+localStorage.setItem("theme", "light");
+}
+}
+
 
 </script>
 </body>

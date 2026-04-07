@@ -503,3 +503,309 @@ padding:20px;
 }
 
 
+
+
+
+
+
+
+
+/* SIDEBAR CONTAINER */
+.settings-sidebar {
+  width: 240px;
+  padding: 16px;
+  border-radius: 14px;
+
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+/* DARK MODE */
+body.dark .settings-sidebar {
+  background: #020617;
+  border: 1px solid #1e293b;
+}
+
+
+.settings-sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+
+/* LINKS */
+.settings-sidebar a {
+  display: block;
+  padding: 10px 14px;
+  margin-bottom: 6px;
+
+  border-radius: 10px;
+  text-decoration: none;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  color: #0f172a; /* STRONG text */
+}
+
+/* HOVER */
+.settings-sidebar a:hover {
+  background: #f1f5f9;
+}
+
+/* DARK MODE */
+body.dark .settings-sidebar a {
+  color: #e2e8f0 !important;
+}
+
+body.dark .settings-sidebar a:hover {
+  background: #1e293b;
+}
+
+
+/* ACTIVE LINK */
+.settings-sidebar li.active a {
+  background: #6366f1;
+  color: #ffffff !important;
+}
+
+/* DARK MODE ACTIVE */
+body.dark .settings-sidebar li.active a {
+  background: #4f46e5;
+  color: #ffffff !important;
+}
+
+
+.settings-sidebar li.active a {
+  position: relative;
+}
+
+.settings-sidebar li.active a::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 6px;
+  bottom: 6px;
+
+  width: 4px;
+  border-radius: 4px;
+  background: #6366f1;
+}
+
+
+
+
+
+
+
+
+/* SETTINGS PANEL */
+.settings-panel {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+}
+
+/* DARK MODE */
+body.dark .settings-panel {
+  background: #020617;
+  border: 1px solid #1e293b;
+}
+
+
+
+.settings-panel h2 {
+  margin-bottom: 16px;
+  color: #0f172a;
+}
+
+/* DARK */
+body.dark .settings-panel h2 {
+  color: #ffffff;
+}
+
+
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+
+/* INPUTS */
+.settings-panel input {
+  height: 42px;
+  padding: 0 12px;
+
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+
+  background: #ffffff;
+  color: #0f172a;
+
+  font-size: 14px;
+}
+
+/* PLACEHOLDER */
+.settings-panel input::placeholder {
+  color: #94a3b8;
+}
+
+/* FOCUS */
+.settings-panel input:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+/* DARK MODE */
+body.dark .settings-panel input {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+  border: 1px solid #334155 !important;
+}
+
+body.dark .settings-panel input::placeholder {
+  color: #64748b;
+}
+
+
+
+
+
+.settings-panel h3 {
+  margin: 20px 0 10px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+body.dark .settings-panel h3 {
+  color: #ffffff;
+}
+
+
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 14px;
+}
+
+
+
+.form-group label {
+  font-size: 13px;
+  margin-bottom: 6px;
+  color: #334155;
+  font-weight: 500;
+}
+
+/* DARK MODE */
+body.dark .form-group label {
+  color: #cbd5f5;
+}
+
+
+.form-group input {
+  height: 42px;
+  padding: 0 12px;
+
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+
+  background: #ffffff;
+  color: #0f172a;
+
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+/* PLACEHOLDER */
+.form-group input::placeholder {
+  color: #94a3b8;
+}
+
+/* FOCUS */
+.form-group input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99,102,241,0.15);
+}
+
+/* DARK MODE */
+body.dark .form-group input {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+  border: 1px solid #334155 !important;
+}
+
+body.dark .form-group input::placeholder {
+  color: #64748b;
+}
+
+
+
+.primary-btn {
+  margin-top: 10px;
+}
+
+/* optional improvement */
+.primary-btn {
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.primary-btn:hover {
+  background: #4f46e5;
+}
+
+
+
+#companyMessage {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #16a34a;
+}
+
+/* error state (optional) */
+#companyMessage.error {
+  color: #ef4444;
+}
+
+
+
+
+
+
+
+
+
+/* =============================
+   DARK MODE
+============================= */
+
+body.dark .app-footer {
+  border-top: 1px solid #1e293b;
+  background: #020617;
+}
+
+/* LINKS */
+body.dark .footer-links a {
+  color: #94a3b8;
+}
+
+body.dark .footer-links a:hover {
+  color: #ffffff;
+}
+
+/* COPYRIGHT */
+body.dark .footer-copy {
+  color: #64748b;
+}

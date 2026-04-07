@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>InvoiceFlow | Verify Email</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+/* Background */
+body{
+margin:0;
+font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+background:linear-gradient(270deg,#6366f1,#06b6d4,#10b981,#f59e0b);
+background-size:800% 800%;
+animation:gradientMove 15s ease infinite;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+@keyframes gradientMove{
+0%{background-position:0% 50%;}
+50%{background-position:100% 50%;}
+100%{background-position:0% 50%;}
+}
+
+/* Card */
+.card{
+background:rgba(255,255,255,0.95);
+padding:40px;
+border-radius:16px;
+width:360px;
+text-align:center;
+box-shadow:0 25px 60px rgba(0,0,0,0.2);
+backdrop-filter:blur(6px);
+}
+
+/* Title */
+h2{
+margin-bottom:10px;
+color:#111827;
+}
+
+p{
+color:#6b7280;
+font-size:14px;
+}
+
+/* OTP inputs */
+.otp{
+display:flex;
+justify-content:space-between;
+margin:25px 0;
+}
+
+.otp input{
+width:45px;
+height:55px;
+font-size:20px;
+text-align:center;
+border-radius:10px;
+border:1px solid #e5e7eb;
+transition:0.2s;
+}
+
+.otp input:focus{
+outline:none;
+border-color:#6366f1;
+box-shadow:0 0 0 3px rgba(99,102,241,0.2);
+}
+
+/* Button */
+button{
+width:100%;
+padding:12px;
+border:none;
+border-radius:10px;
+background:linear-gradient(135deg,#6366f1,#4f46e5);
+color:white;
+font-size:15px;
+font-weight:600;
+cursor:pointer;
+transition:0.2s;
+}
+
+button:hover{
+transform:translateY(-2px);
+box-shadow:0 10px 25px rgba(79,70,229,0.35);
+}
+
+/* Timer */
+.timer{
+margin-top:15px;
+font-size:13px;
+color:#6b7280;
+}
+
+/* Resend */
+.resend{
+margin-top:10px;
+font-size:13px;
+color:#4f46e5;
+cursor:pointer;
+display:none;
+}
+
+/* Message */
+#msg{
+margin-top:15px;
+font-weight:500;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="card">
+
+<h2>Verify Your Email</h2>
+<p>Enter the 6-digit code sent to your email</p>
+
+<div class="otp">
+<input maxlength="1">
+<input maxlength="1">
+<input maxlength="1">
+<input maxlength="1">
+<input maxlength="1">
+<input maxlength="1">
+</div>
+
+<button onclick="verify()">Verify Account</button>
+
+<div class="timer" id="timer">Expires in 60s</div>
+<div class="resend" id="resend" onclick="resendCode()">Resend Code</div>
+
+<p id="msg"></p>
+
+</div>
+
+<script>
+
+// Auto move between inputs
+const inputs = document.querySelectorAll(".otp input");
+
+inputs.forEach((input, i) => {
+  input.addEventListener("input", () => {
+    if (input.value && i < inputs.length - 1) {
+      inputs[i + 1].focus();
+    }
+  });
+});
+
+// Get full code
+function getCode(){
+  return Array.from(inputs).map(i => i.value).join("");
+}
+
+// Verify
+async function verify() {
+  const code = getCode();
+  const email = localStorage.getItem("verifyEmail");
+
+  const res = await fetch("/verify", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      email: email,
+      userInputCode: code
+    })
+  });
+
+  const data = await res.json();
+
+  if (res.ok) {
+    document.getElementById("msg").innerText = "✅ Verified!";
+    setTimeout(() => {
+      window.location.href = "/dashboard.html";
+    }, 1500);
+  } else {
+    document.getElementById("msg").innerText = data.message;
+  }
+}
+
+// Countdown timer
+let time = 60;
+const timerEl = document.getElementById("timer");
+const resendEl = document.getElementById("resend");
+
+const countdown = setInterval(() => {
+  time--;
+  timerEl.innerText = `Expires in ${time}s`;
+
+  if (time <= 0) {
+    clearInterval(countdown);
+    timerEl.innerText = "Code expired";
+    resendEl.style.display = "block";
+  }
+}, 1000);
+
+// Resend
+async function resendCode(){
+  const email = localStorage.getItem("verifyEmail");
+
+  await fetch("/resend-code", {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({ email })
+  });
+
+  location.reload();
+}
+
+</script>
+
+</body>
+</html>

@@ -234,15 +234,28 @@ async function login() {
 
   if (res.ok) {
     localStorage.setItem("token", data.token);
-    window.location.href = "/dashboard.html";
+
+    // ✅ Decode token
+    const payload = JSON.parse(atob(data.token.split(".")[1]));
+
+    // ✅ Redirect based on role
+    if (payload.is_super_admin) {
+      window.location.href = "/admin.html";   // 👑 admin
+    } else {
+      window.location.href = "/dashboard.html"; // 👤 normal user
+    }
+
   } else {
+
+    if (data.error === "Use admin login") {
+      window.location.href = "/admin-login.html";
+      return;
+    }
+
     alert(data.error || "Login failed");
   }
 }
 
-const savedLang = localStorage.getItem("language") || "en";
-document.getElementById("languageSelect").value = savedLang;
-applyLanguage(savedLang);
 
 </script>
 <script>

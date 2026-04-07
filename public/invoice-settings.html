@@ -93,6 +93,141 @@ font-size:14px;
 color:#16a34a;
 }
 
+
+
+.page {
+  padding: 20px;
+}
+
+
+.card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  max-width: 500px;
+}
+
+/* DARK MODE */
+body.dark .card {
+  background: #020617;
+  border: 1px solid #1e293b;
+}
+
+
+.card h2 {
+  margin-bottom: 16px;
+  color: #0f172a;
+}
+
+body.dark .card h2 {
+  color: #ffffff;
+}
+
+
+
+.card input {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  margin-bottom: 12px;
+
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+
+  background: #ffffff;
+  color: #0f172a;
+
+  font-size: 14px;
+}
+
+/* PLACEHOLDER */
+.card input::placeholder {
+  color: #94a3b8;
+}
+
+/* FOCUS */
+.card input:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+/* DARK MODE */
+body.dark .card input {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+  border: 1px solid #334155 !important;
+}
+
+body.dark .card input::placeholder {
+  color: #64748b;
+}
+
+
+.card button {
+  width: 100%;
+  height: 42px;
+
+  background: #6366f1;
+  color: #ffffff;
+
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.card button:hover {
+  background: #4f46e5;
+}
+
+#invoiceMsg {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #16a34a;
+}
+
+#invoiceMsg.error {
+  color: #ef4444;
+}
+
+
+
+
+
+/* =============================
+   DARK MODE - INVOICE PREFERENCES
+============================= */
+
+body.dark {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+/* CARD */
+body.dark .card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+/* TITLE */
+body.dark .card h2 {
+  color: #f9fafb;
+}
+
+/* INPUTS */
+body.dark #invoicePrefix,
+body.dark #startNumber,
+body.dark #paymentTerms,
+body.dark #invoiceFooter {
+  background: #0f172a;
+  color: #
+
+
 </style>
 </head>
 
@@ -165,6 +300,42 @@ document.getElementById("invoiceMsg").textContent =
 }
 
 }
+
+
+// =============================
+// LOAD SAVED THEME
+// =============================
+document.addEventListener("DOMContentLoaded", () => {
+const savedTheme = localStorage.getItem("theme");
+
+if (savedTheme === "dark") {
+document.body.classList.add("dark");
+}
+
+// SYSTEM DARK MODE (FIXED)
+const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+if (!savedTheme && prefersDark) {
+document.body.classList.add("dark");
+}
+});
+
+
+// =============================
+// TOGGLE THEME
+// =============================
+function toggleTheme() {
+document.body.classList.toggle("dark");
+
+if (document.body.classList.contains("dark")) {
+localStorage.setItem("theme", "dark");
+} else {
+localStorage.setItem("theme", "light");
+}
+}
+
+
+
 
 </script>
 

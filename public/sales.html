@@ -253,6 +253,164 @@ background:#e5e7eb;
 
 
 
+
+
+
+
+/* =============================
+   DARK MODE - SALES PAGE
+============================= */
+
+body.dark {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+/* HEADER */
+body.dark .page-header h1 {
+  color: #f9fafb;
+}
+
+/* BACK BUTTON */
+body.dark .back-btn {
+  background: #1e293b;
+  color: #e5e7eb;
+  border: 1px solid #334155;
+}
+
+/* CARDS */
+body.dark .card {
+  background: #1e293b;
+ 
+}
+
+
+
+
+
+
+
+
+
+/* REMOVE THIS (or it will override colors) */
+/* body.dark .card h3 { color: #f9fafb; } */
+
+/* TABLE WRAPPER */
+body.dark .table-wrapper {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+}
+
+/* TABLE */
+body.dark table {
+  color: #e5e7eb;
+}
+
+body.dark thead {
+  background: #020617;
+}
+
+body.dark th {
+  color: #94a3b8;
+}
+
+body.dark td {
+  border-top: 1px solid #334155;
+  color: #e5e7eb;
+}
+
+/* STATUS COLORS */
+body.dark .status.paid {
+  background: rgba(22,163,74,0.15);
+  color: #4ade80;
+}
+
+body.dark .status.pending {
+  background: rgba(245,158,11,0.15);
+  color: #fbbf24;
+}
+
+body.dark .status.overdue {
+  background: rgba(220,38,38,0.15);
+  color: #f87171;
+}
+
+
+
+
+
+
+
+/* KEEP KPI NUMBER COLORS IN DARK MODE */
+body.dark .total-card h3 {
+  color: #3b82f6; /* blue */
+}
+
+body.dark .paid-card h3 {
+  color: #16a34a; /* green */
+}
+
+body.dark .outstanding-card h3 {
+  color: #f59e0b; /* orange */
+}
+
+body.dark .overdue-card h3 {
+  color: #dc2626; /* red */
+}
+
+
+
+
+
+
+/* DARK MODE TABLE HEADER */
+body.dark thead {
+  background: #020617; /* deep dark */
+}
+
+body.dark thead th {
+  color: #94a3b8; /* soft grey text */
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #334155;
+}
+
+
+
+
+body.dark .table-wrapper table {
+  background: #020617;
+  color: #e5e7eb;
+}
+
+body.dark .table-wrapper table thead {
+  background: #020617;
+}
+
+body.dark .table-wrapper table thead th {
+  color: #94a3b8;
+  border-bottom: 1px solid #334155;
+}
+
+body.dark .table-wrapper table tbody td {
+  border-bottom: 1px solid #1e293b;
+}
+
+
+
+/* FORCE DARK HEADER */
+body.dark table thead,
+body.dark table thead tr,
+body.dark table thead th {
+  background: #020617 !important;
+  color: #94a3b8 !important;
+}
+
+body.dark table thead th {
+  border-bottom: 1px solid #334155 !important;
+}
+
 </style>
 
 </head>
@@ -474,6 +632,44 @@ function goBack(){
 window.history.back()
 }
 
+
+
+
+
+
+
+
+// =============================
+// LOAD SAVED THEME
+// =============================
+document.addEventListener("DOMContentLoaded", () => {
+  const savedTheme = localStorage.getItem("theme");
+
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark");
+  }
+
+  // SYSTEM DARK MODE (FIXED)
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+  if (!savedTheme && prefersDark) {
+    document.body.classList.add("dark");
+  }
+});
+
+
+// =============================
+// TOGGLE THEME
+// =============================
+function toggleTheme() {
+  document.body.classList.toggle("dark");
+
+  if (document.body.classList.contains("dark")) {
+    localStorage.setItem("theme", "dark");
+  } else {
+    localStorage.setItem("theme", "light");
+  }
+}
 </script>
 </body>
 

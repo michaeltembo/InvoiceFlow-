@@ -44,10 +44,6 @@
 </div>  
 
 
-<a href="trash.html" class="sidebar-link">
-  <i data-lucide="trash-2"></i>
-  <span>Recycle bin</span>
-</a>
 
 <a href="dashboard.html" class="sidebar-link">
   <i data-lucide="layout-dashboard"></i>
@@ -69,10 +65,22 @@
   <span>Settings</span>
 </a>
 
+<a href="reports.html" class="sidebar-link">
+  <i data-lucide="bar-chart-3"></i>
+  <span>Reports</span>
+</a>
+
+
 <button onclick="logout()" class="logout-btn">
   <i data-lucide="log-out"></i>
   <span>Logout</span>
 </button>
+
+<div class="theme-toggle" onclick="toggleTheme()">
+  <span class="icon sun">☀️</span>
+  <span class="icon moon">🌙</span>
+  <div class="toggle-circle"></div>
+</div>
 
 </div>
 
@@ -90,26 +98,30 @@
 
 <div class="header-left">
 
-<h1 class="page-title">Clients</h1>
+<h1 class="page-title skeleton-text" id="pageTitle">
+  Clients
+</h1>
 
-<p class="subtitle">
-Manage your customers and monitor engagement
+<p class="subtitle skeleton-text" id="pageSubtitle">
+  Manage your customers and monitor engagement
 </p>
-
-</div>
 
 <div class="header-right">
 
-<input
-type="text"
-placeholder="Search clients..."
-oninput="searchClients(this.value)"
-class="search-input"
-/>
+  <input
+    type="text"
+    class="search-input skeleton-input"
+    placeholder="Search clients..."
+    oninput="searchClients(this.value)"
+  >
 
-<button class="primary-btn" onclick="openClientModal()">
-+ Add Client
+</div>
+
+<div>
+<button class="primary-btn skeleton-button" onclick="openClientModal()">
+  + Add Client
 </button>
+</div>
 
 </div>
 
@@ -120,43 +132,43 @@ class="search-input"
 
 <div class="kpi-grid">
 
-<div class="kpi-card">
-<span class="kpi-title">Clients</span>
-<h2 class="kpi-number" id="totalClients">0</h2>
+  <div class="kpi-card" id="clientsCard">
+    <div class="kpi-header">
+      <i data-lucide="users" class="kpi-icon"></i>
+      <span class="kpi-title">Clients</span>
+    </div>
+    <h2 class="kpi-number" id="totalClients">0</h2>
+    <div class="kpi-trend neutral" id="clientsTrend">0%</div>
+  </div>
+
+  <div class="kpi-card" id="activeClientsCard">
+    <div class="kpi-header">
+      <i data-lucide="user-check" class="kpi-icon"></i>
+      <span class="kpi-title">Active</span>
+    </div>
+    <h2 class="kpi-number" id="activeClients">0</h2>
+    <div class="kpi-trend neutral" id="activeTrend">0%</div>
+  </div>
+
+  <div class="kpi-card" id="inactiveClientsCard">
+    <div class="kpi-header">
+      <i data-lucide="user-x" class="kpi-icon"></i>
+      <span class="kpi-title">Inactive</span>
+    </div>
+    <h2 class="kpi-number" id="inactiveClients">0</h2>
+    <div class="kpi-trend neutral" id="inactiveTrend">0%</div>
+  </div>
+
+  <div class="kpi-card highlight" id="revenueCard">
+    <div class="kpi-header">
+      <i data-lucide="dollar-sign" class="kpi-icon"></i>
+      <span class="kpi-title">Revenue</span>
+    </div>
+    <h2 class="kpi-number" id="totalRevenue">ZMW 0.00</h2>
+    <div class="kpi-trend neutral" id="revenueTrend">0%</div>
+  </div>
+
 </div>
-
-<div class="kpi-card">
-<span class="kpi-title">Active</span>
-<h2 class="kpi-number" id="activeClients">0</h2>
-</div>
-
-<div class="kpi-card">
-<span class="kpi-title">Inactive</span>
-<h2 class="kpi-number" id="inactiveClients">0</h2>
-</div>
-
-<div class="kpi-card highlight">
-<span class="kpi-title">Revenue</span>
-<h2 class="kpi-number" id="clientRevenue">0</h2>
-</div>
-
-</div>
-
-
-<!-- FILTER -->
-
-<div class="filter-bar">
-
-<select id="statusFilter">
-
-<option value="">All Status</option>
-<option value="active">Active</option>
-<option value="inactive">Inactive</option>
-
-</select>
-
-</div>
-
 
 <!-- CLIENT TABLE -->
 
@@ -236,17 +248,30 @@ class="search-input"
 
 <div id="clientDrawer" class="drawer">
 
-<div class="drawer-content">
 
-<div class="drawer-header">
 
-<h2 id="drawerClientName">Client</h2>
+<div class="drawer-header elite">
 
+  <div class="drawer-profile">
+
+    <div class="drawer-avatar" id="drawerAvatar"></div>
+
+    <div>
+      <h2 id="drawerClientName">Client</h2>
+      <small id="drawerClientStatus">Active Client</small>
+    </div>
+
+  </div>
+
+  <div class="drawer-actions">
+    <button onclick="sendInvoice()">➕ Invoice</button>
+    <button onclick="editClient()">✏️ Edit</button>
+    <button class="danger" onclick="deleteClient()">🗑</button>
+<button onclick="exportClientReport()">📄 Export</button>    
 <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+
 </div>
-
-<div class="drawer-body">
-
 
 <!-- CLIENT INFO -->
 
@@ -272,30 +297,43 @@ class="search-input"
 
 <!-- CLIENT STATS -->
 
-<div class="client-stats">
+<div class="client-stats elite">
 
-<div class="stat-box">
-<span>Revenue</span>
-<strong id="drawerRevenue">0</strong>
+  <div class="stat-box">
+    <span>Total Revenue</span>
+    <strong id="drawerRevenue">0</strong>
+  </div>
+
+  <div class="stat-box">
+    <span>Invoices</span>
+    <strong id="drawerInvoicesCount">0</strong>
+  </div>
+
+  <div class="stat-box success">
+    <span>Paid</span>
+    <strong id="drawerPaid">0</strong>
+  </div>
+
+  <div class="stat-box warning">
+    <span>Pending</span>
+    <strong id="drawerPending">0</strong>
+  </div>
+
 </div>
 
-<div class="stat-box">
-<span>Invoices</span>
-<strong id="drawerInvoicesCount">0</strong>
-</div>
+<div class="client-insights">
 
-<div class="stat-box">
-<span>Paid</span>
-<strong id="drawerPaid">0</strong>
-</div>
+  <div class="insight">
+    💡 Avg Invoice:
+    <strong id="avgInvoice">0</strong>
+  </div>
 
-<div class="stat-box">
-<span>Pending</span>
-<strong id="drawerPending">0</strong>
-</div>
+  <div class="insight">
+    📅 Last Activity:
+    <strong id="lastActivity">-</strong>
+  </div>
 
 </div>
-
 
 <!-- REVENUE CHART -->
 
@@ -339,7 +377,26 @@ class="search-input"
 
 </div>
 
+<div class="pagination" id="pagination"></div>
+
 </div>
+
+
+<div id="imageModal" style="
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.9);
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+">
+  <img id="modalImage" style="max-width:90%; max-height:90%; border-radius:10px;">
+</div>
+
 
 <!-- FOOTER -->
 

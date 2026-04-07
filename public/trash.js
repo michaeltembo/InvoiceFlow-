@@ -1,3 +1,5 @@
+alert("TRASH JS LOADED");
+
 function getToken(){
   return localStorage.getItem("token");
 }
@@ -26,17 +28,15 @@ async function loadTrash(token){
 
   try{
 
-    const res = await fetch("http://localhost:3000/recycle-bin", {
+    const res = await fetch("/recycle-bin", { // ✅ FIXED HERE
       headers: {
         Authorization: "Bearer " + token
       }
     });
 
-    if(!res.ok){
-      throw new Error("Failed to load recycle bin");
-    }
-
     const data = await res.json();
+
+    console.log("DATA:", data); // 🔥 DEBUG
 
     const table = document.getElementById("trashTable");
     table.innerHTML = "";
@@ -70,7 +70,6 @@ async function loadTrash(token){
     alert("Failed to load recycle bin");
   }
 }
-
 
     // =======================
     // CLIENTS

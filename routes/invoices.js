@@ -15,7 +15,7 @@ router.delete("/:id", auth, requireAdmin, async (req, res) => {
        WHERE id = $1
        AND company_id = $2
        RETURNING *`,
-      [req.params.id, req.companyId]
+      [req.params.id, req.user.companyId]
     );
 
     if (result.rows.length === 0) {

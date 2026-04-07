@@ -167,6 +167,122 @@ color:white;
 background:#e5e7eb;
 }
 
+
+
+
+/* =============================
+   DARK MODE - USERS & ROLES
+============================= */
+
+body.dark {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+/* HEADER */
+body.dark .page-header h2 {
+  color: #f9fafb;
+}
+
+/* INVITE BUTTON */
+body.dark .invite-btn {
+  background: #4f46e5;
+  color: #ffffff;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+}
+
+/* =============================
+   TABLE
+============================= */
+
+body.dark .users-table {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  width: 100%;
+}
+
+/* 🔥 FORCE HEADER FIX */
+body.dark .users-table thead,
+body.dark .users-table thead tr,
+body.dark .users-table thead th {
+  background: #020617 !important;
+  color: #94a3b8 !important;
+  border-bottom: 1px solid #334155 !important;
+}
+
+/* BODY */
+body.dark .users-table tbody td {
+  color: #e5e7eb;
+  border-bottom: 1px solid #1e293b;
+}
+
+/* =============================
+   ROLE BADGES
+============================= */
+
+body.dark .role.admin {
+  background: rgba(239,68,68,0.15);
+  color: #f87171;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+body.dark .role.staff {
+  background: rgba(59,130,246,0.15);
+  color: #60a5fa;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+/* =============================
+   REMOVE BUTTON
+============================= */
+
+body.dark .remove-btn {
+  background: #1e293b;
+  color: #f87171;
+  border: 1px solid #334155;
+}
+
+body.dark .remove-btn:hover {
+  background: #334155;
+}
+
+/* =============================
+   MODAL
+============================= */
+
+body.dark #inviteModal {
+  background: #1e293b;
+  color: #e5e7eb;
+  border: 1px solid #334155;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+/* INPUT + SELECT */
+body.dark #inviteModal input,
+body.dark #inviteModal select {
+  background: #0f172a;
+  color: #e5e7eb;
+  border: 1px solid #334155;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+/* MODAL BUTTONS */
+body.dark #inviteModal button {
+  background: #1e293b;
+  color: #e5e7eb;
+  border: 1px solid #334155;
+  padding: 8px 12px;
+  border-radius: 6px;
+}
+
+
 </style>
 
 </head>
@@ -316,6 +432,41 @@ async function sendInvite(){
     alert("Error inviting user");
   }
 
+}
+
+
+
+
+// =============================
+// LOAD SAVED THEME
+// =============================
+document.addEventListener("DOMContentLoaded", () => {
+const savedTheme = localStorage.getItem("theme");
+
+if (savedTheme === "dark") {
+document.body.classList.add("dark");
+}
+
+// SYSTEM DARK MODE (FIXED)
+const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+if (!savedTheme && prefersDark) {
+document.body.classList.add("dark");
+}
+});
+
+
+// =============================
+// TOGGLE THEME
+// =============================
+function toggleTheme() {
+document.body.classList.toggle("dark");
+
+if (document.body.classList.contains("dark")) {
+localStorage.setItem("theme", "dark");
+} else {
+localStorage.setItem("theme", "light");
+}
 }
 
 

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Reports</title>
+  <link rel="stylesheet" href="reports.css">
+
+<link rel="stylesheet" href="menu.css">
+
+</head>
+
+<body>
+
+<header>
+
+
+<div class="topbar">
+
+<div class="left-section">
+
+<button id="menuToggle">☰</button>
+
+<div class="logo">InvoiceFlow</div>
+
+<div class="nav-menu">
+</div>
+
+</div>
+
+</div>
+
+</header>
+
+<div id="sidebar" class="sidebar">
+<div class="sidebar-logo">
+<span class="logo-icon">IF</span>
+</div>
+
+<a href="trash.html" class="sidebar-link">
+  <i data-lucide="trash-2"></i>
+  <span>Recycle bin</span>
+</a>
+
+<a href="dashboard.html" class="sidebar-link">
+  <i data-lucide="layout-dashboard"></i>
+  <span>Dashboard</span>
+</a>
+
+<a href="clients.html" class="sidebar-link">
+  <i data-lucide="users"></i>
+  <span>Clients</span>
+</a>
+
+<a href="invoices.html" class="sidebar-link">
+  <i data-lucide="file-text"></i>
+  <span>Invoices</span>
+</a>
+
+<a href="company-settings.html" class="sidebar-link">
+  <i data-lucide="settings"></i>
+  <span>Settings</span>
+</a>
+<a href="reports.html" class="sidebar-link">
+  <i data-lucide="bar-chart-3"></i>
+  <span>Reports</span>
+</a>
+
+<button onclick="logout()" class="logout-btn">
+  <i data-lucide="log-out"></i>
+  <span>Logout</span>
+</button>
+
+<div class="theme-toggle" onclick="toggleTheme()">
+  <span class="icon sun">☀️</span>
+  <span class="icon moon">🌙</span>
+  <div class="toggle-circle"></div>
+</div>
+</div>
+
+
+<h1>Reports</h1>
+
+<div class="filters">
+  <button onclick="setRange('month')">This Month</button>
+  <button onclick="setRange('30days')">Last 30 Days</button>
+  <button onclick="setRange('year')">This Year</button>
+  <input type="date" id="fromDate">
+  <input type="date" id="toDate">
+  <button onclick="applyCustomRange()">Apply</button>
+</div>
+
+
+<!-- OVERVIEW -->
+
+<div class="cards">
+  <div class="card revenue-card">Revenue<br><span id="revenue">0</span></div>
+  <div class="card invoices-card">Invoices<br><span id="invoices">0</span></div>
+  <div class="card outstanding-card">Outstanding<br><span id="outstanding">0</span></div>
+  <div class="card clients-card">Clients<br><span id="clients">0</span></div>
+</div>
+
+
+
+<!-- CHARTS -->
+<div class="charts">
+
+<div class="report-card">
+
+  <div class="report-header">
+    <div>
+      <h3>Revenue</h3>
+      <div class="sub-text">Monthly earnings</div>
+    </div>
+  </div>
+
+  <div class="chart-container">
+    <canvas id="revenueChart"></canvas>
+  </div>
+
+</div>
+
+
+    <select class="report-filter" onchange="setRange(this.value)">
+      <option value="month">Monthly</option>
+      <option value="30days">Last 30 Days</option>
+      <option value="year">Yearly</option>
+    </select>
+  </div>
+
+  <canvas id="revenueChart"></canvas>
+
+</div>
+  <div class="chart-box">
+    <h3>Income vs Expenses</h3>
+    <canvas id="profitChart"></canvas>
+  </div>
+
+<div class="chart-box">
+  <h3>Invoice Status</h3>
+
+  <div class="chart-container">
+    <canvas id="statusChart"></canvas>
+  </div>
+
+</div>
+</div>
+
+
+<!-- TOP CLIENTS CARD -->
+
+<div class="card top-clients-card">
+
+  <div class="card-header">
+    <h3>Clients</h3>
+    <span class="sub">This month</span>
+  </div>
+
+  <div class="table-wrapper">
+    <table class="clients-table">
+      <thead>
+        <tr>
+          <th>CLIENT</th>
+          <th>TOTAL PAID</th>
+          <th>INVOICES</th>
+        </tr>
+      </thead>
+      <tbody id="topClients"></tbody>
+    </table>
+  </div>
+
+</div>
+
+
+<!-- EXPORT -->
+<div class="export">
+  <button onclick="window.print()">Print</button>
+  <button onclick="exportCSV()">Export CSV</button>
+</div>
+<script src="layout.js"></script>
+<script src="menu.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="reports.js"></script>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+  lucide.createIcons();
+</script>
+
+
+</body>
+</html>

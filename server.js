@@ -1,6 +1,9 @@
-require("dotenv").config();   // ✅ MUST BE FIRST
+
+require("dotenv").config({ path: __dirname + "/.env" });
+console.log("DB URL:", process.env.DATABASE_URL);
 
 const express = require("express");
+const adminAuth = require("./middleware/adminAuth");
 const Stripe = require("stripe");
 
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
@@ -29,6 +32,27 @@ const requireAdmin = require("./middleware/requireAdmin");
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const { sendEmail } = require("./utils/sendEmail");
+const transporter = require("./mailer");
+const { generateCode, sendVerificationEmail } = require("./utils/email");
+const verificationCodes = {};
+
+const multer = require("multer");
+
+const uploadPath = path.join(__dirname, "uploads");
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  }
+});
+
+const upload = multer({ storage });
+
+app.use("/uploads", express.static(uploadPath));
+
 
 
 app.use(cors());
@@ -121,115 +145,123 @@ function authenticateToken(req, res, next) {
 /* ================= LOGIN ================= */
 
 app.post("/login", async (req, res) => {
+try {
 const { email, password } = req.body;
 
-const result = await pool.query(
-"SELECT * FROM users WHERE email = $1",
-[email]
-);
+if (!email || !password) {  
+  return res.status(400).json({ error: "Email and password required" });  
+}  
 
-if (result.rows.length === 0) {
-return res.status(400).json({ error: "Invalid credentials" });
-}
+const result = await pool.query(  
+  "SELECT * FROM companies WHERE email = $1",  
+  [email]  
+);  
 
-const user = result.rows[0];
+if (result.rows.length === 0) {  
+  return res.status(400).json({ error: "Invalid credentials" });  
+}  
 
-const valid = await bcrypt.compare(password, user.password);
-if (!valid) {
-return res.status(400).json({ error: "Invalid credentials" });
-}
+const company = result.rows[0];  
 
-// 🔥 PUT IT HERE
-const token = jwt.sign(
-{
-userId: user.id,
-companyId: user.company_id,
-role: user.role
-},
-process.env.JWT_SECRET,
-{ expiresIn: "7d" }
-);
+// ✅ VERY IMPORTANT (prevents bcrypt crash)  
+if (!company.password) {  
+  return res.status(400).json({ error: "Account not properly set up" });  
+}  
+
+const valid = await bcrypt.compare(password, company.password);  
+
+if (!valid) {  
+  return res.status(400).json({ error: "Invalid credentials" });  
+}  
+
+// ✅ ensure verified  
+if (!company.verified) {  
+  return res.status(403).json({ error: "Please verify your email" });  
+}  
+
+const token = jwt.sign(  
+  {  
+    userId: company.id,  
+    companyId: company.id,  
+    role: "company"  
+  },  
+  process.env.JWT_SECRET,  
+  { expiresIn: "7d" }  
+);  
 
 res.json({ token });
-});
 
+} catch (err) {
+console.error("LOGIN ERROR:", err);
+res.status(500).json({ error: "Server error" });
+}
+});
 app.post("/admin/login", async (req, res) => {
   const { email, password } = req.body;
 
-  try {
-    const result = await pool.query(
-      "SELECT * FROM users WHERE email = $1",
-      [email]
-    );
+  const result = await pool.query(
+    "SELECT * FROM users WHERE email = $1",
+    [email]
+  );
 
-    if (result.rows.length === 0) {
-      return res.status(400).json({ error: "Invalid credentials" });
-    }
-
-    const user = result.rows[0];
-
-    //  Only allow admin
-    if (user.role !== "admin") {
-      return res.status(403).json({ error: "Admin access only" });
-    }
-
-    const validPassword = await bcrypt.compare(password, user.password);
-
-    if (!validPassword) {
-      return res.status(400).json({ error: "Invalid credentials" });
-    }
-
-    const token = jwt.sign(
-      {
-        userId: user.id,
-        companyId: user.company_id,
-        role: user.role
-      },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
-
-    res.json({ token });
-
-  } catch (err) {
-    console.error("ADMIN LOGIN ERROR:", err);
-    res.status(500).json({ error: "Server error" });
+  if (result.rows.length === 0) {
+    return res.status(400).json({ error: "Invalid credentials" });
   }
+
+  const user = result.rows[0];
+
+// ✅ CORRECT
+if (!user.is_super_admin) {
+  return res.status(403).json({ error: "Access denied" });
+}
+
+
+  const valid = await bcrypt.compare(password, user.password);
+  if (!valid) {
+    return res.status(400).json({ error: "Invalid credentials" });
+  }
+
+// ✅ CORRECT
+const token = jwt.sign(
+  {
+    id: user.id,
+    is_super_admin: user.is_super_admin
+  },
+  process.env.JWT_SECRET,
+  { expiresIn: "7d" }
+);
+
+
+  res.json({ token });
 });
+
 
 /* ================= CLIENTS ================= */
 
-app.post("/clients", auth, async (req, res) => {
+app.post("/clients", auth, upload.single("avatar"), async (req, res) => {
   try {
-const { name, email, phone, country, avatar } = req.body;
+    const { name, email, phone, country } = req.body;
 
     if (!name) {
       return res.status(400).json({ error: "Client name required" });
     }
 
-    const userResult = await pool.query(
-      "SELECT company_id FROM users WHERE id = $1",
-      [req.userId]
-    );
-
-    const companyId = userResult.rows[0].company_id;
+    // ✅ FILE HANDLING
+    const avatar = req.file ? req.file.filename : null;
 
     const result = await pool.query(
       `INSERT INTO clients
-(name, email, phone, country, avatar, status, user_id, company_id)
-VALUES ($1,$2,$3,$4,$5,'active',$6,$7)
-       RETURNING *`,
-
-[
-  name,
-  email || null,
-  phone || null,
-  country || null,
-  avatar || null,
-  req.userId,
-  companyId
-]
-
+      (name, email, phone, country, avatar, status, company_id)
+      VALUES ($1,$2,$3,$4,$5,'active',$6)
+      RETURNING *`,
+      [
+        name,
+        email || null,
+        phone || null,
+        country || null,
+        avatar,
+        req.user.companyId
+      ]
     );
 
     res.status(201).json(result.rows[0]);
@@ -240,52 +272,52 @@ VALUES ($1,$2,$3,$4,$5,'active',$6,$7)
   }
 });
 
+
 app.get("/clients", auth, async (req, res) => {
   try {
 
     const result = await pool.query(
       `
-
-SELECT
-  c.id,
-  c.name,
-  c.email,
-  c.phone,
-  c.country,
-  c.avatar,
-  c.status,
-  COALESCE(SUM(i.total),0) AS total_revenue,
-  COUNT(i.id) AS invoice_count
-
+      SELECT
+        c.id,
+        c.name,
+        c.email,
+        c.phone,
+        c.country,
+        c.avatar,
+        c.status,
+        COALESCE(SUM(i.total),0)::numeric AS total_revenue,
+        COUNT(i.id)::int AS invoice_count
       FROM clients c
-      LEFT JOIN invoices i 
+      LEFT JOIN invoices i
         ON i.client_id = c.id
         AND i.company_id = $1
       WHERE c.company_id = $1
-AND COALESCE(c.deleted, FALSE) = FALSE
-     GROUP BY
-  c.id,
-  c.name,
-  c.email,
-  c.phone,
-  c.country,
-  c.avatar,
-  c.status
-      ORDER BY c.created_at DESC
+        AND COALESCE(c.deleted, FALSE) = FALSE
+      GROUP BY
+        c.id,
+        c.name,
+        c.email,
+        c.phone,
+        c.country,
+        c.avatar,
+        c.status
+      ORDER BY c.id DESC
       `,
-      [req.companyId]
+      [req.user.companyId]
     );
 
-    res.json(result.rows);
+    console.log("📦 CLIENTS FOUND:", result.rows.length);
+
+    res.json({ data: result.rows });
 
   } catch (err) {
 
-    console.error(err);
+    console.error("GET CLIENTS ERROR:", err);
     res.status(500).json({ error: "Failed to fetch clients" });
 
   }
 });
-
 
 app.delete("/clients/:id", auth, async (req, res) => {
   try {
@@ -293,31 +325,30 @@ app.delete("/clients/:id", auth, async (req, res) => {
     const id = req.params.id;
 
     console.log("Deleting client:", id);
-    console.log("Company:", req.companyId);
+    console.log("Company:", req.user.companyId);
 
     const result = await pool.query(
-      `UPDATE clients
-       SET deleted = TRUE
+      `DELETE FROM clients
        WHERE id = $1 AND company_id = $2`,
-      [id, req.companyId]
+      [id, req.user.companyId]
     );
 
-    console.log("Rows updated:", result.rowCount);
+    console.log("Rows deleted:", result.rowCount);
 
     if(result.rowCount === 0){
-      return res.status(404).json({error:"Client not found"});
+      return res.status(404).json({ error: "Client not found" });
     }
 
-    res.json({message:"Client moved to recycle bin"});
+    res.json({ message: "Client permanently deleted" });
 
   } catch(err){
     console.error(err);
-    res.status(500).json({error:"Delete failed"});
+    res.status(500).json({ error: "Delete failed" });
   }
 });
 
+
 /* ================= INVOICES ================= */
-	
 app.post("/invoices", authenticateToken, async (req, res) => {
   const client = await pool.connect();
 
@@ -325,7 +356,7 @@ app.post("/invoices", authenticateToken, async (req, res) => {
     await client.query("BEGIN");
 
     const userId = req.user.userId;
-   const companyId = req.user.companyId;
+    const companyId = req.user.companyId;
 
     const { client_id, items, tax_rate = 0, status = "draft", due_date } = req.body;
 
@@ -333,38 +364,72 @@ app.post("/invoices", authenticateToken, async (req, res) => {
       return res.status(400).json({ error: "Client and at least one item are required" });
     }
 
-    // ✅ Calculate subtotal
 
-let subtotal = 0;
+// ===============================
+// 🔒 PLAN LIMIT CHECK
+// ===============================
 
-for (const item of items) {
-  const quantity = Number(item.quantity) || 0;
+// 🔥 Get plan by COMPANY (not user)
+const planResult = await client.query(
+  "SELECT subscription_status FROM companies WHERE id = $1",
+  [companyId]
+);
 
-  // Accept both price and unit_price
-  const unitPrice =
-    Number(item.unit_price ?? item.price) || 0;
+let plan = "free"; // default
 
-  subtotal += quantity * unitPrice;
+if (planResult.rows.length > 0) {
+  plan = planResult.rows[0].subscription_status || "free";
 }
 
-    // ✅ Calculate tax
-    const taxAmount = subtotal * (Number(tax_rate) / 100);
+// 2. Only enforce for FREE users
+if (plan !== "pro") {
 
-    // ✅ Calculate total
+  const countResult = await client.query(
+    "SELECT COUNT(*) FROM invoices WHERE company_id = $1",
+    [companyId]
+  );
+
+  const invoiceCount = Number(countResult.rows[0].count);
+
+  if (invoiceCount >= 5) {
+    await client.query("ROLLBACK");
+
+    return res.status(403).json({
+      error: "limit_reached"
+    });
+  }
+}
+
+
+    // ===============================
+    // 💰 CALCULATIONS
+    // ===============================
+
+    let subtotal = 0;
+
+    for (const item of items) {
+      const quantity = Number(item.quantity) || 0;
+      const unitPrice = Number(item.unit_price ?? item.price) || 0;
+      subtotal += quantity * unitPrice;
+    }
+
+    const taxAmount = subtotal * (Number(tax_rate) / 100);
     const total = subtotal + taxAmount;
 
-    // ✅ Insert invoice
+    // ===============================
+    // 🧾 INSERT INVOICE
+    // ===============================
+
     const invoiceResult = await client.query(
       `
       INSERT INTO invoices
-      (user_id, client_id, amount, subtotal, tax_amount, total, tax_rate, status, created_at, due_date, company_id)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,NOW(),$9,$10)
+      (client_id, amount, subtotal, tax_amount, total, tax_rate, status, created_at, due_date, company_id)
+      VALUES ($1,$2,$3,$4,$5,$6,$7,NOW(),$8,$9)
       RETURNING id
       `,
       [
-        userId,
         client_id,
-        total,        // amount (NOT NULL)
+        total,
         subtotal,
         taxAmount,
         total,
@@ -377,7 +442,10 @@ for (const item of items) {
 
     const invoiceId = invoiceResult.rows[0].id;
 
-    // ✅ Insert invoice items
+    // ===============================
+    // 📦 INSERT ITEMS
+    // ===============================
+
     for (const item of items) {
       await client.query(
         `
@@ -389,7 +457,7 @@ for (const item of items) {
           invoiceId,
           item.description || "",
           Number(item.quantity) || 0,
-         Number(item.unit_price ?? item.price) || 0
+          Number(item.unit_price ?? item.price) || 0
         ]
       );
     }
@@ -411,16 +479,13 @@ for (const item of items) {
 });
 
 
-
-
-
     // ===============================
     // INSERT ITEMS
     // ===============================
 app.get("/invoices", auth, async (req, res) => {
   try {
 
-    const companyId = req.companyId;
+    const companyId = req.user.companyId;
 
     console.log("Company ID used in query:", companyId);
 
@@ -453,27 +518,31 @@ app.get("/invoices", auth, async (req, res) => {
 
 app.delete("/invoices/:id", auth, async (req, res) => {
   try {
+
+    const id = req.params.id;
+
+    console.log("Deleting invoice:", id);
+    console.log("Company:", req.user.companyId);
+
     const result = await pool.query(
-      `UPDATE invoices
-       SET deleted = TRUE
+      `DELETE FROM invoices
        WHERE id = $1
        AND company_id = $2
        RETURNING *`,
-      [req.params.id, req.companyId]
+      [id, req.user.companyId]
     );
 
     if (result.rows.length === 0) {
       return res.status(404).json({ error: "Invoice not found" });
     }
 
-    res.json({ message: "Invoice moved to recycle bin" });
+    res.json({ message: "Invoice permanently deleted" });
 
   } catch (err) {
     console.error("DELETE INVOICE ERROR:", err);
     res.status(500).json({ error: "Delete failed" });
   }
 });
-
 
 /* ================= DASHBOARD ================= */
 
@@ -959,11 +1028,15 @@ doc.fontSize(12);
 
 app.post("/invoices/:id/email", auth, async (req, res) => {
   try {
+
+console.log("BODY:", req.body);
+console.log("USER:", req.user);
+
     const result = await pool.query(
       `SELECT invoices.*, clients.email
        FROM invoices
        JOIN clients ON invoices.client_id=clients.id
-       WHERE invoices.id=$1 AND invoices.user_id=$2`,
+       WHERE invoices.id=$1 AND invoices.company_id=$2`,
       [req.params.id, req.userId]
     );
 
@@ -993,7 +1066,7 @@ app.post("/invoices/:id/email", auth, async (req, res) => {
 app.get("/invoices/:id", auth, async (req, res) => {
 try {
 const invoiceId = req.params.id;
-const companyId = req.companyId;
+const companyId = req.user.companyId;
 
 // 1️⃣ Get invoice
 
@@ -1069,7 +1142,7 @@ app.put("/invoices/:id", auth, async (req, res) => {
         currency,
         status,
         req.params.id,
-        req.companyId
+        req.user.companyId
       ]
     );
 
@@ -1124,33 +1197,45 @@ app.put("/company-settings", auth, async (req, res) => {
 
 app.get("/company-settings", auth, async (req, res) => {
   try {
+
+    const companyId = req.user.companyId;
+
     const result = await pool.query(
       `
-      SELECT 
+      SELECT
         c.name AS company_name,
         c.email,
-        cs.phone,
+        c.phone,
+        c.address,
+        c.country,
+        c.logo,          -- ✅ FIX
+        c.currency,      -- ✅ FIX
+
         cs.bank_name,
         cs.account_name,
         cs.account_number,
+        cs.branch,
         cs.swift,
+        cs.mobile_money,
         cs.invoice_footer,
         cs.signature_path
-      FROM users u
-      JOIN companies c ON u.company_id = c.id
-      LEFT JOIN company_settings cs ON cs.user_id = u.id
-      WHERE u.id = $1
+
+      FROM companies c
+      LEFT JOIN company_settings cs
+        ON cs.company_id = c.id
+      WHERE c.id = $1
       `,
-      [req.userId]
+      [companyId]
     );
 
     res.json(result.rows[0] || {});
-    
+
   } catch (err) {
     console.error("GET COMPANY SETTINGS ERROR:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
+
 
 app.get("/admin-test", auth, requireAdmin, (req, res) => {
   res.json({ message: "Admin access granted" });
@@ -1184,94 +1269,84 @@ app.put("/invoices/:id/pay", authenticateToken, async (req, res) => {
 
 
 app.post("/company/settings", authenticateToken, async (req, res) => {
+  try {
 
-try {
+    const companyId = req.user.companyId;
 
-const companyId = req.user.companyId;
-const userId = req.user.userId;
+    const {
+      company_name,
+      registration_number,
+      email,
+      phone,
+      address,
+      country,
+      bank_name,
+      account_name,
+      account_number,
+      branch,
+      swift,
+      mobile_money,
+      invoice_footer
+    } = req.body;
 
-const {
-company_name,   // ✅ FIXED
-registration_number,
-email,
-phone,
-address,
-country,
+    const name = company_name;
 
-bank_name,
-account_name,
-account_number,
-branch,
-swift,          // ✅ INCLUDED
-mobile_money,
-invoice_footer
+    /* UPDATE COMPANY INFO */
+    await pool.query(
+      `UPDATE companies
+       SET
+         name = $1,
+         registration_number = $2,
+         email = $3,
+         phone = $4,
+         address = $5,
+         country = $6
+       WHERE id = $7`,
+      [
+        name,
+        registration_number,
+        email,
+        phone,
+        address,
+        country,
+        companyId
+      ]
+    );
 
-} = req.body;
+    /* UPDATE COMPANY SETTINGS */
+    await pool.query(
+      `INSERT INTO company_settings
+       (company_id, bank_name, account_name, account_number, branch, swift, mobile_money, invoice_footer)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
 
-const name = company_name; // ✅ MAP FIX
+       ON CONFLICT (company_id)
+       DO UPDATE SET
+         bank_name = EXCLUDED.bank_name,
+         account_name = EXCLUDED.account_name,
+         account_number = EXCLUDED.account_number,
+         branch = EXCLUDED.branch,
+         swift = EXCLUDED.swift,
+         mobile_money = EXCLUDED.mobile_money,
+         invoice_footer = EXCLUDED.invoice_footer`,
+      [
+        companyId,
+        bank_name,
+        account_name,
+        account_number,
+        branch,
+        swift,
+        mobile_money,
+        invoice_footer
+      ]
+    );
 
-/* UPDATE COMPANY INFO */
+    res.json({ success: true });
 
-await pool.query(
-`UPDATE companies
-SET
-name = $1,
-registration_number = $2,
-email = $3,
-phone = $4,
-address = $5,
-country = $6
-WHERE id = $7`,
-[
-name,
-registration_number,
-email,
-phone,
-address,
-country,
-companyId
-]
-);
-
-/* UPDATE COMPANY SETTINGS */
-
-await pool.query(
-`INSERT INTO company_settings
-(user_id, bank_name, account_name, account_number, branch, swift, mobile_money, invoice_footer)
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
-
-ON CONFLICT (user_id)
-DO UPDATE SET
-bank_name = EXCLUDED.bank_name,
-account_name = EXCLUDED.account_name,
-account_number = EXCLUDED.account_number,
-branch = EXCLUDED.branch,
-swift = EXCLUDED.swift,                 -- ✅ FIX
-mobile_money = EXCLUDED.mobile_money,
-invoice_footer = EXCLUDED.invoice_footer`,
-[
-userId,
-bank_name,
-account_name,
-account_number,
-branch,
-swift,          // ✅ FIX
-mobile_money,
-invoice_footer
-]
-);
-
-res.json({ success: true });
-
-} catch (err) {
-
-console.error(err);
-res.status(500).json({ error: "Failed to save settings" });
-
-}
-
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to save settings" });
+  }
 });
-
 
 app.post("/settings/tax", authenticateToken, async (req,res)=>{
 
@@ -1380,7 +1455,14 @@ app.get("/subscription", authenticateToken, async (req,res)=>{
       [userId]
     );
 
-    res.json(result.rows[0]);
+    // ✅ FIX: handle missing user
+    if(result.rows.length === 0){
+      return res.json({ plan: "free" });
+    }
+
+    res.json({
+      plan: result.rows[0].subscription_status || "free"
+    });
 
   }catch(err){
     console.error(err);
@@ -1388,7 +1470,6 @@ app.get("/subscription", authenticateToken, async (req,res)=>{
   }
 
 });
-
 
 app.post("/create-checkout-session", authenticateToken, async (req,res)=>{
 
@@ -1486,54 +1567,132 @@ app.post("/cancel-subscription", authenticateToken, async (req,res)=>{
 
 
 
+
+// ✅ IMPORTANT: raw body for Stripe
 app.post("/stripe-webhook", express.raw({ type: "application/json" }), async (req, res) => {
 
   const sig = req.headers["stripe-signature"];
-
   let event;
 
   try {
-
     event = stripe.webhooks.constructEvent(
       req.body,
       sig,
       process.env.STRIPE_WEBHOOK_SECRET
     );
-
   } catch (err) {
-
-    console.log("Webhook signature failed:", err.message);
+    console.log("❌ Webhook signature failed:", err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
-
   }
 
-  // Payment failed
-  if (event.type === "invoice.payment_failed") {
+  console.log("✅ Stripe event:", event.type);
 
-    const customerId = event.data.object.customer;
+  try {
 
-    const user = await pool.query(
-      "SELECT id FROM users WHERE stripe_customer_id = $1",
-      [customerId]
-    );
+    switch (event.type) {
 
-    if (user.rows.length > 0) {
+      // =========================
+      // ✅ USER SUBSCRIBED (UPGRADE)
+      // =========================
+      case "checkout.session.completed": {
 
-      await pool.query(
-        "UPDATE users SET plan='free' WHERE id = $1",
-        [user.rows[0].id]
-      );
+        const session = event.data.object;
 
-      console.log("User downgraded to free plan");
+        const customerId = session.customer;
+        const subscriptionId = session.subscription;
+        const email =
+          session.customer_email ||
+          session.customer_details?.email;
 
+        const user = await pool.query(
+          "SELECT id FROM users WHERE email = $1 OR stripe_customer_id = $2",
+          [email, customerId]
+        );
+
+        if (user.rows.length > 0) {
+
+          await pool.query(
+            `UPDATE users 
+             SET plan='pro',
+                 stripe_customer_id=$1,
+                 stripe_subscription_id=$2
+             WHERE id=$3`,
+            [customerId, subscriptionId, user.rows[0].id]
+          );
+
+          console.log("🚀 User upgraded to PRO:", email);
+
+        } else {
+          console.log("⚠️ No user found for:", email);
+        }
+
+        break;
+      }
+
+      // =========================
+      // ❌ PAYMENT FAILED
+      // =========================
+      case "invoice.payment_failed": {
+
+        const customerId = event.data.object.customer;
+
+        const user = await pool.query(
+          "SELECT id FROM users WHERE stripe_customer_id = $1",
+          [customerId]
+        );
+
+        if (user.rows.length > 0) {
+
+          await pool.query(
+            "UPDATE users SET plan='free' WHERE id = $1",
+            [user.rows[0].id]
+          );
+
+          console.log("⚠️ Payment failed → downgraded user");
+
+        }
+
+        break;
+      }
+
+      // =========================
+      // ❌ SUBSCRIPTION CANCELLED
+      // =========================
+      case "customer.subscription.deleted": {
+
+        const sub = event.data.object;
+
+        const user = await pool.query(
+          "SELECT id FROM users WHERE stripe_customer_id = $1",
+          [sub.customer]
+        );
+
+        if (user.rows.length > 0) {
+
+          await pool.query(
+            "UPDATE users SET plan='free' WHERE id = $1",
+            [user.rows[0].id]
+          );
+
+          console.log("❌ Subscription cancelled");
+
+        }
+
+        break;
+      }
+
+      default:
+        console.log("ℹ️ Unhandled event:", event.type);
     }
 
+    res.json({ received: true });
+
+  } catch (err) {
+    console.error("❌ Webhook processing error:", err);
+    res.status(500).send("Server error");
   }
 
-  res.json({ received: true });
-
 });
-
 
 app.get("/notification-settings", authenticateToken, async (req,res)=>{
 
@@ -1786,10 +1945,10 @@ app.post("/create-company", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const company = await pool.query(
-      "INSERT INTO companies (name, code) VALUES ($1,$2) RETURNING id",
-      [company_name, company_code]
-    );
+const company = await pool.query(
+  "INSERT INTO companies (name, code, email, password) VALUES ($1,$2,$3,$4) RETURNING id",
+  [company_name, company_code, email, hashedPassword]
+);
 
     const companyId = company.rows[0].id;
 
@@ -2290,21 +2449,12 @@ app.post("/restore/client/:id", auth, async (req, res) => {
   await pool.query(
     `UPDATE clients SET deleted = FALSE
      WHERE id = $1 AND company_id = $2`,
-    [req.params.id, req.companyId]
+    [req.params.id, req.user.companyId]
   );
 
   res.json({ message: "Client restored" });
 });
 
-app.post("/restore/invoice/:id", auth, async (req, res) => {
-  await pool.query(
-    `UPDATE invoices SET deleted = FALSE
-     WHERE id = $1 AND company_id = $2`,
-    [req.params.id, req.companyId]
-  );
-
-  res.json({ message: "Invoice restored" });
-});
 /* RESTORE INVOICE */
 app.post("/restore/invoice/:id", auth, async (req, res) => {
   try {
@@ -2313,7 +2463,7 @@ app.post("/restore/invoice/:id", auth, async (req, res) => {
        SET deleted = FALSE
        WHERE id = $1 AND company_id = $2
        RETURNING *`,
-      [req.params.id, req.companyId]
+      [req.params.id, req.user.companyId]
     );
 
     if (result.rows.length === 0) {
@@ -2329,34 +2479,633 @@ app.post("/restore/invoice/:id", auth, async (req, res) => {
 });
 
 app.get("/recycle-bin", auth, async (req, res) => {
+
+  console.log("TOKEN USER:", req.userId);
+  console.log("COMPANY ID:", req.user.companyId);
+
   try {
 
     const clients = await pool.query(
       `SELECT id, name, email
        FROM clients
        WHERE company_id = $1
-       AND COALESCE(deleted, FALSE) = TRUE`,
-      [req.companyId]
+       AND deleted = TRUE`,
+      [req.user.companyId]
     );
 
+    res.json({ clients: clients.rows });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed" });
+  }
+});
+
+app.get("/reports", auth, async (req, res) => {
+  try {
+
     const invoices = await pool.query(
-      `SELECT id, total, status
-       FROM invoices
-       WHERE company_id = $1
-       AND COALESCE(deleted, FALSE) = TRUE`,
-      [req.companyId]
+      `SELECT 
+          i.id,
+          i.total,
+          i.status,
+          i.created_at,
+          c.name AS client_name
+       FROM invoices i
+       LEFT JOIN clients c 
+         ON i.client_id = c.id
+       WHERE i.company_id = $1`,
+      [req.user.companyId]
+    );
+
+    const clients = await pool.query(
+      `SELECT COUNT(*) FROM clients
+       WHERE company_id = $1`,
+      [req.user.companyId]
     );
 
     res.json({
-      clients: clients.rows,
-      invoices: invoices.rows
+      invoices: invoices.rows,
+      totalClients: Number(clients.rows[0].count)
     });
 
   } catch (err) {
-    console.error("RECYCLE BIN ERROR:", err);
-    res.status(500).json({ error: "Failed to load recycle bin" });
+    console.error("REPORT ERROR:", err);
+    res.status(500).json({ error: "Failed to load reports" });
   }
 });
+
+
+
+
+
+
+app.post("/signup", async (req, res) => {
+  const { email, password, companyName } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
+  }
+
+  if (!companyName) {
+    return res.status(400).json({ message: "Company name is required" });
+  }
+
+  const existing = await pool.query(
+    "SELECT * FROM companies WHERE email = $1",
+    [email]
+  );
+
+  if (existing.rows.length > 0) {
+    return res.status(400).json({ message: "Email already exists" });
+  }
+
+  // ✅ HASH AFTER VALIDATION
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+  verificationCodes[email] = {
+    code,
+    companyName,
+    password: hashedPassword,
+    expires: Date.now() + 10 * 60 * 1000
+  };
+
+
+
+  // ✅ FIXED PART
+  try {
+
+await transporter.sendMail({
+  from: `"InvoiceFlow" <${process.env.EMAIL_USER}>`,
+  to: email,
+  subject: "Verify your email - InvoiceFlow",
+  html: `
+  <div style="font-family: Arial, sans-serif; background:#f4f6f8; padding:40px;">
+    <div style="max-width:520px; margin:auto; background:white; border-radius:12px; padding:30px; box-shadow:0 10px 25px rgba(0,0,0,0.1);">
+
+      <!-- Brand -->
+      <h2 style="color:#4f46e5; margin-bottom:5px;">InvoiceFlow</h2>
+      <p style="color:#888; font-size:13px; margin-top:0;">Smart Invoicing Platform</p>
+
+      <!-- Title -->
+      <h3 style="margin-top:20px;">Verify your email</h3>
+
+      <!-- Message -->
+      <p style="color:#555; font-size:14px;">
+        Welcome to <strong>InvoiceFlow</strong>. Please use the verification code below to complete your account setup.
+      </p>
+
+      <!-- Code -->
+      <div style="text-align:center; margin:30px 0;">
+        <span style="
+          display:inline-block;
+          background:#4f46e5;
+          color:white;
+          font-size:30px;
+          letter-spacing:8px;
+          padding:15px 25px;
+          border-radius:10px;
+          font-weight:bold;
+        ">
+          ${code}
+        </span>
+      </div>
+
+      <!-- Info -->
+      <p style="color:#777; font-size:13px;">
+        This code will expire in 10 minutes.
+      </p>
+
+      <p style="color:#777; font-size:13px;">
+        If you didn’t request this, you can safely ignore this email.
+      </p>
+
+      <!-- Footer -->
+      <hr style="margin:30px 0; border:none; border-top:1px solid #eee;">
+
+      <p style="font-size:12px; color:#999; text-align:center;">
+        © ${new Date().getFullYear()} InvoiceFlow. All rights reserved.
+      </p>
+
+    </div>
+  </div>
+  `
+});
+
+
+    console.log("Email sent successfully");
+  } catch (err) {
+    console.error("Email error:", err);
+    return res.status(500).json({ message: "Failed to send email" });
+  }
+
+  res.json({ message: "Verification code sent" });
+});
+
+
+app.post("/verify", async (req, res) => {
+  const { email, userInputCode } = req.body;
+
+  if (!email || !userInputCode) {
+    return res.status(400).json({ message: "Missing fields" });
+  }
+
+  const record = verificationCodes[email];
+
+  if (!record) {
+    return res.status(400).json({ message: "No code found" });
+  }
+
+  if (Date.now() > record.expires) {
+    return res.status(400).json({ message: "Code expired" });
+  }
+
+  if (record.code !== userInputCode) {
+    return res.status(400).json({ message: "Invalid code" });
+  }
+
+  // ✅ CHECK FIRST
+  const existing = await pool.query(
+    "SELECT * FROM companies WHERE email = $1",
+    [email]
+  );
+
+  if (existing.rows.length > 0) {
+    return res.status(400).json({ message: "Email already registered" });
+  }
+
+  // ✅ THEN INSERT
+
+await pool.query(
+  "INSERT INTO companies (name, email, password, verified) VALUES ($1, $2, $3, $4)",
+  [record.companyName, email, record.password, true]
+);
+
+  delete verificationCodes[email];
+
+  res.json({ message: "Verified successfully" });
+});
+
+
+
+app.get("/admin/companies", adminAuth, async (req, res) => {
+console.log("🔥 ADMIN COMPANIES ROUTE HIT");  
+
+const result = await pool.query(`
+    SELECT 
+      id, 
+      name, 
+      email, 
+      verified,
+      plan,
+      status,
+      trial_ends_at
+    FROM companies 
+    ORDER BY id DESC
+  `);
+
+  res.json(result.rows);
+});
+
+
+app.delete("/admin/company/:id", adminAuth, async (req, res) => {
+  const { id } = req.params;
+
+  await pool.query("DELETE FROM companies WHERE id = $1", [id]);
+
+  res.json({ message: "Company deleted" });
+});
+
+
+app.put("/admin/company/:id/verify", adminAuth, async (req, res) => {
+  const { id } = req.params;
+
+  await pool.query(
+    "UPDATE companies SET verified = NOT verified WHERE id = $1",
+    [id]
+  );
+
+  res.json({ message: "Status updated" });
+});
+
+app.get("/admin-login", (req, res) => {
+  res.sendFile(__dirname + "/admin-login.html");
+});
+
+
+
+app.get("/me", async (req, res) => {
+  try {
+    // 1. Get token
+    const token = req.headers.authorization?.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    // 2. Verify token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // 3. Fetch user + company info
+    const result = await pool.query(`
+      SELECT 
+        u.id,
+        u.email,
+        u.is_super_admin,
+        c.id AS company_id,
+        c.name AS company_name,
+        c.plan,
+        c.status
+      FROM users u
+      LEFT JOIN companies c 
+        ON c.id = u.active_company_id
+      WHERE u.id = $1
+    `, [decoded.id]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const user = result.rows[0];
+
+    // 4. Send response
+    res.json({
+      id: user.id,
+      email: user.email,
+      is_super_admin: user.is_super_admin || false,
+
+      company: user.company_id
+        ? {
+            id: user.company_id,
+            name: user.company_name,
+            plan: user.plan || "free",
+            status: user.status || "active"
+          }
+        : null
+    });
+
+  } catch (err) {
+    console.error("❌ /me error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+app.get("/debug-columns", async (req, res) => {
+  const result = await pool.query(`
+    SELECT column_name
+    FROM information_schema.columns
+    WHERE table_name = 'companies'
+  `);
+  res.json(result.rows);
+});
+
+
+app.get("/invitations", auth, async (req, res) => {
+  try {
+
+    const companyId = req.user.companyId;
+
+    if (!companyId) {
+      return res.status(400).json({ error: "No companyId in token" }); // 🔥 ADD
+    }
+
+    const result = await pool.query(
+      `
+      SELECT
+        i.id,
+        i.email,
+        i.role,
+        i.status,
+        i.created_at,
+        c.name AS company_name,
+        CASE 
+          WHEN i.status = 'pending' THEN i.token
+          ELSE NULL
+        END AS token
+      FROM invitations i
+      JOIN companies c ON c.id = i.company_id
+      WHERE i.company_id = $1
+      ORDER BY i.id DESC
+      `,
+      [companyId]
+    );
+
+    res.json({ data: result.rows });
+
+  } catch (err) {
+    console.error("❌ Invitations error FULL:", err); // 🔥 important
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+app.post("/invitations", auth, async (req, res) => {
+  try {
+    const { email, role = "staff" } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email required" });
+    }
+
+    const companyId = req.user.companyId;
+
+    // 🔒 prevent duplicate pending invite
+    const existing = await pool.query(
+      `SELECT * FROM invitations
+       WHERE email = $1 AND company_id = $2 AND status = 'pending'`,
+      [email, companyId]
+    );
+
+    if (existing.rows.length > 0) {
+      return res.status(400).json({ error: "Invitation already sent" });
+    }
+
+    // 🔑 generate secure token
+    const token = crypto.randomBytes(32).toString("hex");
+
+    const result = await pool.query(
+      `
+      INSERT INTO invitations (email, role, status, company_id, token, expires_at)
+      VALUES ($1, $2, 'pending', $3, $4, NOW() + INTERVAL '7 days')
+      RETURNING *
+      `,
+      [email, role, companyId, token]
+    );
+
+    // 📩 SEND EMAIL
+    const inviteLink = `${process.env.FRONTEND_URL}/accept-invite.html?token=${token}`;
+
+    await sgMail.send({
+      to: email,
+      from: process.env.EMAIL_FROM,
+      subject: "You're invited to join a company",
+      html: `
+        <h2>You're invited 🎉</h2>
+        <p>You’ve been invited to join a company.</p>
+        <a href="${inviteLink}" style="padding:10px 15px;background:#4f46e5;color:#fff;text-decoration:none;">
+          Accept Invitation
+        </a>
+        <p>This link expires in 7 days.</p>
+      `
+    });
+
+    res.json({
+      message: "Invitation sent",
+      invitation: result.rows[0]
+    });
+
+  } catch (err) {
+    console.error("Create invitation error:", err);
+    res.status(500).json({ error: "Failed to send invitation" });
+  }
+});
+
+
+app.post("/invitations/:id/accept", auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { id } = req.params;
+
+    const invite = await pool.query(
+      "SELECT * FROM invitations WHERE id = $1",
+      [id]
+    );
+
+    if (invite.rows.length === 0) {
+      return res.status(404).json({ error: "Invite not found" });
+    }
+
+    const inv = invite.rows[0];
+
+    // 1. Add user to company
+    await pool.query(`
+      INSERT INTO user_companies (user_id, company_id, role)
+      VALUES ($1, $2, $3)
+      ON CONFLICT DO NOTHING
+    `, [userId, inv.company_id, inv.role]);
+
+    // 2. Mark invite accepted
+    await pool.query(
+      "UPDATE invitations SET status = 'accepted' WHERE id = $1",
+      [id]
+    );
+
+    res.json({ message: "Joined company" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+app.post("/invitations/accept", async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ error: "Token required" });
+    }
+
+    // 🔍 find invitation
+    const result = await pool.query(
+      `
+      SELECT * FROM invitations
+      WHERE token = $1
+      AND status = 'pending'
+      AND expires_at > NOW()
+      `,
+      [token]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({ error: "Invalid or expired invitation" });
+    }
+
+    const invite = result.rows[0];
+
+    // 👤 find user
+    const userResult = await pool.query(
+      `SELECT * FROM users WHERE email = $1`,
+      [invite.email]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({
+        error: "User not found. Please register first."
+      });
+    }
+
+    const user = userResult.rows[0];
+
+    // 🔗 attach user to company
+    await pool.query(
+      `UPDATE users
+       SET company_id = $1, role = $2
+       WHERE id = $3`,
+      [invite.company_id, invite.role, user.id]
+    );
+
+    // ✅ mark invitation accepted
+    await pool.query(
+      `UPDATE invitations
+       SET status = 'accepted'
+       WHERE id = $1`,
+      [invite.id]
+    );
+
+    res.json({ message: "Invitation accepted" });
+
+  } catch (err) {
+    console.error("Accept invitation error:", err);
+    res.status(500).json({ error: "Failed to accept invitation" });
+  }
+});
+
+
+app.post("/invitations/:id/decline", auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    await pool.query(
+      "UPDATE invitations SET status = 'declined' WHERE id = $1",
+      [id]
+    );
+
+    res.json({ message: "Invite declined" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+app.post("/invitations/accept", auth, async (req, res) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({ error: "Token required" });
+    }
+
+    // 🔍 Find invitation by token
+    const result = await pool.query(
+      `SELECT * FROM invitations WHERE token = $1`,
+      [token]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Invalid invitation link" });
+    }
+
+    const invite = result.rows[0];
+
+    // ❌ Already used
+    if (invite.status !== "pending") {
+      return res.status(400).json({ error: "Invitation already used" });
+    }
+
+    // ❌ Expired
+    if (invite.expires_at && new Date(invite.expires_at) < new Date()) {
+      return res.status(400).json({ error: "Invitation expired" });
+    }
+
+    const userId = req.user.userId;
+
+    // ✅ Add user to company
+    await pool.query(
+      `
+      INSERT INTO user_companies (user_id, company_id, role)
+      VALUES ($1, $2, $3)
+      ON CONFLICT DO NOTHING
+      `,
+      [userId, invite.company_id, invite.role]
+    );
+
+    // ✅ Mark accepted
+    await pool.query(
+      `UPDATE invitations SET status = 'accepted' WHERE id = $1`,
+      [invite.id]
+    );
+
+    res.json({ message: "Invitation accepted" });
+
+  } catch (err) {
+    console.error("Accept invite error:", err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+app.put("/company/logo", auth, upload.single("logo"), async (req, res) => {
+  try {
+
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const logo = req.file.filename;
+
+    const result = await pool.query(
+      `UPDATE companies
+       SET logo = $1
+       WHERE id = $2
+       RETURNING logo`,
+      [logo, req.user.companyId]
+    );
+
+    res.json({ logo: result.rows[0].logo });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to upload logo" });
+  }
+});
+
+
 
 
 /* ================= SERVER ================= */
@@ -2378,3 +3127,4 @@ server.on("error", (err) => {
 
 
 // redeploy
+

@@ -111,6 +111,73 @@ transform:translateY(-2px);
 box-shadow:0 10px 25px rgba(99,102,241,0.25);
 }
 
+
+
+/* =============================
+   DARK MODE - SUBSCRIPTION
+============================= */
+
+body.dark {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+/* PLAN CARD */
+body.dark .plan-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  padding: 24px;
+  border-radius: 14px;
+}
+
+/* TITLE */
+body.dark .plan-card h2 {
+  color: #f9fafb;
+}
+
+/* TEXT */
+body.dark .plan-info,
+body.dark .billing-cycle {
+  color: #94a3b8;
+}
+
+/* PLAN NAME (highlight) */
+body.dark .plan-name {
+  color: #4f46e5; /* premium indigo */
+}
+
+/* =============================
+   BUTTONS
+============================= */
+
+/* UPGRADE */
+body.dark .upgrade-btn {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  color: #ffffff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 10px;
+}
+
+body.dark .upgrade-btn:hover {
+  opacity: 0.9;
+}
+
+/* MANAGE */
+body.dark .manage-btn {
+  background: #1e293b;
+  color: #e5e7eb;
+  border: 1px solid #334155;
+  padding: 10px 16px;
+  border-radius: 10px;
+}
+
+body.dark .manage-btn:hover {
+  background: #334155;
+}
+
+
+
 </style>
 </head>
 
@@ -149,10 +216,15 @@ async function loadSubscription(){
     }
   });
 
+  if(!res.ok){
+    document.getElementById("planName").innerText = "Error";
+    return;
+  }
+
   const data = await res.json();
 
   document.getElementById("planName").innerText =
-    data.subscription_status;
+    (data.subscription_status || "free").toUpperCase();
 
 }
 
@@ -202,6 +274,42 @@ async function manageBilling(){
   window.location.href = data.url;
 
 }
+
+
+// =============================
+// LOAD SAVED THEME
+// =============================
+document.addEventListener("DOMContentLoaded", () => {
+const savedTheme = localStorage.getItem("theme");
+
+if (savedTheme === "dark") {
+document.body.classList.add("dark");
+}
+
+// SYSTEM DARK MODE (FIXED)
+const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+if (!savedTheme && prefersDark) {
+document.body.classList.add("dark");
+}
+});
+
+
+// =============================
+// TOGGLE THEME
+// =============================
+function toggleTheme() {
+document.body.classList.toggle("dark");
+
+if (document.body.classList.contains("dark")) {
+localStorage.setItem("theme", "dark");
+} else {
+localStorage.setItem("theme", "light");
+}
+}
+
+
+
 
 </script>
 

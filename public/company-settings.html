@@ -40,10 +40,6 @@
 <span class="logo-icon">IF</span>  
 </div>  
 
-<a href="trash.html" class="sidebar-link">
-  <i data-lucide="trash-2"></i>
-  <span>Recycle bin</span>
-</a>
 
 <a href="dashboard.html" class="sidebar-link">
   <i data-lucide="layout-dashboard"></i>
@@ -65,10 +61,22 @@
   <span>Settings</span>
 </a>
 
+<a href="reports.html" class="sidebar-link">
+  <i data-lucide="bar-chart-3"></i>
+  <span>Reports</span>
+</a>
+
+
 <button onclick="logout()" class="logout-btn">
   <i data-lucide="log-out"></i>
   <span>Logout</span>
 </button>
+
+<div class="theme-toggle" onclick="toggleTheme()">
+  <span class="icon sun">☀️</span>
+  <span class="icon moon">🌙</span>
+  <div class="toggle-circle"></div>
+</div>
 
 </div>
 
@@ -132,11 +140,34 @@
 
 <!-- COMPANY -->
 
-<div class="settings-panel active" id="company">
 
 <div class="settings-panel active" id="company">
 
   <h2>Company Information</h2>
+
+
+<h2>Company Profile</h2>
+
+<div class="logo-upload">
+
+  <img 
+    id="companyLogoPreview"
+    src="/images/default-avatar.png"
+    width="100"
+    style="border-radius:10px; cursor:pointer;"
+    onclick="openImage(this.src)"
+  >
+
+  <input type="file" id="companyLogoInput" accept="image/*">
+
+  <button onclick="uploadLogo()">Upload Logo</button>
+
+</div>
+
+<form id="companyForm">
+  <!-- your fields -->
+</form>
+
 
   <div class="form-grid">
 
@@ -155,11 +186,28 @@
   </div>
 
   <!-- ✅ ADD THIS BUTTON -->
-  <button onclick="saveCompany()" class="save-btn">Save Company</button>
+
+<button onclick="saveCompanySettings()" class="save-btn">Save Company</button>
 
 </div>
 
 <h3>Transfer Details</h3>
+
+<h4>Payment Method</h4>
+<p id="paymentMethod"></p>
+
+<div id="paymentDetails"></div>
+
+<div class="form-group">
+  <label>Default Payment Method</label>
+  <select id="payment_method">
+    <option value="bank">Bank Transfer</option>
+    <option value="mobile_money">Mobile Money</option>
+    <option value="card">Card (Stripe)</option>
+    <option value="cash">Cash</option>
+  </select>
+</div>
+
 
 <div class="form-group">
 <label>Bank Name</label>
@@ -188,6 +236,7 @@
 
 <div class="form-group">
 <label>Mobile Money</label>
+
 <input type="text" id="mobile_money">
 </div>
 
@@ -215,118 +264,188 @@ Save Changes
 
 <script>
 
-console.log("SCRIPT LOADED");
 
-async function saveCompanySettings(){
-
-
-
-const token = localStorage.getItem("token");
-
-console.log("CLICK WORKING");
-
-const name = document.getElementById("companyName").value.trim();
-const registration_number = document.getElementById("companyReg").value.trim();
-const email = document.getElementById("companyEmail").value.trim();
-const phone = document.getElementById("companyPhone").value.trim();
-const address = document.getElementById("companyAddress").value.trim();
-const country = document.getElementById("companyCountry").value.trim();
-
-/* TRANSFER DETAILS */
-
-const bank_name = document.getElementById("bank_name").value;
-const account_name = document.getElementById("account_name").value;
-const account_number = document.getElementById("account_number").value;
-const branch = document.getElementById("branch").value;
-const swift = document.getElementById("swift").value;
-const mobile_money = document.getElementById("mobile_money").value;
-
-const invoice_footer = document.getElementById("invoice_footer")?.value || "";
-
-try{
-
-const res = await fetch("/company/settings",{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-"Authorization":"Bearer " + token
-},
-
-body: JSON.stringify({
-  company_name: name,
-  registration_number,
-  email,
-  phone,
-  address,
-  country,
-  bank_name,
-  account_name,
-  account_number,
-  branch,
-  swift,
-  mobile_money,
-  invoice_footer
-})
-
-});
-
-if(!res.ok){
-throw new Error("Request failed");
-}
-
-const data = await res.json();
-
-alert("Company settings saved successfully");
-
-}catch(err){
-
-console.error(err);
-alert("Failed to save settings");
-
-}
-
-}
 
 
 
 async function loadCompanySettings(){
 
-const token = localStorage.getItem("token")
+  try {
 
-const res = await fetch("/company-settings",{
-headers:{
-Authorization:"Bearer "+token
+    const token = localStorage.getItem("token");
+
+    const res = await fetch("/company-settings", {
+      headers: { Authorization: "Bearer " + token }
+    });
+
+    if (!res.ok) throw new Error("Failed to load");
+
+    const company = await res.json();
+
+    document.getElementById("companyName").value = company.company_name || "";
+    document.getElementById("companyReg").value = company.registration_number || "";
+    document.getElementById("companyEmail").value = company.email || "";
+    document.getElementById("companyPhone").value = company.phone || "";
+    document.getElementById("companyAddress").value = company.address || "";
+    document.getElementById("companyCountry").value = company.country || "";
+
+    document.getElementById("payment_method").value = company.payment_method || "bank";
+    document.getElementById("bank_name").value = company.bank_name || "";
+    document.getElementById("account_name").value = company.account_name || "";
+    document.getElementById("account_number").value = company.account_number || "";
+    document.getElementById("branch").value = company.branch || "";
+    document.getElementById("swift").value = company.swift || "";
+    document.getElementById("mobile_money").value = company.mobile_money || "";
+
+  } catch (err) {
+    console.error("❌ Load error:", err);
+  }
 }
-})
 
-const company = await res.json()
-
-document.getElementById("bank_name").value = company.bank_name || ""
-document.getElementById("account_name").value = company.account_name || ""
-document.getElementById("account_number").value = company.account_number || ""
-document.getElementById("branch").value = company.branch || ""
-document.getElementById("swift").value = company.swift || ""
-document.getElementById("mobile_money").value = company.mobile_money || ""
-
-}
+document.addEventListener("DOMContentLoaded", loadCompanySettings);
 
 loadCompanySettings();
 
+async function saveCompanySettings(){
 
-function saveCompany() {
-  const company = {
-    name: document.getElementById("companyName").value,
-    reg: document.getElementById("companyReg").value,
-    email: document.getElementById("companyEmail").value,
-    phone: document.getElementById("companyPhone").value,
-    address: document.getElementById("companyAddress").value,
-    country: document.getElementById("companyCountry").value
+  const token = localStorage.getItem("token");
+
+  const payload = {
+    company_name: document.getElementById("companyName").value.trim(),
+    registration_number: document.getElementById("companyReg").value.trim(),
+    email: document.getElementById("companyEmail").value.trim(),
+    phone: document.getElementById("companyPhone").value.trim(),
+    address: document.getElementById("companyAddress").value.trim(),
+    country: document.getElementById("companyCountry").value.trim(),
+
+    bank_name: document.getElementById("bank_name").value,
+    account_name: document.getElementById("account_name").value,
+    account_number: document.getElementById("account_number").value,
+    branch: document.getElementById("branch").value,
+    swift: document.getElementById("swift").value,
+    mobile_money: document.getElementById("mobile_money").value, // ✅ FIXED
+    payment_method: document.getElementById("payment_method").value,
+
+    invoice_footer: document.getElementById("invoice_footer")?.value || ""
   };
 
-  localStorage.setItem("company", JSON.stringify(company));
+  try {
 
-  alert("✅ Company saved!");
+    const res = await fetch("/company/settings", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) throw new Error("Request failed");
+
+    alert("✅ Company settings saved successfully");
+
+  } catch (err) {
+    console.error(err);
+    alert("❌ Failed to save settings");
+  }
 }
+
+function renderPaymentDetails(invoice){
+
+  const container = document.getElementById("paymentDetails");
+
+  if(!container) return;
+
+  // DEFAULT METHOD
+  const method = invoice.payment_method || "bank";
+
+  document.getElementById("paymentMethod").innerText =
+    formatPaymentMethod(method);
+
+  // =========================
+  // BANK TRANSFER
+  // =========================
+  if(method === "bank"){
+    container.innerHTML = `
+      <div class="payment-row"><span>Bank</span><span>${invoice.bank_name || "-"}</span></div>
+      <div class="payment-row"><span>Account Name</span><span>${invoice.account_name || "-"}</span></div>
+      <div class="payment-row"><span>Account Number</span><span>${invoice.account_number || "-"}</span></div>
+      <div class="payment-row"><span>SWIFT</span><span>${invoice.swift || "-"}</span></div>
+    `;
+  }
+
+  // =========================
+  // MOBILE MONEY (🔥 LOCAL POWER)
+  // =========================
+  else if(method === "mobile_money"){
+    container.innerHTML = `
+      <div class="payment-row">
+        <span>Mobile Money</span>
+        <span>${invoice.mobile_money || "-"}</span>
+      </div>
+    `;
+  }
+
+  // =========================
+  // CARD / ONLINE (STRIPE)
+  // =========================
+  else if(method === "card"){
+    container.innerHTML = `
+      <p>💳 Pay securely online</p>
+      <button class="pay-btn" onclick="payInvoice(${invoice.id})">
+        Pay Now
+      </button>
+    `;
+  }
+
+}
+
+
+function formatPaymentMethod(method){
+  switch(method){
+    case "bank": return "Bank Transfer";
+    case "mobile_money": return "Mobile Money";
+    case "card": return "Card / Online";
+    default: return "Bank Transfer";
+  }
+}
+
+
+
+
+async function uploadLogo(){
+
+  const file = document.getElementById("companyLogoInput").files[0];
+
+  if (!file) {
+    alert("Select an image first");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("logo", file);
+
+  const res = await fetch("/company/logo", {
+    method: "PUT",
+    headers: {
+      Authorization: "Bearer " + localStorage.getItem("token")
+    },
+    body: formData
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    alert(data.error || "Upload failed");
+    return;
+  }
+
+  // ✅ update preview instantly
+  document.getElementById("companyLogoPreview").src = "/uploads/" + data.logo;
+
+  alert("Logo updated!");
+}
+
 
 
 </script>

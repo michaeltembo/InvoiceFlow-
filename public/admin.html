@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>InvoiceFlow Admin</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<style>
+
+/*  Background */
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background:#f4f6f8;
+}
+
+/*  Layout */
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:30px;
+}
+
+/*  Header */
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:25px;
+}
+
+.title{
+  font-size:22px;
+  font-weight:700;
+  color:#111827;
+}
+
+/*  Stats */
+.stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:20px;
+  margin-bottom:30px;
+}
+
+.card{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.05);
+}
+
+.card h3{
+  margin:0;
+  font-size:14px;
+  color:#6b7280;
+}
+
+.card p{
+  margin-top:10px;
+  font-size:22px;
+  font-weight:700;
+  color:#111827;
+}
+
+/*  Table */
+.table-container{
+  background:white;
+  border-radius:12px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.05);
+  overflow:hidden;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+
+th, td{
+  padding:14px;
+  text-align:left;
+  border-bottom:1px solid #eee;
+  font-size:14px;
+}
+
+th{
+  background:#f9fafb;
+  color:#6b7280;
+}
+
+/*  Status */
+.badge{
+  padding:4px 10px;
+  border-radius:20px;
+  font-size:12px;
+  font-weight:600;
+}
+
+.verified{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.not-verified{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+/*  Buttons */
+button{
+  padding:6px 10px;
+  border:none;
+  border-radius:6px;
+  font-size:12px;
+  cursor:pointer;
+}
+
+.delete{
+  background:#ef4444;
+  color:white;
+}
+
+.toggle{
+  background:#4f46e5;
+  color:white;
+}
+
+
+.table-container{
+  background:white;
+  border-radius:12px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.05);
+  overflow-x:auto;   /* ✅ KEY FIX */
+}
+
+table{
+  width:100%;
+  min-width:700px;   /* ✅ forces horizontal scroll on small screens */
+  border-collapse:collapse;
+}
+
+
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:20px;
+  margin-bottom:30px;
+}
+
+/*  Base card */
+.card{
+  position:relative;
+  background:white;
+  padding:22px;
+  border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.06);
+  overflow:hidden;
+  transition:all 0.25s ease;
+}
+
+/* Hover effect */
+.card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 20px 50px rgba(0,0,0,0.12);
+}
+
+/*  Title */
+.card h3{
+  margin:0;
+  font-size:13px;
+  color:#6b7280;
+  font-weight:500;
+}
+
+/*  Numbers */
+.card p{
+  margin-top:12px;
+  font-size:26px;
+  font-weight:700;
+  color:#111827;
+}
+
+/*  Accent top border */
+.card::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:4px;
+}
+
+/*  Individual colors */
+.card.total::before{
+  background:linear-gradient(90deg,#4f46e5,#6366f1);
+}
+
+.card.verified::before{
+  background:linear-gradient(90deg,#10b981,#34d399);
+}
+
+.card.unverified::before{
+  background:linear-gradient(90deg,#ef4444,#f87171);
+}
+
+
+
+/*  Color the numbers */
+.card.total p{
+  color:#4f46e5;   /* purple */
+}
+
+.card.verified p{
+  color:#10b981;   /* green */
+}
+
+.card.unverified p{
+  color:#ef4444;   /* red */
+}
+
+
+.card.total p{
+  background:linear-gradient(90deg,#4f46e5,#6366f1);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.card.verified p{
+  background:linear-gradient(90deg,#10b981,#34d399);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.card.unverified p{
+  background:linear-gradient(90deg,#ef4444,#f87171);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+
+/* Top section inside card */
+.card-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
+
+/* Icon */
+.icon{
+  font-size:20px;
+  background:#f3f4f6;
+  padding:8px;
+  border-radius:8px;
+}
+
+/* Trend badge */
+.trend{
+  font-size:12px;
+  font-weight:600;
+  padding:4px 8px;
+  border-radius:20px;
+}
+
+/* Trend colors */
+.trend.up{
+  background:#dcfce7;
+  color:#166534;
+}
+
+.trend.down{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+
+.badge.free { background:#e5e7eb; }
+.badge.pro { background:#4f46e5; color:white; }
+
+
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="title">InvoiceFlow Admin Dashboard</div>
+  </div>
+
+  <!-- Stats -->
+
+<div class="stats">
+
+  <div class="card total">
+    <div class="card-top">
+      <span class="icon">
+        <i data-lucide="building"></i>
+      </span>
+      <span class="trend up">+12%</span>
+    </div>
+    <h3>Total Companies</h3>
+    <p id="totalCompanies">0</p>
+  </div>
+
+  <div class="card verified">
+    <div class="card-top">
+      <span class="icon">
+        <i data-lucide="check-circle"></i>
+      </span>
+      <span class="trend up">+8%</span>
+    </div>
+    <h3>Verified Companies</h3>
+    <p id="verifiedCompanies">0</p>
+  </div>
+
+  <div class="card unverified">
+    <div class="card-top">
+      <span class="icon">
+        <i data-lucide="alert-triangle"></i>
+      </span>
+      <span class="trend down">-3%</span>
+    </div>
+    <h3>Unverified Companies</h3>
+    <p id="unverifiedCompanies">0</p>
+  </div>
+
+</div>
+  <!-- Table -->
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Company</th>
+<th>Email</th>
+<th>Plan</th>
+<th>Status</th>
+<th>Verified</th>
+<th>Actions</th>
+
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+
+async function checkAdmin(){
+
+  const res = await fetch("/me", {
+    headers: { Authorization: "Bearer " + token }
+  });
+
+  const user = await res.json();
+
+  if (!user.is_super_admin){
+    alert("Access denied");
+    window.location.href = "/dashboard.html";
+  }
+}
+
+
+const token = localStorage.getItem("token");
+
+async function loadCompanies() {
+// LOAD
+const res = await fetch("/admin/companies", {
+  headers: { Authorization: "Bearer " + token }
+});
+
+
+
+  const data = await res.json();
+
+  const tbody = document.getElementById("tbody");
+  tbody.innerHTML = "";
+
+  let total = data.length;
+  let verified = 0;
+
+data.forEach(c => {
+
+  if (c.verified) verified++;
+
+  const status = c.verified
+    ? `<span class="badge verified">Verified</span>`
+    : `<span class="badge not-verified">Pending</span>`;
+
+  const planBadge = `
+    <span class="badge ${c.plan}">
+      ${c.plan || "free"}
+    </span>
+  `;
+
+  const row = `
+    <tr>
+      <td>${c.id}</td>
+      <td>${c.name}</td>
+      <td>${c.email}</td>
+      <td>${planBadge}</td>
+      <td>${c.status || "active"}</td>
+      <td>${status}</td>
+      <td>
+        <button class="delete" onclick="deleteCompany(${c.id})">Delete</button>
+        <button class="toggle" onclick="toggle(${c.id})">Toggle</button>
+      </td>
+    </tr>
+  `;
+
+  tbody.innerHTML += row;
+});
+
+
+  // 📊 Update stats
+  document.getElementById("totalCompanies").innerText = total;
+  document.getElementById("verifiedCompanies").innerText = verified;
+  document.getElementById("unverifiedCompanies").innerText = total - verified;
+}
+
+async function deleteCompany(id) {
+
+  if (!confirm("Delete this company?")) return;
+
+  try {
+
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(`/admin/company/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: "Bearer " + token }
+    });
+
+    if (!res.ok) throw new Error("Delete failed");
+
+    loadCompanies();
+
+  } catch (err) {
+    console.error(" Delete error:", err);
+    alert("Failed to delete company");
+  }
+}
+
+
+async function toggle(id) {
+
+  try {
+
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(`/admin/company/${id}/verify`, {
+      method: "PUT",
+      headers: { Authorization: "Bearer " + token }
+    });
+
+    if (!res.ok) throw new Error("Toggle failed");
+
+    loadCompanies();
+
+  } catch (err) {
+    console.error(" Toggle error:", err);
+    alert("Failed to update status");
+  }
+}
+
+
+// ✅ STARTUP FLOW (PERFECT)
+async function init(){
+  await checkAdmin();
+  await loadCompanies();
+}
+
+init();
+
+</script>
+
+<script>
+lucide.createIcons();
+</script>
+
+</body>
+</html>

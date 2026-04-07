@@ -102,6 +102,64 @@ transform:translateY(-2px);
 box-shadow:0 10px 25px rgba(255,74,0,0.25);
 }
 
+
+/* =============================
+   DARK MODE - INTEGRATIONS
+============================= */
+
+body.dark {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+/* CARD */
+body.dark .card {
+  background: #1e293b;
+  border: 1px solid #334155;
+}
+
+/* TITLE */
+body.dark .card h2 {
+  color: #f9fafb;
+}
+
+/* BUTTONS */
+body.dark .card button {
+  background: #1e293b;
+  color: #e5e7eb;
+  border: 1px solid #334155;
+  padding: 10px 14px;
+  border-radius: 8px;
+}
+
+body.dark .card button:hover {
+  background: #334155;
+}
+
+/* INPUT */
+body.dark #zapierWebhook {
+  background: #0f172a;
+  color: #e5e7eb;
+  border: 1px solid #334155;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+body.dark #zapierWebhook::placeholder {
+  color: #64748b;
+}
+
+/* DIVIDER */
+body.dark hr {
+  border-color: #334155;
+}
+
+/* MESSAGE */
+body.dark #zapierMsg {
+  color: #94a3b8;
+}
+
+
 </style>
 </head>
 
@@ -168,6 +226,42 @@ body:JSON.stringify({webhook})
 document.getElementById("zapierMsg").textContent="Zapier connected";
 
 }
+
+
+
+
+// =============================
+// LOAD SAVED THEME
+// =============================
+document.addEventListener("DOMContentLoaded", () => {
+const savedTheme = localStorage.getItem("theme");
+
+if (savedTheme === "dark") {
+document.body.classList.add("dark");
+}
+
+// SYSTEM DARK MODE (FIXED)
+const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+
+if (!savedTheme && prefersDark) {
+document.body.classList.add("dark");
+}
+});
+
+
+// =============================
+// TOGGLE THEME
+// =============================
+function toggleTheme() {
+document.body.classList.toggle("dark");
+
+if (document.body.classList.contains("dark")) {
+localStorage.setItem("theme", "dark");
+} else {
+localStorage.setItem("theme", "light");
+}
+}
+
 </script>
 
 
