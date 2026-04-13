@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Create Purchase Invoice • InvoiceFlow</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+/* 🌍 GLOBAL */
+body{
+  font-family:Inter,system-ui;
+  background:linear-gradient(135deg,#f8fafc,#eef2ff);
+  margin:0;
+  padding:30px;
+}
+
+/* 🔥 CONTAINER */
+.container{
+  max-width:1100px;
+  margin:auto;
+}
+
+/* 💎 HEADER */
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:25px;
+}
+
+.subtitle{
+  color:#6b7280;
+  font-size:13px;
+}
+
+/* 💎 CARD */
+.card{
+  background:white;
+  border-radius:16px;
+  padding:25px;
+  box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:20px;
+  margin-bottom:20px;
+}
+
+/* INPUT */
+input, select{
+  width:100%;
+  padding:10px;
+  border-radius:8px;
+  border:1px solid #e5e7eb;
+  margin-top:6px;
+}
+
+/* LABEL */
+label{
+  font-size:13px;
+  font-weight:600;
+  color:#374151;
+}
+
+/* TABLE */
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+
+th,td{
+  padding:10px;
+  border-bottom:1px solid #eee;
+}
+
+th{
+  background:#f9fafb;
+}
+
+/* BUTTONS */
+.btn{
+  padding:10px 16px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:600;
+}
+
+.btn-primary{
+  background:linear-gradient(135deg,#6366f1,#8b5cf6);
+  color:white;
+}
+
+.btn-add{
+  background:#f3f4f6;
+}
+
+/* TOTAL */
+.total-box{
+  text-align:right;
+  margin-top:20px;
+}
+
+.preview{
+  margin-top:20px;
+  padding:15px;
+  border-radius:10px;
+  background:#f9fafb;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div onclick="history.back()" style="cursor:pointer;margin-bottom:15px;color:#4f46e5;">← Back</div>
+
+<div class="header">
+  <div>
+    <h1>Create Purchase Invoice</h1>
+    <div class="subtitle">Track supplier expenses</div>
+  </div>
+</div>
+
+<div class="card">
+
+<!-- SUPPLIER -->
+<div class="grid">
+
+<div>
+<label>Supplier</label>
+<select id="supplier" onchange="onSupplierChange(this.value)"></select>
+</div>
+
+<div>
+<label>Supplier Name</label>
+<input id="supplier_name">
+</div>
+
+<div>
+<label>Email</label>
+<input id="email">
+</div>
+
+<div>
+<label>Phone</label>
+<input id="phone">
+</div>
+
+<div>
+<label>Issue Date</label>
+<input type="date" id="issue_date">
+</div>
+
+<div>
+<label>Due Date</label>
+<input type="date" id="due_date">
+</div>
+
+<div>
+<label>Tax</label>
+<input id="tax" type="number">
+</div>
+
+<div>
+<label>Discount</label>
+<input id="discount" type="number">
+</div>
+
+<div>
+<label>Currency</label>
+<select id="currency">
+  <option value="ZMW">ZMW</option>
+  <option value="USD">USD</option>
+</select>
+</div>
+
+</div>
+
+<!-- ITEMS -->
+<h3>Items</h3>
+
+<table>
+<thead>
+<tr>
+<th>Description</th>
+<th>Qty</th>
+<th>Price</th>
+<th>Total</th>
+<th></th>
+</tr>
+</thead>
+
+<tbody id="items"></tbody>
+</table>
+
+<button class="btn btn-add" onclick="addItem()">+ Add Item</button>
+
+<!-- TOTAL -->
+<div class="total-box">
+<p>Subtotal: <span id="subtotal">0</span></p>
+<p>Total: <span id="total">0</span></p>
+</div>
+
+<!-- FILE -->
+<input type="file" id="fileInput" onchange="handleFile(event)">
+<div id="fileName"></div>
+
+<!-- PREVIEW -->
+<div id="preview" class="preview"></div>
+
+<br>
+
+<button class="btn btn-primary" onclick="saveInvoice()">Save</button>
+<button class="btn" onclick="saveDraft()">Save Draft</button>
+
+</div>
+
+</div>
+
+<script>
+
+const token = localStorage.getItem("token");
+
+/* SUPPLIERS */
+let suppliers = [];
+
+async function loadSuppliers(){
+  const res = await fetch("/clients",{ headers:{ Authorization:"Bearer "+token }});
+  const data = await res.json();
+
+  suppliers = Array.isArray(data) ? data : data.data || [];
+
+  const select = document.getElementById("supplier");
+
+  select.innerHTML = `
+    <option value="">Select supplier</option>
+    ${suppliers.map(s=>`<option value="${s.id}">${s.name}</option>`).join("")}
+  `;
+}
+
+function onSupplierChange(id){
+  const s = suppliers.find(x=>x.id == id);
+  if(!s) return;
+
+  supplier_name.value = s.name;
+  email.value = s.email || "";
+  phone.value = s.phone || "";
+}
+
+/* ITEMS */
+function addItem(){
+  const row = document.createElement("tr");
+
+  row.innerHTML = `
+  <td><input class="desc"></td>
+  <td><input type="number" class="qty" value="1"></td>
+  <td><input type="number" class="price" value="0"></td>
+  <td class="rowTotal">0</td>
+  <td><button onclick="this.closest('tr').remove();calculateTotals()">❌</button></td>
+  `;
+
+  items.appendChild(row);
+}
+
+/* CALCULATE */
+/* CALCULATE */
+function calculateTotals(){
+
+  let subtotal = 0;
+
+  document.querySelectorAll("#items tr").forEach(row => {
+
+    const qty = Number(row.querySelector(".qty").value) || 0;
+    const price = Number(row.querySelector(".price").value) || 0;
+
+    const rowTotal = qty * price;
+
+    row.querySelector(".rowTotal").innerText = formatMoney(rowTotal);
+
+    subtotal += rowTotal;
+  });
+
+  // ✅ SAFE NUMBERS
+
+// ✅ SAFE NUMBERS
+const taxPercent = parseFloat(taxInput.value) || 0;
+const discount = parseFloat(discountInput.value) || 0;
+
+// ✅ TAX CALCULATION (PERCENTAGE)
+const taxAmount = (subtotal * taxPercent) / 100;
+
+// ✅ FINAL TOTAL
+const total = subtotal + taxAmount - discount;
+
+// ✅ FORMAT OUTPUT
+subtotalEl.innerText = formatMoney(subtotal);
+totalEl.innerText = formatMoney(total);
+
+// ✅ PASS TAX TOO (important for preview)
+updatePreview(subtotal, total, taxAmount);
+
+  // ✅ FORMAT OUTPUT
+  subtotalEl.innerText = formatMoney(subtotal);
+  totalEl.innerText = formatMoney(total);
+
+  updatePreview(subtotal, total);
+}
+
+
+document.addEventListener("input", calculateTotals);
+
+/* SHORTCUTS */
+const taxInput = document.getElementById("tax");
+const discountInput = document.getElementById("discount");
+const subtotalEl = document.getElementById("subtotal");
+const totalEl = document.getElementById("total");
+
+/* FORMAT */
+function formatMoney(value){
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency?.value || "ZMW"
+  }).format(value || 0);
+}
+
+
+/* SAVE */
+async function saveInvoice(status="pending"){
+
+  const itemsArr = [];
+
+  document.querySelectorAll("#items tr").forEach(row=>{
+    itemsArr.push({
+      description: row.querySelector(".desc").value,
+      quantity: Number(row.querySelector(".qty").value),
+      unit_price: Number(row.querySelector(".price").value)
+    });
+  });
+
+  const formData = new FormData();
+
+  formData.append("supplier_id", supplier.value);
+  formData.append("supplier_name", supplier_name.value);
+  formData.append("email", email.value);
+  formData.append("phone", phone.value);
+  formData.append("issue_date", issue_date.value);
+  formData.append("due_date", due_date.value);
+  formData.append("tax", taxInput.value);
+  formData.append("discount", discountInput.value);
+  formData.append("currency", currency.value);
+  formData.append("status", status);
+  formData.append("items", JSON.stringify(itemsArr));
+
+  const file = fileInput.files[0];
+  if(file) formData.append("attachment", file);
+
+  const res = await fetch("/purchase-invoices",{
+    method:"POST",
+    headers:{ Authorization:"Bearer "+token },
+    body: formData
+  });
+
+  if(res.ok){
+    alert("✅ Saved");
+    window.location="purchase-invoices.html";
+  }else{
+    alert("❌ Failed");
+  }
+}
+
+function saveDraft(){
+  saveInvoice("draft");
+}
+
+/* PREVIEW */
+
+function updatePreview(subtotal, total){
+
+  const taxPercent = parseFloat(taxInput.value) || 0;
+  const discount = parseFloat(discountInput.value) || 0;
+
+  // ✅ calculate tax amount
+  const taxAmount = (subtotal * taxPercent) / 100;
+
+  preview.innerHTML = `
+    <strong>Preview</strong><br>
+
+    Supplier: ${supplier_name.value || "-"}<br><br>
+
+    Subtotal: ${formatMoney(subtotal)}<br>
+
+    Tax (${taxPercent}%): ${formatMoney(taxAmount)}<br>
+
+    Discount: ${formatMoney(discount)}<br>
+
+    <hr>
+
+    <strong>Total: ${formatMoney(total)}</strong>
+  `;
+}
+
+
+/* FILE */
+function handleFile(e){
+  fileName.innerText = e.target.files[0]?.name || "";
+}
+
+/* INIT */
+addItem();
+loadSuppliers();
+
+</script>
+
+</body>
+</html>

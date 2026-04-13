@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>View Purchase Invoice • InvoiceFlow</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+  font-family: Inter, system-ui;
+  background: linear-gradient(135deg,#eef2ff,#f8fafc);
+  margin:0;
+  padding:20px;
+}
+
+/* CONTAINER */
+.container{
+  max-width:1100px;
+  margin:auto;
+}
+
+/* CARD */
+.card{
+  background:rgba(255,255,255,0.9);
+  backdrop-filter: blur(10px);
+  border-radius:18px;
+  padding:30px;
+  box-shadow:0 20px 50px rgba(0,0,0,0.08);
+}
+
+/* HEADER */
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:25px;
+}
+
+.title{
+  font-size:26px;
+  font-weight:700;
+}
+
+.subtitle{
+  color:#6b7280;
+  font-size:13px;
+}
+
+/* STATUS BADGE */
+.status{
+  padding:6px 14px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:600;
+}
+
+.status.paid{ background:#dcfce7;color:#15803d; }
+.status.pending{ background:#fef3c7;color:#92400e; }
+.status.overdue{ background:#fee2e2;color:#b91c1c; }
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:20px;
+  margin-bottom:25px;
+}
+
+.grid div{
+  background:#f9fafb;
+  padding:14px;
+  border-radius:10px;
+}
+
+/* TABLE */
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:10px;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+th{
+  background:#f1f5f9;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+
+td,th{
+  padding:12px;
+}
+
+tbody tr{
+  transition:0.2s;
+}
+
+tbody tr:hover{
+  background:#f9fafb;
+}
+
+/* TOTAL BOX */
+.total-box{
+  margin-top:25px;
+  padding:20px;
+  border-radius:12px;
+  background:linear-gradient(135deg,#f8fafc,#eef2ff);
+}
+
+.total-box p{
+  margin:6px 0;
+  color:#6b7280;
+}
+
+.total-box h3{
+  font-size:24px;
+  margin-top:10px;
+  color:#111827;
+}
+
+/* IMAGE */
+.invoice-image img{
+  max-width:100%;
+  border-radius:12px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.1);
+  transition:0.3s;
+}
+
+.invoice-image img:hover{
+  transform:scale(1.02);
+}
+
+/* BUTTON */
+.btn-back{
+  margin-bottom:15px;
+  background:linear-gradient(135deg,#6366f1,#8b5cf6);
+  color:white;
+  border:none;
+  padding:10px 16px;
+  border-radius:8px;
+  cursor:pointer;
+  font-weight:600;
+}
+
+
+
+/* 🏢 BRAND HEADER */
+.brand-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:25px;
+  padding:20px;
+  border-radius:16px;
+  background:linear-gradient(135deg,#ffffff,#f9fafb);
+  box-shadow:0 10px 30px rgba(0,0,0,0.05);
+}
+
+/* LEFT SIDE */
+.brand-left{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+
+.company-logo{
+  width:55px;
+  height:55px;
+  border-radius:12px;
+  object-fit:cover;
+  background:#f3f4f6;
+}
+
+/* COMPANY TEXT */
+#companyName{
+  margin:0;
+  font-size:18px;
+  font-weight:700;
+}
+
+.company-meta{
+  font-size:12px;
+  color:#6b7280;
+}
+
+/* RIGHT SIDE */
+.brand-right{
+  text-align:right;
+}
+
+.invoice-title{
+  font-size:12px;
+  letter-spacing:1px;
+  color:#6b7280;
+}
+
+.invoice-number{
+  font-size:20px;
+  font-weight:700;
+}
+
+
+
+@media print {
+  .total-box {
+    border: 2px solid #000;
+    background: none;
+  }
+
+  table {
+    border: 1px solid #000;
+  }
+
+  th, td {
+    border: 1px solid #ddd;
+  }
+}
+
+
+
+
+@media print {
+
+  body {
+    background: white;
+    padding: 0;
+  }
+
+  .btn-back,
+  button {
+    display: none !important;
+  }
+
+  .container {
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .card {
+    box-shadow: none;
+    border-radius: 0;
+    padding: 10px;
+  }
+
+  .brand-header {
+    box-shadow: none;
+    border: none;
+  }
+
+  .invoice-image img {
+    max-height: 300px;
+  }
+
+}
+
+
+
+.invoice-footer{
+  margin-top:40px;
+  padding-top:20px;
+  border-top:1px solid #e5e7eb;
+}
+
+.footer-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:30px;
+}
+
+.footer-grid h4{
+  font-size:12px;
+  text-transform:uppercase;
+  color:#6b7280;
+  margin-bottom:8px;
+}
+
+.footer-grid p{
+  font-size:13px;
+  margin:3px 0;
+  color:#374151;
+}
+
+.signature-line{
+  height:40px;
+  border-bottom:1px solid #111;
+  margin-bottom:6px;
+}
+
+.footer-bottom{
+  margin-top:25px;
+  font-size:12px;
+  text-align:center;
+  color:#9ca3af;
+}
+
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div style="display:flex; gap:10px; margin-bottom:15px;">
+  <button type="button" onclick="printInvoice()" class="btn-back no-print">
+  🖨️ Print
+</button>
+  <button onclick="downloadPDF()" class="btn-back">⬇️ Download PDF</button>
+</div>
+
+<button class="btn btn-back" onclick="history.back()">← Back</button>
+
+<div id="invoiceContent">
+
+<div class="brand-header">
+
+  <div class="brand-left">
+    <img id="companyLogo" class="company-logo" />
+    
+    <div>
+      <h2 id="companyName">Your Company</h2>
+      <div class="company-meta">
+        <span id="companyEmail"></span><br>
+        <span id="companyPhone"></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="brand-right">
+    <div class="invoice-title">PURCHASE INVOICE</div>
+    <div class="invoice-number" id="invoiceNumber">PINV-000</div>
+  </div>
+
+</div>
+
+<div class="card">
+
+<div class="header">
+  <div>
+<div class="title">Invoice</div>
+
+    <div class="subtitle">Purchase Invoice Details</div>
+  </div>
+  <span id="status" class="status">pending</span>
+</div>
+
+<div class="grid">
+  <div><strong>Supplier:</strong><br><span id="supplier"></span></div>
+  <div><strong>Email:</strong><br><span id="email"></span></div>
+  <div><strong>Phone:</strong><br><span id="phone"></span></div>
+  <div><strong>Issue Date:</strong><br><span id="issue_date"></span></div>
+  <div><strong>Due Date:</strong><br><span id="due_date"></span></div>
+</div>
+
+<h3>Items</h3>
+
+<table>
+<thead>
+<tr>
+<th>Description</th>
+<th>Qty</th>
+<th>Price</th>
+<th>Total</th>
+</tr>
+</thead>
+<tbody id="items"></tbody>
+</table>
+
+<div class="total-box">
+  <p>Subtotal: <span id="subtotal"></span></p>
+  <p>Tax: <span id="tax"></span></p>
+  <p>Discount: <span id="discount"></span></p>
+  <h3>Total: <span id="total"></span></h3>
+</div>
+
+<div id="imageBox" class="invoice-image"></div>
+
+</div>
+</div>
+
+<div class="invoice-footer">
+
+  <div class="footer-grid">
+
+    <div>
+      <h4>Payment Details</h4>
+      <p>Bank: <span id="bankName"></span></p>
+      <p>Account Name: <span id="accountName"></span></p>
+      <p>Account No: <span id="accountNumber"></span></p>
+      <p>SWIFT: <span id="swift"></span></p>
+    </div>
+
+    <div>
+      <h4>Notes</h4>
+      <p id="invoiceNote"></p>
+    </div>
+
+    <div>
+      <h4>Authorized Signature</h4>
+      <div class="signature-line"></div>
+      <span id="footerCompanyName"></span>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom" id="footerBottom"></div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<script>
+
+const token = localStorage.getItem("token");
+
+/* GET ID FROM URL */
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+
+/* =============================
+   LOAD INVOICE
+============================= */
+async function loadInvoice(){
+  try {
+
+    const res = await fetch(`/purchase-invoices/${id}`,{
+      headers:{ Authorization:"Bearer "+token }
+    });
+
+    if (!res.ok) throw new Error("Failed to load invoice");
+
+    const inv = await res.json();
+
+    if (!inv || !inv.id){
+      throw new Error("Invalid invoice data");
+    }
+
+    // HEADER
+    document.getElementById("invoiceNumber").innerText = "PINV-" + inv.id;
+
+    // DETAILS
+    document.getElementById("supplier").innerText = inv.supplier_name || "-";
+    document.getElementById("email").innerText = inv.email || "-";
+    document.getElementById("phone").innerText = inv.phone || "-";
+    document.getElementById("issue_date").innerText = formatDate(inv.issue_date);
+    document.getElementById("due_date").innerText = formatDate(inv.due_date);
+
+    // STATUS
+    const statusEl = document.getElementById("status");
+    statusEl.innerText = inv.status || "pending";
+    statusEl.className = "status " + (inv.status || "pending");
+
+    // ITEMS
+    const tbody = document.getElementById("items");
+    tbody.innerHTML = "";
+
+    (inv.items || []).forEach(i=>{
+      tbody.innerHTML += `
+        <tr>
+          <td>${i.description}</td>
+          <td>${i.quantity}</td>
+          <td>${formatMoney(i.unit_price)}</td>
+          <td>${formatMoney(i.total)}</td>
+        </tr>
+      `;
+    });
+
+    /* =============================
+       TOTALS (FIXED)
+    ============================= */
+
+    const subtotal = Number(inv.subtotal || 0);
+    const taxRate = Number(inv.tax || 0); // %
+    const discount = Number(inv.discount || 0);
+
+    const taxAmount = (subtotal * taxRate) / 100;
+    const total = subtotal + taxAmount - discount;
+
+    document.getElementById("subtotal").innerText = formatMoney(subtotal);
+
+    document.getElementById("tax").innerText =
+      `${formatMoney(taxAmount)} (${taxRate}%)`;
+
+    document.getElementById("discount").innerText =
+      "- " + formatMoney(discount);
+
+    document.getElementById("total").innerText =
+      formatMoney(total);
+
+    /* =============================
+       IMAGE (FIXED)
+    ============================= */
+
+    const imageUrl = inv.attachment
+      ? (inv.attachment.startsWith("/uploads")
+          ? inv.attachment
+          : `/uploads/${inv.attachment}`)
+      : null;
+
+    if (imageUrl){
+      document.getElementById("imageBox").innerHTML = `
+        <img src="${imageUrl}" onclick="openImage('${imageUrl}')">
+      `;
+    }
+
+  } catch (err){
+    console.error("❌ Invoice load error:", err);
+
+    document.querySelector(".card").innerHTML = `
+      <div style="text-align:center;padding:40px;color:#ef4444;">
+        ❌ Failed to load invoice
+      </div>
+    `;
+  }
+}
+
+
+/* =============================
+   COMPANY BRANDING
+============================= */
+async function loadCompany(){
+  try {
+
+    const res = await fetch("/company-settings", {
+      headers:{ Authorization:"Bearer " + token }
+    });
+
+window.COMPANY = await res.json();
+
+    console.log("🔥 COMPANY:", company);
+
+    // ✅ SET DATA
+
+const nameEl = document.getElementById("companyName");
+
+const name =
+  company.name ||
+  company.company_name ||
+  "InvoiceFlow";
+
+nameEl.innerText = name;
+
+    document.getElementById("companyEmail").innerText =
+      company.email || "";
+
+    document.getElementById("companyPhone").innerText =
+      company.phone || "";
+
+    // ✅ LOGO FIX (WORKING VERSION)
+
+const logo = document.getElementById("companyLogo");
+const data = window.COMPANY || {};
+
+if (data.logo && data.logo.trim() !== "") {
+
+  const imageUrl = data.logo.startsWith("/uploads")
+    ? data.logo
+    : `/uploads/${data.logo}`;
+
+  logo.src = imageUrl;
+
+  logo.onerror = () => {
+    logo.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name || data.company_name || "Company")}&background=6366f1&color=fff`;
+  };
+
+} else {
+  logo.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(data.name || data.company_name || "Company")}&background=6366f1&color=fff`;
+}
+
+
+  } catch (err){
+    console.error("❌ Company load failed:", err);
+  }
+}
+
+
+
+/* =============================
+   HELPERS
+============================= */
+
+function formatMoney(v){
+  return new Intl.NumberFormat("en-US",{
+    style:"currency",
+    currency:"ZMW"
+  }).format(v || 0);
+}
+
+function formatDate(d){
+  return d ? new Date(d).toLocaleDateString() : "-";
+}
+
+function openImage(src){
+  const w = window.open("");
+  w.document.write(`
+    <title>Preview</title>
+    <img src="${src}" style="width:100%;margin:0">
+  `);
+}
+
+function printInvoice(){
+
+  const content = document.getElementById("invoiceContent").innerHTML;
+
+  const win = window.open("", "", "width=900,height=650");
+
+  win.document.write(`
+    <html>
+      <head>
+        <title>Print Invoice</title>
+        <style>
+          body { font-family: Inter, sans-serif; padding:20px; }
+        </style>
+      </head>
+      <body>
+        ${content}
+      </body>
+    </html>
+  `);
+
+  win.document.close();
+  win.focus();
+
+  setTimeout(() => {
+    win.print();
+    win.close();
+  }, 500);
+}
+
+function downloadPDF(){
+
+  const element = document.querySelector(".container");
+
+  // ✅ hide buttons BEFORE capture
+  const buttons = document.querySelectorAll("button");
+  buttons.forEach(btn => btn.style.display = "none");
+
+  const opt = {
+    margin: 10,
+    filename: `Invoice-${id}.pdf`,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
+
+  html2pdf().set(opt).from(element).save().then(() => {
+
+    // ✅ restore buttons AFTER download
+    buttons.forEach(btn => btn.style.display = "");
+
+  });
+
+}
+
+
+function renderCompanyDetails(){
+
+const data = window.COMPANY || {};
+
+  // ✅ NORMALIZED VALUES
+const name = data.name || data.company_name || "";
+
+  const email = data.email || "";
+  const phone = data.phone || "";
+
+  // HEADER
+  document.getElementById("companyName").innerText = name;
+  document.getElementById("companyEmail").innerText = email;
+  document.getElementById("companyPhone").innerText = phone;
+
+  // PAYMENT DETAILS
+  document.getElementById("bankName").innerText =
+    data.bank_name || "-";
+
+  document.getElementById("accountName").innerText =
+    data.account_name || "-";
+
+  document.getElementById("accountNumber").innerText =
+    data.account_number || "-";
+
+  document.getElementById("swift").innerText =
+    data.swift || data.swift_code || "ZANACZLX";
+}
+
+function renderFooter(){
+
+  const data = company || window.COMPANY || {};
+
+  const name =
+    data.company_name ||
+    data.name ||
+    "";
+
+  const email = data.email || "";
+  const phone = data.phone || "";
+
+  // PAYMENT DETAILS
+  document.getElementById("bankName").innerText =
+    data.bank_name || "-";
+
+  document.getElementById("accountName").innerText =
+    data.account_name || "-";
+
+  document.getElementById("accountNumber").innerText =
+    data.account_number || "-";
+
+  document.getElementById("swift").innerText =
+    data.swift || data.swift_code || "ZANACZLX";
+
+  // NOTES
+  document.getElementById("invoiceNote").innerText =
+    data.invoice_note || "Thank you for your business.";
+
+  // SIGNATURE
+  document.getElementById("footerCompanyName").innerText =
+    name;
+
+  // BOTTOM LINE
+  document.getElementById("footerBottom").innerText =
+    `${name} • ${email} • ${phone}`;
+}
+
+
+
+
+/* =============================
+   INIT
+============================= */
+document.addEventListener("DOMContentLoaded", async () => {
+
+  // ✅ load company FIRST
+  await loadCompany();
+
+  // ✅ then render company UI
+  renderCompanyDetails();
+  renderFooter();
+
+  // ✅ then load invoice
+  await loadInvoice();
+
+});
+
+
+</script>
+</body>
+</html>

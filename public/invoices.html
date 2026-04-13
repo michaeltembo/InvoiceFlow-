@@ -39,50 +39,82 @@
 
 </header>
 
-<div id="sidebar" class="sidebar">  
-<div class="sidebar-logo">  
-<span class="logo-icon">IF</span>  
-</div>  
+<div id="sidebar" class="sidebar">
 
+  <div class="sidebar-logo">
+    <span class="logo-icon">IF</span>
+  </div>
 
-<a href="dashboard.html" class="sidebar-link">
-  <i data-lucide="layout-dashboard"></i>
-  <span>Dashboard</span>
-</a>
+  <a href="dashboard.html" class="sidebar-link">
+    <i data-lucide="layout-dashboard"></i>
+    <span>Dashboard</span>
+  </a>
 
-<a href="clients.html" class="sidebar-link">
-  <i data-lucide="users"></i>
-  <span>Clients</span>
-</a>
+  <a href="clients.html" class="sidebar-link">
+    <i data-lucide="users"></i>
+    <span>Clients</span>
+  </a>
 
-<a href="invoices.html" class="sidebar-link">
-  <i data-lucide="file-text"></i>
-  <span>Invoices</span>
-</a>
+  <a href="invoices.html" class="sidebar-link">
+    <i data-lucide="file-text"></i>
+    <span>Invoices</span>
+  </a>
 
-<a href="company-settings.html" class="sidebar-link">
-  <i data-lucide="settings"></i>
-  <span>Settings</span>
-</a>
+  <!-- 🔥 FIXED BROKEN PART -->
+  <a href="/sales.html" class="sidebar-link">
+    <i data-lucide="receipt"></i>
+    <span>Sales Invoices</span>
+  </a>
 
-<a href="reports.html" class="sidebar-link">
-  <i data-lucide="bar-chart-3"></i>
-  <span>Reports</span>
-</a>
+  <a href="/purchases.html" class="sidebar-link">
+    <i data-lucide="shopping-cart"></i>
+    <span>Purchase Invoices</span>
+  </a>
 
+  <a href="/cashbook.html" class="sidebar-link">
+    <i data-lucide="book-open"></i>
+    <span>Cash Book</span>
+  </a>
 
-<button onclick="logout()" class="logout-btn">
-  <i data-lucide="log-out"></i>
-  <span>Logout</span>
-</button>
+  <a href="/customers-suppliers.html" class="sidebar-link">
+    <i data-lucide="users"></i>
+    <span>Customers / Suppliers</span>
+  </a>
 
-<div class="theme-toggle" onclick="toggleTheme()">
-  <span class="icon sun">☀️</span>
-  <span class="icon moon">🌙</span>
-  <div class="toggle-circle"></div>
+  <a href="/projects.html" class="sidebar-link">
+    <i data-lucide="folder"></i>
+    <span>Projects</span>
+  </a>
+
+  <a href="/payments.html" class="sidebar-link">
+    <i data-lucide="credit-card"></i>
+    <span>Payment Methods</span>
+  </a>
+
+  <a href="company-settings.html" class="sidebar-link">
+    <i data-lucide="settings"></i>
+    <span>Settings</span>
+  </a>
+
+  <a href="reports.html" class="sidebar-link">
+    <i data-lucide="bar-chart-3"></i>
+    <span>Reports</span>
+  </a>
+
+  <button onclick="logout()" class="logout-btn">
+    <i data-lucide="log-out"></i>
+    <span>Logout</span>
+  </button>
+
+  <div class="theme-toggle" onclick="toggleTheme()">
+    <span class="icon sun">☀️</span>
+    <span class="icon moon">🌙</span>
+    <div class="toggle-circle"></div>
+  </div>
+
 </div>
 
-</div>
+
 
 <!-- PAGE -->
 
@@ -287,6 +319,50 @@ Cancel
   </div>
 
 </div>
+<!-- MRR -->
+<div class="kpi-card mrr">
+  <div class="card-top">
+    <i data-lucide="trending-up" class="icon"></i>
+    <span class="trend" id="mrrTrend">0%</span>
+  </div>
+  <span class="label">MRR</span>
+  <h2 id="mrrValue">ZMW 0</h2>
+  <canvas class="sparkline" id="mrrSpark"></canvas>
+</div>
+
+<!-- COLLECTION RATE -->
+<div class="kpi-card collection">
+  <div class="card-top">
+    <i data-lucide="percent" class="icon"></i>
+    <span class="trend" id="collectionTrend">0%</span>
+  </div>
+  <span class="label">Collection Rate</span>
+  <h2 id="collectionRate">0%</h2>
+  <canvas class="sparkline" id="collectionSpark"></canvas>
+</div>
+
+<!-- OVERDUE -->
+<div class="kpi-card overdue">
+  <div class="card-top">
+    <i data-lucide="clock" class="icon"></i>
+    <span class="trend" id="overdueTrend">0%</span>
+  </div>
+  <span class="label">Overdue</span>
+  <h2 id="overdueAmount">ZMW 0</h2>
+  <canvas class="sparkline" id="overdueSpark"></canvas>
+</div>
+
+<!-- AVG PAYMENT TIME -->
+<div class="kpi-card avg-payment">
+  <div class="card-top">
+    <i data-lucide="timer" class="icon"></i>
+    <span class="trend" id="avgTimeTrend">0%</span>
+  </div>
+  <span class="label">Avg Payment Time</span>
+  <h2 id="avgPaymentTime">0 days</h2>
+  <canvas class="sparkline" id="avgSpark"></canvas>
+</div>
+
 
 <div class="card">
 

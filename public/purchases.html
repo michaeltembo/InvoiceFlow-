@@ -1,6 +1,6 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
 <meta charset="UTF-8">
@@ -9,372 +9,329 @@
 <title>Purchase Invoices • InvoiceFlow</title>
 
 <link rel="stylesheet" href="dashboard.css">
-
 <script src="https://unpkg.com/lucide@latest"></script>
 
 <style>
 
+/* 🌍 GLOBAL */
 body{
-font-family:Inter,system-ui;
-background:#f4f6f9;
-margin:0;
-padding:20px;
+  font-family: Inter, system-ui;
+  background:#f4f6f9;
+  margin:0;
+  padding:20px;
 }
 
-.page-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:20px;
+/* 💎 HEADER */
+.elite-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  padding:18px 22px;
+  margin-bottom:30px;
+
+  background:linear-gradient(135deg,#ffffff,#f9fafb);
+  border-radius:14px;
+
+  box-shadow:0 6px 20px rgba(0,0,0,0.06);
 }
 
-.btn{
-background:#111827;
-color:white;
-border:none;
-padding:10px 16px;
-border-radius:6px;
-cursor:pointer;
+.header-left h1{
+  margin:0;
+  font-size:22px;
+  font-weight:700;
 }
 
-.stats-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-gap:15px;
-margin-bottom:25px;
+.subtitle{
+  font-size:13px;
+  color:#6b7280;
 }
 
-.stat-card{
-background:white;
-padding:15px;
-border-radius:8px;
-box-shadow:0 2px 8px rgba(0,0,0,0.05);
+.create-btn{
+  background:linear-gradient(135deg,#ef4444,#f97316);
+  color:white;
+  border:none;
+  padding:10px 16px;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer;
 }
 
-.stat-card span{
-font-size:13px;
-color:#6b7280;
+/* 📊 SUMMARY */
+.summary{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:20px;
+  margin-bottom:30px;
 }
 
+.card{
+  background:white;
+  padding:22px;
+  border-radius:12px;
+  box-shadow:0 4px 14px rgba(0,0,0,0.06);
+}
+
+.card span{
+  font-size:13px;
+  color:#6b7280;
+}
+
+.card h3{
+  font-size:26px;
+  margin-top:8px;
+}
+
+/* 🔴 Expense colors */
+.total-card{ border-left:4px solid #ef4444; }
+.paid-card{ border-left:4px solid #22c55e; }
+.pending-card{ border-left:4px solid #f59e0b; }
+.overdue-card{ border-left:4px solid #dc2626; }
+
+/* 📋 TABLE */
 .table-wrapper{
-background:white;
-border-radius:10px;
-box-shadow:0 2px 10px rgba(0,0,0,0.05);
-overflow-x:auto;
+  background:white;
+  border-radius:12px;
+  box-shadow:0 4px 14px rgba(0,0,0,0.06);
+  overflow:hidden;
 }
 
 table{
-width:100%;
-border-collapse:collapse;
+  width:100%;
+  border-collapse:collapse;
 }
 
 th,td{
-padding:12px;
-border-bottom:1px solid #eee;
-text-align:left;
+  padding:14px;
+  border-bottom:1px solid #eee;
 }
 
 th{
-background:#fafafa;
+  background:#fafafa;
+  font-size:13px;
+  color:#6b7280;
 }
 
+/* 👤 CLIENT CELL */
+.client-cell{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.client-avatar{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  object-fit:cover;
+}
+
+/* 📄 INVOICE */
+.invoice-cell{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.invoice-icon{
+  background:#fee2e2;
+  padding:6px;
+  border-radius:6px;
+}
+
+/* 📊 STATUS */
 .status{
-padding:4px 10px;
-border-radius:20px;
-font-size:12px;
+  padding:4px 10px;
+  border-radius:20px;
+  font-size:12px;
 }
 
 .status.paid{
-background:#dcfce7;
-color:#15803d;
+  background:#dcfce7;
+  color:#15803d;
 }
 
 .status.pending{
-background:#fef3c7;
-color:#92400e;
+  background:#fef3c7;
+  color:#92400e;
 }
 
 .status.overdue{
-background:#fee2e2;
-color:#b91c1c;
+  background:#fee2e2;
+  color:#b91c1c;
 }
 
-.action-links a{
-margin-right:10px;
-text-decoration:none;
-color:#2563eb;
-font-size:13px;
+/* 💰 TOTAL */
+.total-cell{
+  display:flex;
+  align-items:center;
+  gap:6px;
 }
 
-.empty{
-text-align:center;
-color:#6b7280;
+.invoice-badge{
+  background:#fee2e2;
+  padding:5px;
+  border-radius:6px;
 }
 
-.stats-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-gap:20px;
-margin-bottom:30px;
+/* 💎 PAID META */
+.paid-meta{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-top:4px;
 }
 
-.stat-card{
-background:white;
-padding:20px;
-border-radius:10px;
-box-shadow:0 4px 12px rgba(0,0,0,0.05);
+.paid-avatar{
+  width:20px;
+  height:20px;
+  border-radius:50%;
 }
 
-.stat-card span{
-font-size:14px;
-color:#6b7280;
+/* 🌙 DARK MODE */
+body.dark{
+  background:#0f172a;
+  color:#e5e7eb;
 }
 
-.stat-card h3{
-font-size:26px;
-margin-top:8px;
+body.dark .card,
+body.dark .table-wrapper{
+  background:#1e293b;
 }
 
-/* SaaS Status Colors */
-
-.total-card{
-border-left:4px solid #2563eb;
-}
-
-.total-card h3{
-color:#2563eb;
-}
-
-.paid-card{
-border-left:4px solid #16a34a;
-}
-
-.paid-card h3{
-color:#16a34a;
-}
-
-.outstanding-card{
-border-left:4px solid #f59e0b;
-}
-
-.outstanding-card h3{
-color:#f59e0b;
-}
-
-.overdue-card{
-border-left:4px solid #dc2626;
-}
-
-.overdue-card h3{
-color:#dc2626;
-}
-
-/* ACTION LINKS CONTAINER */
-
-.action-links{
-display:flex;
-gap:8px;
-align-items:center;
-}
-
-/* COMMON BUTTON STYLE */
-
-.action-links a{
-text-decoration:none;
-font-size:13px;
-font-weight:600;
-padding:6px 12px;
-border-radius:6px;
-transition:all .2s ease;
-}
-
-/* VIEW BUTTON */
-
-.action-links a:first-child{
-background:#e0e7ff;
-color:#3730a3;
-}
-
-.action-links a:first-child:hover{
-background:#c7d2fe;
-}
-
-/* DELETE BUTTON */
-
-.action-links a:last-child{
-background:#fee2e2;
-color:#b91c1c;
-}
-
-.action-links a:last-child:hover{
-background:#fecaca;
+body.dark th{
+  background:#020617;
+  color:#94a3b8;
 }
 
 
-.back-btn{
-position:fixed;
-top:20px;
-right:20px;
-background:#f3f4f6;
-border:none;
-padding:8px 14px;
-border-radius:8px;
-font-size:13px;
-font-weight:600;
-cursor:pointer;
-color:#374151;
+.modal{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.4);
+  display:flex;
+  align-items:center;
+  justify-content:center;
 }
 
-.back-btn:hover{
-background:#e5e7eb;
+.modal-box{
+  background:white;
+  padding:25px;
+  border-radius:12px;
+  width:300px;
 }
 
-
-/* =============================
-   DARK MODE - PURCHASE PAGE
-============================= */
-
-body.dark {
-  background: #0f172a;
-  color: #e5e7eb;
+.hidden{
+  display:none;
 }
 
-/* HEADER */
-body.dark .page-header h1 {
-  color: #f9fafb;
+.pay-btn{
+  background:#16a34a;
+  color:white;
+  border:none;
+  padding:6px 12px;
+  border-radius:6px;
+  cursor:pointer;
 }
 
-body.dark .btn {
-  background: #1e293b;
-  color: #e5e7eb;
-  border: 1px solid #334155;
-}
-
-/* BACK BUTTON */
-body.dark .back-btn {
-  background: #1e293b;
-  color: #e5e7eb;
-  border: 1px solid #334155;
-}
-
-/* =============================
-   STATS CARDS
-============================= */
-
-body.dark .stat-card {
-  background: #1e293b;
-  border: 1px solid #334155;
-}
-
-body.dark .stat-card span {
-  color: #94a3b8;
-}
-
-/* KEEP NUMBER COLORS */
-body.dark .total-card h3 { color: #3b82f6; }
-body.dark .paid-card h3 { color: #16a34a; }
-body.dark .outstanding-card h3 { color: #f59e0b; }
-body.dark .overdue-card h3 { color: #dc2626; }
-
-/* =============================
-   TABLE
-============================= */
-
-body.dark .table-wrapper {
-  background: #1e293b;
-  border: 1px solid #334155;
-}
-
-/* FORCE HEADER FIX */
-body.dark table thead,
-body.dark table thead tr,
-body.dark table thead th {
-  background: #020617 !important;
-  color: #94a3b8 !important;
-  border-bottom: 1px solid #334155 !important;
-}
-
-/* BODY */
-body.dark table tbody td {
-  color: #e5e7eb;
-  border-bottom: 1px solid #1e293b;
-}
-
-/* EMPTY STATE */
-body.dark .empty {
-  color: #64748b;
+.status.partial{
+  background:#e0f2fe;
+  color:#0369a1;
 }
 
 
-/* =============================
-   DARK MODE - PURCHASES
-============================= */
-
-body.dark {
-  background: #0f172a;
-  color: #e5e7eb;
+/* 📱 MOBILE TABLE FIX */
+.table-scroll{
+  width:100%;
+  overflow-x:auto;
 }
 
-/* HEADER */
-body.dark .page-header h1 {
-  color: #f9fafb;
+.table-scroll::-webkit-scrollbar{
+  height:6px;
 }
 
-body.dark .btn,
-body.dark .back-btn {
-  background: #1e293b;
-  color: #e5e7eb;
-  border: 1px solid #334155;
+.table-scroll::-webkit-scrollbar-thumb{
+  background:#ddd;
+  border-radius:10px;
 }
 
-/* =============================
-   STATS CARDS
-============================= */
-
-body.dark .stat-card {
-  background: #1e293b;
-  border: 1px solid #334155;
+/* Prevent table from shrinking */
+table{
+  min-width:700px;
 }
 
-body.dark .stat-card span {
-  color: #94a3b8;
+
+.client-avatar.placeholder{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  background:#ef4444;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:600;
 }
 
-/* KEEP KPI COLORS */
-body.dark .total-card h3 { color: #3b82f6; }   /* blue */
-body.dark .paid-card h3 { color: #16a34a; }    /* green */
-body.dark .outstanding-card h3 { color: #f59e0b; } /* orange */
-body.dark .overdue-card h3 { color: #dc2626; } /* red */
 
-/* =============================
-   TABLE
-============================= */
 
-body.dark .table-wrapper {
-  background: #1e293b;
-  border: 1px solid #334155;
+.action-btn{
+  border:none;
+  padding:6px 8px;
+  border-radius:6px;
+  cursor:pointer;
+  font-size:14px;
 }
 
-/* FORCE HEADER (fix your issue) */
-body.dark table thead,
-body.dark table thead tr,
-body.dark table thead th {
-  background: #020617 !important;
-  color: #94a3b8 !important;
-  border-bottom: 1px solid #334155 !important;
+.pay-btn{
+  background:#16a34a;
+  color:white;
 }
 
-/* BODY */
-body.dark table tbody td {
-  color: #e5e7eb;
-  border-bottom: 1px solid #1e293b;
+.view-btn{
+  background:#2563eb;
+  color:white;
 }
 
-/* EMPTY */
-body.dark .empty {
-  color: #64748b;
+.delete-btn{
+  background:#dc2626;
+  color:white;
 }
 
+.paid-badge{
+  color:#16a34a;
+  font-weight:700;
+  font-size:14px;
+}
+
+
+function openImage(src){
+  let modal = document.getElementById("imagePreviewModal");
+
+  // create modal if not exists
+  if (!modal){
+    modal = document.createElement("div");
+    modal.id = "imagePreviewModal";
+
+    modal.innerHTML = `
+      <div class="image-overlay" onclick="closeImage()">
+        <img id="previewImage" src="" />
+        <span class="close-btn" onclick="closeImage()">✕</span>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+  }
+
+  document.getElementById("previewImage").src = src;
+  modal.style.display = "flex";
+}
+
+function closeImage(){
+  const modal = document.getElementById("imagePreviewModal");
+  if (modal) modal.style.display = "none";
+}
 
 </style>
 
@@ -382,255 +339,392 @@ body.dark .empty {
 
 <body>
 
-<button class="back-btn" onclick="goBack()">← Back</button>
+<header class="elite-header">
+  <div class="header-left">
+    <h1>Purchase Invoices</h1>
+    <span class="subtitle">Track expenses & supplier payments</span>
+  </div>
 
-<header class="page-header">
-
-<h1>Purchase Invoices</h1>
-
-<button class="btn" onclick="newPurchase()">New Purchase</button>
-
+  <button class="create-btn" onclick="createPurchaseInvoice()">
+    + New Purchase
+  </button>
 </header>
 
+<!-- 📊 SUMMARY -->
+<section class="summary">
+  <div class="card total-card">
+    <span>Total Expenses</span>
+    <h3 id="totalExpenses">0</h3>
+  </div>
 
-<!-- STATS -->
+  <div class="card paid-card">
+    <span>Paid</span>
+    <h3 id="paidTotal">0</h3>
+  </div>
 
-<div class="stats-grid">
+  <div class="card pending-card">
+    <span>Pending</span>
+    <h3 id="pendingTotal">0</h3>
+  </div>
 
-<div class="stat-card total-card">
-<span>Total Purchases</span>
-<h3 id="totalPurchases">0</h3>
-</div>
+  <div class="card overdue-card">
+    <span>Overdue</span>
+    <h3 id="overdueTotal">0</h3>
+  </div>
+</section>
 
-<div class="stat-card paid-card">
-<span>Paid</span>
-<h3 id="paidPurchases">0</h3>
-</div>
-
-<div class="stat-card outstanding-card">
-<span>Outstanding</span>
-<h3 id="outstandingPurchases">0</h3>
-</div>
-
-<div class="stat-card overdue-card">
-<span>Overdue</span>
-<h3 id="overduePurchases">0</h3>
-</div>
-
-</div>
-
-<!-- TABLE -->
+<!-- 📋 TABLE -->
 
 <div class="table-wrapper">
 
-<table>
+  <!-- 🔥 SCROLL WRAPPER -->
+  <div class="table-scroll">
 
-<thead>
-<tr>
-<th>Purchase</th>
-<th>Supplier</th>
-<th>Date</th>
-<th>Status</th>
-<th>Total</th>
-<th>Actions</th>
-</tr>
-</thead>
+    <table>
 
-<tbody id="purchasesTable">
+      <thead>
+        <tr>
+          <th>Invoice</th>
+          <th>Supplier</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Total</th>
+          <th>Balance</th>
+          <th>Action</th>
+        </tr>
+      </thead>
 
-<tr>
-<td colspan="6" class="empty">Loading purchases...</td>
-</tr>
+      <tbody id="purchaseTable">
+        <tr><td colspan="7">Loading...</td></tr>
+      </tbody>
 
-</tbody>
+    </table>
 
-</table>
+  </div>
+
+  <!-- 💳 PAYMENT MODAL -->
+  <div id="payModal" class="modal hidden">
+
+    <div class="modal-box">
+      <h3>Pay Supplier</h3>
+
+      <input type="number" id="payAmount" placeholder="Amount">
+
+      <select id="payMethod">
+        <option value="cash">Cash</option>
+        <option value="bank">Bank</option>
+        <option value="mobile">Mobile Money</option>
+      </select>
+
+      <br><br>
+
+      <button onclick="submitPayment()">Confirm Payment</button>
+      <button onclick="closePayModal()">Cancel</button>
+
+    </div>
+
+  </div>
 
 </div>
 
-
 <script>
 
-const currency = localStorage.getItem("currency") || "ZMW";
+/* =============================
+   INIT
+============================= */
 
-const rates = {
-  USD:1,
-  EUR:0.92,
-  GBP:0.79,
-  ZMW:27
-};
-
-function formatMoney(amount){
-  return new Intl.NumberFormat("en-US",{
-    style:"currency",
-    currency: currency
-  }).format(amount);
-}
-
-
-lucide.createIcons()
-
-let purchases=[]
-
-document.addEventListener("DOMContentLoaded",loadPurchases)
-
-
-async function loadPurchases(){
-
-try{
-
-const res = await fetch("/purchases")
-
-purchases = await res.json()
-
-renderPurchases()
-
-}catch(err){
-
-console.error(err)
-
-}
-
-}
-
-
-function renderPurchases(){
-
-const table = document.getElementById("purchasesTable")
-
-table.innerHTML=""
-
-let paid=0
-let outstanding=0
-let overdue=0
-
-if(!purchases.length){
-
-table.innerHTML="<tr><td colspan='6' class='empty'>No purchases found</td></tr>"
-return
-
-}
-
-purchases.forEach(p=>{
-
-if(p.status==="paid") paid+=Number(p.total)
-if(p.status==="pending") outstanding+=Number(p.total)
-if(p.status==="overdue") overdue+=Number(p.total)
-
-const row=document.createElement("tr")
-
-row.innerHTML=`
-
-<td>PUR-${p.id}</td>
-<td>${p.supplier||"-"}</td>
-<td>${formatDate(p.date)}</td>
-
-<td>
-<span class="status ${p.status}">
-${p.status}
-</span>
-</td>
-
-<td>${formatCurrency(p.total)}</td>
-
-<td class="action-links">
-
-<a href="view-purchase.html?id=${p.id}">View</a>
-<a href="#" onclick="deletePurchase(${p.id})">Delete</a>
-
-</td>
-
-`
-
-table.appendChild(row)
-
-})
-
-document.getElementById("totalPurchases").innerText=purchases.length
-document.getElementById("paidPurchases").innerText=formatCurrency(paid)
-document.getElementById("outstandingPurchases").innerText=formatCurrency(outstanding)
-document.getElementById("overduePurchases").innerText=formatCurrency(overdue)
-
-}
-
-
-function formatCurrency(value){
-return formatMoney(value);
-}
-
-function formatDate(date){
-
-if(!date) return "-"
-
-return new Date(date).toLocaleDateString()
-
-}
-
-
-function newPurchase(){
-
-window.location="new-purchase.html"
-
-}
-
-
-async function deletePurchase(id){
-
-if(!confirm("Delete this purchase?")) return
-
-await fetch("/purchases/"+id,{
-method:"DELETE"
-})
-
-loadPurchases()
-
-}
-
-
-function goBack(){
-window.history.back()
-}
-
-
-
-
-	
-
-
-// =============================
-// LOAD SAVED THEME
-// =============================
 document.addEventListener("DOMContentLoaded", () => {
-const savedTheme = localStorage.getItem("theme");
-
-if (savedTheme === "dark") {
-document.body.classList.add("dark");
-}
-
-// SYSTEM DARK MODE (FIXED)
-const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-
-if (!savedTheme && prefersDark) {
-document.body.classList.add("dark");
-}
+  console.log("🚀 Purchase Invoice Page Loaded");
+  loadPurchaseInvoices();
 });
 
 
-// =============================
-// TOGGLE THEME
-// =============================
-function toggleTheme() {
-document.body.classList.toggle("dark");
+/* =============================
+   LOAD INVOICES
+============================= */
 
-if (document.body.classList.contains("dark")) {
-localStorage.setItem("theme", "dark");
-} else {
-localStorage.setItem("theme", "light");
+async function loadPurchaseInvoices(){
+const token = localStorage.getItem("token");
+
+try {
+const res = await fetch("/purchase-invoices", {
+headers: {
+Authorization: "Bearer " + token
+}
+});
+
+console.log("STATUS:", res.status);  
+
+if (!res.ok) {  
+  throw new Error("Request failed: " + res.status);  
+}  
+
+const data = await res.json();  
+
+console.log("API DATA:", data);  
+
+const invoices = Array.isArray(data) ? data : data.data || [];  
+
+renderPurchaseInvoices(invoices);
+
+} catch (err) {
+console.error("❌ LOAD ERROR:", err);
+
+document.getElementById("purchaseTable").innerHTML =  
+  "<tr><td colspan='7'>❌ Failed to load invoices</td></tr>";
+
 }
 }
 
+
+/* =============================
+   RENDER TABLE
+============================= */
+
+function renderPurchaseInvoices(invoices){
+
+  const table = document.getElementById("purchaseTable");
+  table.innerHTML = "";
+
+  let paid = 0;
+  let pending = 0;
+  let overdue = 0;
+
+  if (!invoices || !invoices.length){
+    table.innerHTML = "<tr><td colspan='7'>No purchase invoices</td></tr>";
+    updateSummary(0,0,0);
+    return;
+  }
+
+  invoices.forEach(inv => {
+
+    const amount = Number(inv.total || 0);
+    const balance = Number(inv.balance || 0);
+    const status = inv.status || "pending";
+
+    // ✅ IMAGE FIX
+
+const imageUrl = inv.attachment
+  ? inv.attachment
+  : `https://ui-avatars.com/api/?name=${encodeURIComponent(inv.supplier_name || "Supplier")}&background=ef4444&color=fff`;
+
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td>
+        <div class="invoice-cell">
+          <div class="invoice-icon">
+            📄
+          </div>
+          <span>PINV-${inv.id}</span>
+        </div>
+      </td>
+
+
+<td>
+  <div class="client-cell">
+
+<img
+  src="${imageUrl}"
+  class="client-avatar"
+  onclick="openImage('${imageUrl}')"
+      onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(inv.supplier_name || "Supplier")}&background=ef4444&color=fff'"
+    />
+    <span>${inv.supplier_name || "-"}</span>
+  </div>
+</td>
+
+
+<td>${formatDate(inv.issue_date)}</td>
+
+<td>
+  <span class="status ${status}">
+    ${status}
+  </span>
+</td>
+
+<td>${formatMoney(amount)}</td>
+
+<td><strong>${formatMoney(balance)}</strong></td>
+
+<td>
+  <div style="display:flex; gap:6px; align-items:center;">
+
+    ${
+      status !== "paid"
+        ? `<button 
+            onclick="openPayModal(${inv.id}, ${balance})" 
+            class="pay-btn action-btn"
+            title="Pay"
+          >
+            💳
+          </button>`
+        : `<span class="paid-badge">✔</span>`
+    }
+
+    <button 
+      onclick="viewInvoice(${inv.id})" 
+      class="view-btn action-btn"
+      title="View"
+    >
+      👁
+    </button>
+
+    <button 
+      onclick="deleteInvoice(${inv.id})" 
+      class="delete-btn action-btn"
+      title="Delete"
+    >
+      🗑
+    </button>
+
+  </div>
+</td>
+
+    `;
+
+    table.appendChild(row);
+
+    // ✅ SUMMARY
+    if (status === "paid") {
+      paid += amount;
+    } else if (status === "overdue") {
+      overdue += amount;
+    } else {
+      pending += amount;
+    }
+
+  });
+
+  updateSummary(paid, pending, overdue);
+}
+
+/* =============================
+   SUMMARY CARDS
+============================= */
+
+function updateSummary(paid, pending, overdue){
+  const total = paid + pending + overdue;
+
+  document.getElementById("totalExpenses").innerText = formatMoney(total);
+  document.getElementById("paidTotal").innerText = formatMoney(paid);
+  document.getElementById("pendingTotal").innerText = formatMoney(pending);
+  document.getElementById("overdueTotal").innerText = formatMoney(overdue);
+}
+
+
+/* =============================
+   HELPERS
+============================= */
+
+function formatMoney(amount){
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "ZMW"
+  }).format(amount || 0);
+}
+
+function formatDate(date){
+  return date ? new Date(date).toLocaleDateString() : "-";
+}
+
+
+/* =============================
+   NAVIGATION
+============================= */
+
+function createPurchaseInvoice(){
+  window.location = "create-purchase-invoice.html";
+}
+
+
+/* =============================
+   PAYMENT MODAL
+============================= */
+
+let currentInvoiceId = null;
+
+function openPayModal(id, balance){
+  currentInvoiceId = id;
+  document.getElementById("payAmount").value = balance || 0;
+  document.getElementById("payModal").classList.remove("hidden");
+}
+
+function closePayModal(){
+  document.getElementById("payModal").classList.add("hidden");
+}
+
+
+/* =============================
+   SUBMIT PAYMENT
+============================= */
+
+async function submitPayment(){
+  const amount = Number(document.getElementById("payAmount").value);
+  const method = document.getElementById("payMethod").value;
+
+  if (!amount || amount <= 0){
+    alert("Enter valid amount");
+    return;
+  }
+
+  try {
+    const res = await fetch(`/purchase-invoices/${currentInvoiceId}/pay`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("token")
+      },
+      body: JSON.stringify({ amount, method })
+    });
+
+    if (!res.ok){
+      throw new Error("Payment failed");
+    }
+
+    alert("✅ Payment recorded");
+
+    closePayModal();
+    loadPurchaseInvoices();
+
+  } catch (err){
+    console.error(err);
+    alert("❌ Payment failed");
+  }
+}
+
+
+function openImage(src){
+  let modal = document.getElementById("imagePreviewModal");
+
+  // create modal if not exists
+  if (!modal){
+    modal = document.createElement("div");
+    modal.id = "imagePreviewModal";
+
+    modal.innerHTML = `
+      <div class="image-overlay" onclick="closeImage()">
+        <img id="previewImage" src="" />
+        <span class="close-btn" onclick="closeImage()">✕</span>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+  }
+
+  document.getElementById("previewImage").src = src;
+  modal.style.display = "flex";
+}
+
+function closeImage(){
+  const modal = document.getElementById("imagePreviewModal");
+  if (modal) modal.style.display = "none";
+}
+
+function viewInvoice(id){
+  window.location = `view-purchase-invoice.html?id=${id}`;
+}
 
 </script>
-
 </body>
 </html>

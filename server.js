@@ -20,8 +20,13 @@ const fs = require("fs");
 
 const pool = require("./db");
 const invoiceRoutes = require("./routes/invoices");
+const purchaseRoutes = require("./routes/purchaseInvoices");
+const authMiddleware = require("./middleware/auth");
 
 const app = express();
+
+app.use(express.json());
+
 app.get("/ping", (req, res) => {
   res.status(200).send("OK");
 });
@@ -60,11 +65,8 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
 
-app.use(express.static("public"));
 
 
-// ✅ Serve static files from /public
-app.use(express.static(path.join(__dirname, "public")));
 
 // ✅ Root route loads login.html
 app.get("/", (req, res) => {
@@ -73,48 +75,10 @@ app.get("/", (req, res) => {
 
 // ✅ Mount invoice routes
 app.use("/invoices", invoiceRoutes);
+app.use("/purchase-invoices", authMiddleware, purchaseRoutes);
+app.use(express.static(path.join(__dirname, "public")));
 
-app.use(express.static("public"));
 
-let contacts = [
-
-{
-id:1,
-name:"MTN Zambia",
-type:"customer",
-email:"support@mtn.zm",
-phone:"+260960000000",
-balance:1800
-},
-
-{
-id:2,
-name:"Airtel Zambia",
-type:"customer",
-email:"support@airtel.com",
-phone:"+260970000000",
-balance:2500
-},
-
-{
-id:3,
-name:"Zamtel",
-type:"supplier",
-email:"info@zamtel.co.zm",
-phone:"+260950000000",
-balance:-1200
-},
-
-{
-id:4,
-name:"ZESCO Limited",
-type:"supplier",
-email:"info@zesco.co.zm",
-phone:"+260211000000",
-balance:-900
-}
-
-]
 
 
 // ===============================
@@ -3104,7 +3068,6 @@ app.put("/company/logo", auth, upload.single("logo"), async (req, res) => {
     res.status(500).json({ error: "Failed to upload logo" });
   }
 });
-
 
 
 

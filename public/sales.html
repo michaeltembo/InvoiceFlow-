@@ -411,6 +411,121 @@ body.dark table thead th {
   border-bottom: 1px solid #334155 !important;
 }
 
+
+
+.elite-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  margin-bottom:30px;
+  padding:18px 22px;
+
+  background:linear-gradient(135deg,#ffffff,#f9fafb);
+  border-radius:14px;
+
+  box-shadow:0 6px 20px rgba(0,0,0,0.06);
+}
+
+.header-left h1{
+  margin:0;
+  font-size:22px;
+  font-weight:700;
+}
+
+.subtitle{
+  font-size:13px;
+  color:#6b7280;
+}
+
+.header-right{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.header-search{
+  padding:8px 12px;
+  border-radius:8px;
+  border:1px solid #e5e7eb;
+  width:200px;
+}
+
+.create-btn{
+  background:linear-gradient(135deg,#6366f1,#8b5cf6);
+  color:white;
+  border:none;
+  padding:10px 16px;
+  border-radius:8px;
+  font-weight:600;
+  cursor:pointer;
+}
+
+
+#clientSpotlightImage{
+  width: 90px;
+  height: 90px;
+
+  border-radius: 50%; /* 🔥 makes it circle */
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  /* ✨ premium SaaS look */
+  border: 3px solid white;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+
+  transition: all 0.4s ease;
+}
+
+#clientSpotlightImage.fade{
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+#clientSpotlightImage{
+  width: 90px;
+  height: 90px;
+
+  border-radius: 50%; /* 🔥 makes it circle */
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+
+  /* ✨ premium SaaS look */
+  border: 3px solid white;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+
+  transition: all 0.4s ease;
+}
+
+
+#clientSpotlightImage.fade{
+  opacity: 0;
+  transform: scale(0.9);
+}
+
+
+.client-avatar{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  object-fit:cover;
+
+  border:2px solid #fff;
+  box-shadow:0 4px 10px rgba(0,0,0,0.1);
+
+  transition:all .3s ease;
+}
+
+.client-avatar:hover{
+  transform:scale(1.1);
+  box-shadow:0 6px 16px rgba(0,0,0,0.15);
+}
+
+
 </style>
 
 </head>
@@ -419,12 +534,26 @@ body.dark table thead th {
 <button class="back-btn" onclick="goBack()">← Back</button>
 <div class="container">
 
-<header class="page-header">
+<header class="elite-header">
 
-<h1>Sales Invoices</h1>
+  <div class="header-left">
+    <h1>Sales Invoices</h1>
+    <span class="subtitle">Track revenue & payments</span>
+  </div>
 
+  <div class="header-right">
 
+    <input
+      type="text"
+      placeholder="Search invoices..."
+      class="header-search"
+    />
 
+    <button class="create-btn" onclick="createInvoice()">
+      + New Invoice
+    </button>
+
+  </div>
 
 </header>
 
@@ -511,92 +640,145 @@ document.addEventListener("DOMContentLoaded",loadInvoices)
 
 async function loadInvoices(){
 
-try{
+  try {
 
-const token = localStorage.getItem("token")
+    const token = localStorage.getItem("token");
 
-const res = await fetch("/invoices",{
-headers:{
-Authorization:"Bearer "+token
+    const [invRes, clientRes] = await Promise.all([
+      fetch("/invoices", {
+        headers: { Authorization: "Bearer " + token }
+      }),
+      fetch("/clients", {
+        headers: { Authorization: "Bearer " + token }
+      })
+    ]);
+
+    const invData = await invRes.json();
+    const clientData = await clientRes.json();
+
+    const invoices = Array.isArray(invData)
+      ? invData
+      : invData.data || [];
+
+    const clients = Array.isArray(clientData)
+      ? clientData
+      : clientData.data || [];
+
+    // ✅ NOW IT WORKS
+    renderInvoices(invoices, clients);
+
+  } catch(err){
+    console.error(err);
+  }
+
 }
-})
-
-const data = await res.json()
-
-renderInvoices(data)
-
-}catch(err){
-
-console.error(err)
-
-}
-
-}
-
 
 /* RENDER INVOICES */
 
-function renderInvoices(invoices){
+function renderInvoices(invoices, clients){
 
-const table = document.getElementById("invoiceTable")
+  const table = document.getElementById("invoiceTable");
 
-table.innerHTML=""
+  table.innerHTML = "";
 
-let totalInvoices = invoices.length
-let paidTotal=0
-let pendingTotal=0
-let overdueTotal=0
+const clientMap = {};
 
-if(!invoices.length){
-
-table.innerHTML=
-"<tr><td colspan='6'>No invoices yet</td></tr>"
-
-return
-
-}
-
-invoices.forEach(inv=>{
-
-const row=document.createElement("tr")
-
-row.innerHTML=`
-
-<td>INV-${inv.id}</td>
-
-<td>${inv.client_name||"-"}</td>
-
-<td>${formatDate(inv.created_at)}</td>
-
-<td>
-<span class="status ${inv.status}">
-${inv.status}
-</span>
-</td>
-
-<td>${formatCurrency(inv.total)}</td>
+(clients || []).forEach(c => {
 
 
+  clientMap[c.name] = c;
+});
 
-</td>
+  let totalInvoices = invoices.length;
+  let paidTotal = 0;
+  let pendingTotal = 0;
+  let overdueTotal = 0;
 
-`
+  // ✅ HANDLE EMPTY STATE CORRECTLY
+  if (!invoices.length){
+    table.innerHTML = "<tr><td colspan='5'>No invoices yet</td></tr>";
+    return;
+  }
 
-table.appendChild(row)
+  // ✅ LOOP OUTSIDE THE IF
+  invoices.forEach(inv => {
 
-/* totals */
+    const row = document.createElement("tr");
 
-if(inv.status==="paid") paidTotal+=Number(inv.total)
-if(inv.status==="pending") pendingTotal+=Number(inv.total)
-if(inv.status==="overdue") overdueTotal+=Number(inv.total)
+const client = clientMap[inv.client_name];
 
-})
+const hasAvatar =
+  client &&
+  client.avatar &&
+  client.avatar !== "null" &&
+  client.avatar !== "";
 
-document.getElementById("totalInvoices").innerText=totalInvoices
-document.getElementById("paidTotal").innerText=formatCurrency(paidTotal)
-document.getElementById("pendingTotal").innerText=formatCurrency(pendingTotal)
-document.getElementById("overdueTotal").innerText=formatCurrency(overdueTotal)
+const avatar = hasAvatar
+  ? `/uploads/${client.avatar}`
+  : `https://ui-avatars.com/api/?name=${encodeURIComponent(inv.client_name || "Client")}&background=6366f1&color=fff`;
 
+
+    row.innerHTML = `
+
+    <td>
+      <div class="invoice-cell">
+        <div class="invoice-icon">📄</div>
+        <div>
+          <strong>INV-${inv.id}</strong><br>
+          <small>#${inv.id}</small>
+        </div>
+      </div>
+    </td>
+
+    <td>
+      <div class="client-cell">
+        <img src="${avatar}" class="client-avatar">
+        <span>${inv.client_name || "-"}</span>
+      </div>
+    </td>
+
+    <td>${formatDate(inv.created_at)}</td>
+
+    <td>
+      <span class="status ${inv.status}">
+        ${inv.status}
+      </span>
+
+      ${
+        inv.status === "paid"
+          ? `
+          <div class="paid-meta">
+            <img src="${avatar}" class="paid-avatar">
+            <small>${formatDate(inv.paid_at || inv.created_at)}</small>
+          </div>
+          `
+          : ""
+      }
+    </td>
+
+    <td>
+      <div class="total-cell">
+        <div class="invoice-badge">💰</div>
+        <strong>${formatCurrency(inv.total)}</strong>
+      </div>
+    </td>
+
+    `;
+
+    table.appendChild(row);
+
+    // ✅ TOTALS
+    if (inv.status === "paid") paidTotal += Number(inv.total);
+    if (inv.status === "pending") pendingTotal += Number(inv.total);
+    if (inv.status === "overdue") overdueTotal += Number(inv.total);
+
+  });
+
+  // ✅ UPDATE KPI CARDS
+  document.getElementById("totalInvoices").innerText = totalInvoices;
+  document.getElementById("paidTotal").innerText = formatCurrency(paidTotal);
+  document.getElementById("pendingTotal").innerText = formatCurrency(pendingTotal);
+  document.getElementById("overdueTotal").innerText = formatCurrency(overdueTotal);
 }
 
 

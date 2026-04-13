@@ -590,3 +590,270 @@ body.dark .logo {
 
 
 
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+}
+
+.topbar {
+  width: 100%;
+  padding: 0 20px;
+}
+
+.left-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+body {
+  padding-top: 70px; /* slightly bigger than header height */
+}
+
+header {
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+
+
+
+
+
+/* 🔥 MAKE LINKS SCROLL */
+.sidebar a {
+  flex-shrink: 0;
+}
+
+
+
+
+
+.sidebar {
+  position: fixed;
+  top: 60px;
+  left: -250px;
+  width: 250px;
+  height: calc(100vh - 60px);
+
+  display: flex;
+  flex-direction: column;
+
+  background: linear-gradient(180deg, #0f172a 0%, #020617 100%);
+  border-right: 1px solid rgba(255,255,255,0.06);
+
+  overflow-y: auto;   /* ✅ allow scrolling */
+  overflow-x: hidden;
+
+  transition: left 0.3s ease;
+  z-index: 2000;
+}
+
+.sidebar.active {
+  left: 0;
+}
+
+
+/* Push bottom items down */
+.logout-btn {
+  margin-top: auto;
+}
+
+/* Keep toggle below logout */
+.theme-toggle {
+  margin: 12px;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  height: 40px;
+  padding: 0 10px;
+
+  background: #1e293b;
+  border-radius: 20px;
+}
+
+.theme-toggle .icon {
+  font-size: 14px;
+}
+
+.toggle-circle {
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+
+  position: absolute;
+  top: 3px;
+  left: 3px;
+
+  transition: transform 0.3s ease;
+}
+
+/* Dark mode ON */
+body.dark .toggle-circle {
+  transform: translateX(24px);
+}
+
+
+
+
+/* ===== SIDEBAR LINKS CONTAINER ===== */
+.sidebar {
+  padding-top: 10px;
+}
+
+/* ===== LINK BASE ===== */
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 12px 14px;
+  margin: 6px 10px;
+
+  border-radius: 12px;
+
+  color: #94a3b8;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+
+  text-decoration: none;
+
+  position: relative;
+  overflow: hidden;
+
+  transition: 
+    background 0.25s ease,
+    color 0.25s ease,
+    transform 0.2s ease;
+}
+
+/* ===== ICON ===== */
+.sidebar-link i {
+  width: 18px;
+  height: 18px;
+
+  color: #64748b;
+
+  transition: all 0.25s ease;
+}
+
+/* ===== HOVER EFFECT ===== */
+.sidebar-link:hover {
+  background: rgba(255,255,255,0.06);
+  color: #ffffff;
+
+  transform: translateX(4px);
+}
+
+.sidebar-link:hover i {
+  color: #6366f1;
+}
+
+/* ===== ACTIVE LINK ===== */
+.sidebar-link.active {
+  color: #ffffff;
+
+  background: linear-gradient(
+    90deg,
+    rgba(99,102,241,0.20),
+    rgba(99,102,241,0.05)
+  );
+
+  box-shadow:
+    inset 0 0 0 1px rgba(99,102,241,0.25),
+    0 4px 12px rgba(0,0,0,0.25);
+}
+
+/* ===== ACTIVE ICON ===== */
+.sidebar-link.active i {
+  color: #6366f1;
+}
+
+/* ===== LEFT ACCENT BAR ===== */
+.sidebar-link.active::before {
+  content: "";
+  position: absolute;
+
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+
+  width: 3px;
+  border-radius: 2px;
+
+  background: linear-gradient(180deg, #6366f1, #8b5cf6);
+}
+
+/* ===== SUBTLE HOVER GLOW ===== */
+.sidebar-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: radial-gradient(
+    circle at left,
+    rgba(99,102,241,0.15),
+    transparent 60%
+  );
+
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-link:hover::after {
+  opacity: 1;
+}
+
+/* ===== TEXT ===== */
+.sidebar-link span {
+  flex: 1;
+}
+
+/* ===== SECTION DIVIDER ===== */
+.sidebar hr {
+  border: none;
+  height: 1px;
+  margin: 14px 12px;
+
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255,255,255,0.1),
+    transparent
+  );
+}
+
+/* ===== LOGO AREA SPACING ===== */
+.sidebar-logo {
+  margin-bottom: 10px;
+}
+
+/* ===== SMOOTH SCROLLBAR (PREMIUM TOUCH) ===== */
+.sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.15);
+  border-radius: 10px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255,255,255,0.25);
+}

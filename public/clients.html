@@ -12,7 +12,6 @@
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-
 </head>
 
 <body>
@@ -38,52 +37,80 @@
 <!-- SIDEBAR -->
 
 
-<div id="sidebar" class="sidebar">  
-<div class="sidebar-logo">  
-<span class="logo-icon">IF</span>  
-</div>  
+<div id="sidebar" class="sidebar">
 
+  <div class="sidebar-logo">
+    <span class="logo-icon">IF</span>
+  </div>
 
+  <a href="dashboard.html" class="sidebar-link">
+    <i data-lucide="layout-dashboard"></i>
+    <span>Dashboard</span>
+  </a>
 
-<a href="dashboard.html" class="sidebar-link">
-  <i data-lucide="layout-dashboard"></i>
-  <span>Dashboard</span>
-</a>
+  <a href="clients.html" class="sidebar-link">
+    <i data-lucide="users"></i>
+    <span>Clients</span>
+  </a>
 
-<a href="clients.html" class="sidebar-link">
-  <i data-lucide="users"></i>
-  <span>Clients</span>
-</a>
+  <a href="invoices.html" class="sidebar-link">
+    <i data-lucide="file-text"></i>
+    <span>Invoices</span>
+  </a>
 
-<a href="invoices.html" class="sidebar-link">
-  <i data-lucide="file-text"></i>
-  <span>Invoices</span>
-</a>
+  <!-- 🔥 FIXED BROKEN PART -->
+  <a href="/sales.html" class="sidebar-link">
+    <i data-lucide="receipt"></i>
+    <span>Sales Invoices</span>
+  </a>
 
-<a href="company-settings.html" class="sidebar-link">
-  <i data-lucide="settings"></i>
-  <span>Settings</span>
-</a>
+  <a href="/purchases.html" class="sidebar-link">
+    <i data-lucide="shopping-cart"></i>
+    <span>Purchase Invoices</span>
+  </a>
 
-<a href="reports.html" class="sidebar-link">
-  <i data-lucide="bar-chart-3"></i>
-  <span>Reports</span>
-</a>
+  <a href="/cashbook.html" class="sidebar-link">
+    <i data-lucide="book-open"></i>
+    <span>Cash Book</span>
+  </a>
 
+  <a href="/customers-suppliers.html" class="sidebar-link">
+    <i data-lucide="users"></i>
+    <span>Customers / Suppliers</span>
+  </a>
 
-<button onclick="logout()" class="logout-btn">
-  <i data-lucide="log-out"></i>
-  <span>Logout</span>
-</button>
+  <a href="/projects.html" class="sidebar-link">
+    <i data-lucide="folder"></i>
+    <span>Projects</span>
+  </a>
 
-<div class="theme-toggle" onclick="toggleTheme()">
-  <span class="icon sun">☀️</span>
-  <span class="icon moon">🌙</span>
-  <div class="toggle-circle"></div>
+  <a href="/payments.html" class="sidebar-link">
+    <i data-lucide="credit-card"></i>
+    <span>Payment Methods</span>
+  </a>
+
+  <a href="company-settings.html" class="sidebar-link">
+    <i data-lucide="settings"></i>
+    <span>Settings</span>
+  </a>
+
+  <a href="reports.html" class="sidebar-link">
+    <i data-lucide="bar-chart-3"></i>
+    <span>Reports</span>
+  </a>
+
+  <button onclick="logout()" class="logout-btn">
+    <i data-lucide="log-out"></i>
+    <span>Logout</span>
+  </button>
+
+  <div class="theme-toggle" onclick="toggleTheme()">
+    <span class="icon sun">☀️</span>
+    <span class="icon moon">🌙</span>
+    <div class="toggle-circle"></div>
+  </div>
+
 </div>
-
-</div>
-
 
 <!-- MAIN CONTENT -->
 
@@ -139,6 +166,9 @@
     </div>
     <h2 class="kpi-number" id="totalClients">0</h2>
     <div class="kpi-trend neutral" id="clientsTrend">0%</div>
+
+    <!-- ✅ ADD THIS -->
+    <canvas id="clientsSpark" height="40"></canvas>
   </div>
 
   <div class="kpi-card" id="activeClientsCard">
@@ -148,6 +178,9 @@
     </div>
     <h2 class="kpi-number" id="activeClients">0</h2>
     <div class="kpi-trend neutral" id="activeTrend">0%</div>
+
+    <!-- ✅ ADD THIS -->
+    <canvas id="activeSpark" height="40"></canvas>
   </div>
 
   <div class="kpi-card" id="inactiveClientsCard">
@@ -157,6 +190,9 @@
     </div>
     <h2 class="kpi-number" id="inactiveClients">0</h2>
     <div class="kpi-trend neutral" id="inactiveTrend">0%</div>
+
+    <!-- ✅ ADD THIS -->
+    <canvas id="inactiveSpark" height="40"></canvas>
   </div>
 
   <div class="kpi-card highlight" id="revenueCard">
@@ -166,6 +202,9 @@
     </div>
     <h2 class="kpi-number" id="totalRevenue">ZMW 0.00</h2>
     <div class="kpi-trend neutral" id="revenueTrend">0%</div>
+
+    <!-- ✅ ADD THIS -->
+    <canvas id="revenueSpark" height="40"></canvas>
   </div>
 
 </div>

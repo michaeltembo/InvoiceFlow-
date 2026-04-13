@@ -1,3 +1,10 @@
+
+function safeSet(id, value){
+  const el = document.getElementById(id);
+  if (el) el.innerText = value;
+}
+
+
 const currency = localStorage.getItem("currency") || "ZMW";
 
 const rates = {
@@ -7,13 +14,19 @@ const rates = {
   ZMW:27
 };
 
+function convert(amount){
+  const rate = rates[currency] || 1;
+  return amount * rate;
+}
+
 function formatMoney(amount){
+  const converted = convert(amount);
+
   return new Intl.NumberFormat("en-US",{
     style:"currency",
     currency: currency
-  }).format(amount);
+  }).format(converted);
 }
-
 
 
 
@@ -173,12 +186,25 @@ select.value = clientId;
 async function loadInvoices(){
   try{
 
-    // ✅ SAFE skeleton calls (no crash if missing)
+    // =========================
+    // STAGE 1: Instant UI
+    // =========================
     startHeaderSkeleton?.();
     startInvoiceSkeleton?.();
     showInvoiceTableSkeleton?.();
     startUsageSkeleton?.();
 
+    // 🔥 Show cached data instantly (SUPER PREMIUM FEEL)
+    const cached = JSON.parse(localStorage.getItem("invoices") || "[]");
+
+    if (cached.length){
+      renderInvoices?.(cached);
+      updateKPIs?.(cached);
+    }
+
+    // =========================
+    // STAGE 2: Fetch fresh data
+    // =========================
     const res = await fetch("/invoices",{
       headers: getAuthHeaders()
     });
@@ -189,63 +215,82 @@ async function loadInvoices(){
 
     const raw = await res.json();
 
-    console.log("🔥 RAW RESPONSE:", raw);
-
-    // ✅ BULLETPROOF NORMALIZATION (handles ALL API shapes)
+    // =========================
+    // STAGE 3: Normalize FAST
+    // =========================
     let data = [];
 
-    if (Array.isArray(raw)) {
-      data = raw;
-    }
-    else if (Array.isArray(raw.data)) {
-      data = raw.data;
-    }
-    else if (Array.isArray(raw.invoices)) {
-      data = raw.invoices;
-    }
-    else if (Array.isArray(raw.results)) {
-      data = raw.results;
-    }
-    else if (Array.isArray(raw?.data?.invoices)) {
-      data = raw.data.invoices;
-    }
+    if (Array.isArray(raw)) data = raw;
+    else if (Array.isArray(raw.data)) data = raw.data;
+    else if (Array.isArray(raw.invoices)) data = raw.invoices;
+    else if (Array.isArray(raw.results)) data = raw.results;
+    else if (Array.isArray(raw?.data?.invoices)) data = raw.data.invoices;
 
-    console.log("✅ FINAL DATA:", data);
-
-    // ✅ GUARANTEE ARRAY
-    if (!Array.isArray(data)) {
-      console.warn("⚠️ Data is not array, forcing empty:", data);
-      data = [];
-    }
+    if (!Array.isArray(data)) data = [];
 
     invoices = updateInvoiceStatuses(data);
 
+    // =========================
+    // STAGE 4: Save cache EARLY
+    // =========================
     localStorage.setItem("invoices", JSON.stringify(invoices));
 
-    // ✅ SAFE TABLE RENDER
-    const tbody = document.getElementById("invoiceTableBody");
-    if (tbody) {
-      tbody.innerHTML = "";
-    } else {
-      console.warn("⚠️ invoiceTableBody not found");
-    }
+    // =========================
+    // STAGE 5: Render KPIs FIRST
+    // =========================
+    updateKPIs?.(invoices);
 
-    // ✅ SAFE FUNCTION CALLS
-    if (typeof renderInvoices === "function") {
-      renderInvoices(invoices);
-    }
+const metrics = calculateAdvancedMetrics(invoices);
 
-    if (typeof updateKPIs === "function") {
-      updateKPIs(invoices);
-    }
+renderAdvancedMetrics(metrics);
 
-    if (typeof checkLimit === "function") {
-      checkLimit();
-    }
+// sparklines
 
-    if (typeof updateUsage === "function") {
-      updateUsage();
-    }
+renderSparkline("mrrSpark", metrics.monthlyRevenue);
+renderSparkline("collectionSpark", metrics.monthlyRevenue);
+renderSparkline("overdueSpark", metrics.monthlyRevenue.map(v => v * 0.4));
+renderSparkline("avgSpark", metrics.monthlyRevenue.map(v => v / 1000));
+    // 🔥 stop header skeleton early (feels fast)
+    stopHeaderSkeleton?.();
+
+
+// =========================
+// STAGE 6: Progressive table render
+// =========================
+
+const tbody = document.getElementById("invoiceTableBody");
+
+if (tbody) {
+  tbody.innerHTML = ""; // clear skeleton
+
+  invoices.forEach((inv, i) => {
+
+    const row = createInvoiceRow(inv); // 🔥 IMPORTANT: reuse your row logic
+
+    row.style.opacity = 0;
+    row.style.transform = "translateY(6px)";
+
+    tbody.appendChild(row);
+
+    // 🔥 STAGGERED animation (elite feel)
+    setTimeout(() => {
+      row.style.transition = "all 0.3s ease";
+      row.style.opacity = 1;
+      row.style.transform = "translateY(0)";
+    }, i * 40); // delay per row
+  });
+}
+
+stopInvoiceSkeleton?.();
+
+
+    // =========================
+    // STAGE 7: Background tasks
+    // =========================
+    requestAnimationFrame(() => {
+      checkLimit?.();
+      updateUsage?.();
+    });
 
   }catch(err){
 
@@ -253,12 +298,13 @@ async function loadInvoices(){
 
   }finally{
 
-    // ✅ ALWAYS stop skeletons (even if error)
+    // ✅ Ensure everything stops
     stopInvoiceSkeleton?.();
     stopHeaderSkeleton?.();
     stopUsageSkeleton?.();
   }
 }
+
 
 // ===============================
 // STATUS LOGIC
@@ -301,13 +347,6 @@ function updateKPIs(data){
     0
   );
 
-  // =========================
-  // SAFE DOM SETTER
-  // =========================
-  function safeSet(id, value){
-    const el = document.getElementById(id);
-    if (el) el.textContent = value;
-  }
 
   // =========================
   // MAIN VALUES
@@ -377,6 +416,16 @@ function updateKPIs(data){
     }
 
   });
+
+
+
+
+
+  // =========================
+  // FINAL METRICS
+  // =========================
+
+
 
   function calc(curr, last){
     if (last === 0 && curr === 0) return 0;
@@ -849,16 +898,6 @@ select.appendChild(option);
 
 }
 
-function money(amount){
-
-const converted = amount * rates[currency];
-
-return new Intl.NumberFormat("en-ZM",{
-style:"currency",
-currency:currency
-}).format(converted);
-
-}
 
 
 
@@ -923,35 +962,27 @@ function triggerRevenuePulse(){
 
 
 
-function renderSparkline(id, data){
-  const ctx = document.getElementById(id);
-  if (!ctx || typeof Chart === "undefined") return;
+function renderSparkline(canvasId, dataArr){
 
-  if (ctx.chart) ctx.chart.destroy();
+  const ctx = document.getElementById(canvasId);
 
-  ctx.chart = new Chart(ctx, {
+  new Chart(ctx, {
     type: "line",
     data: {
-      labels: data.map((_,i)=>i),
+      labels: dataArr.map((_,i)=>i+1),
       datasets: [{
-        data,
+        data: dataArr,
         borderWidth: 2,
         fill: false,
-        tension: 0.4,
-        pointRadius: 0
+        tension: 0.4
       }]
     },
     options: {
-      responsive:true,
-      plugins:{ legend:{ display:false } },
-      scales:{
-        x:{ display:false },
-        y:{ display:false }
-      }
+      plugins: { legend: { display: false }},
+      scales: { x: { display:false }, y:{ display:false }},
     }
   });
 }
-
 
 function showSkeleton(){
   ["totalClients","activeClients","inactiveClients","clientRevenue"]
@@ -1302,4 +1333,158 @@ async function loadCompany() {
       window.COMPANY = COMPANY;
     }
   }
+}
+
+
+
+
+function applyFadeIn(selector){
+  const elements = document.querySelectorAll(selector);
+
+  elements.forEach((el, i) => {
+    el.style.animationDelay = `${i * 0.05}s`; // stagger effect
+    el.classList.add("fade-in");
+  });
+}
+
+
+
+
+function createInvoiceRow(inv){
+  const row = document.createElement("tr");
+
+  row.innerHTML = `
+    <td>#${inv.id || "-"}</td>
+    <td>${inv.client_name || "-"}</td>
+    <td>${formatMoney(inv.total || 0)}</td>
+    <td>${formatDate(inv.created_at)}</td>
+    <td>${(inv.status || "").toUpperCase()}</td>
+  `;
+
+  return row;
+}
+
+
+
+
+
+
+function renderAdvancedMetrics(data){
+
+  safeSet("mrrValue", formatMoney(data.mrr));
+  setTrend(document.getElementById("mrrTrend"), data.mrrTrend);
+
+  safeSet("collectionRate", data.collectionRate.toFixed(1) + "%");
+setTrend(document.getElementById("collectionTrend"), data.collectionTrend);
+
+  safeSet("overdueAmount", formatMoney(data.overdueAmount));
+setTrend(document.getElementById("overdueTrend"), data.overdueTrend);
+
+
+
+  safeSet("avgPaymentTime", Math.round(data.avgPaymentTime) + " days");
+setTrend(document.getElementById("avgTimeTrend"), data.avgTrend);
+
+}
+
+function calculateAdvancedMetrics(invoices = []) {
+
+  let totalRevenue = 0;
+  let paidRevenue = 0;
+  let overdueAmount = 0;
+  let paymentDays = [];
+
+  const monthlyRevenue = Array(12).fill(0);
+
+  invoices.forEach(inv => {
+
+    const total = Number(inv.total || 0);
+    totalRevenue += total;
+
+    const status = computeStatus(inv);
+
+    // ✅ PAID
+    if (status === "paid") {
+      paidRevenue += total;
+
+      const issueRaw = inv.created_at || inv.createdAt || inv.date;
+      const dueRaw = inv.due_date;
+
+      if (issueRaw && dueRaw) {
+        const issue = new Date(issueRaw);
+        const due = new Date(dueRaw);
+
+        const diff = (due - issue) / (1000 * 60 * 60 * 24);
+        if (!isNaN(diff)) paymentDays.push(diff);
+      }
+    }
+
+    // ✅ OVERDUE
+    if (status === "overdue") {
+      overdueAmount += total;
+    }
+
+    // ✅ MONTHLY REVENUE (FIXED)
+
+const rawDate = inv.created_at || inv.createdAt || inv.date;
+
+if (!rawDate) return;
+
+const d = new Date(rawDate);
+
+if (isNaN(d.getTime())) return;
+
+// 🔥 FORCE LOCAL MONTH (fix timezone bugs)
+const month = d.getUTCMonth();
+
+monthlyRevenue[month] += total;
+
+  });
+
+  const collectionRate = totalRevenue
+    ? (paidRevenue / totalRevenue) * 100
+    : 0;
+
+  const avgPaymentTime = paymentDays.length
+    ? paymentDays.reduce((a,b)=>a+b,0) / paymentDays.length
+    : 0;
+
+const currentMonth = new Date().getUTCMonth();
+  const prevMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+
+
+  const mrr = monthlyRevenue[currentMonth] || 0;
+  const prevMrr = monthlyRevenue[prevMonth] || 0;
+
+  const mrrTrend = prevMrr
+    ? ((mrr - prevMrr) / prevMrr) * 100
+    : (mrr > 0 ? 100 : 0);
+
+const prevRevenue = monthlyRevenue[prevMonth] || 0;
+
+const prevCollectionRate = prevRevenue
+  ? (prevRevenue / (prevRevenue || 1)) * 100
+  : 0;
+
+const collectionTrend = prevCollectionRate
+  ? ((collectionRate - prevCollectionRate) / prevCollectionRate) * 100
+  : (collectionRate > 0 ? 100 : 0);
+
+const overdueTrend = overdueAmount > 0 ? 100 : 0;
+
+const avgTrend = avgPaymentTime > 0 ? 100 : 0;
+
+  return {
+  mrr,
+  mrrTrend,
+  collectionRate,
+  collectionTrend,
+  overdueAmount,
+  overdueTrend,
+  avgPaymentTime,
+  avgTrend,
+  monthlyRevenue
+};
+
+
 }

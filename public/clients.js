@@ -43,6 +43,16 @@ let filteredClients = [];
 let currentCurrency = "USD";
 
 
+// =============================
+// GLOBAL MONTHLY DATA (🔥 REQUIRED)
+// =============================
+let monthlyClients = Array(12).fill(0);
+let monthlyRevenue = Array(12).fill(0);
+let monthlyOutstanding = Array(12).fill(0);
+
+let invoicesGlobal = []; // 🔥 store invoices globally
+
+
 /* ===============================
 AUTH
 =============================== */
@@ -65,8 +75,26 @@ function getAuthHeaders(){
 /* ===============================
 INIT
 =============================== */
-document.addEventListener("DOMContentLoaded", () => {
-  loadClients();
+
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+
+    // ✅ START SKELETON INSTANTLY (FIRST LINE)
+    startKPISkeleton();
+    showTableSkeleton();
+
+    await loadCompany();
+    await loadClients();
+
+    setTimeout(() => {
+      renderKPIs();
+    }, 100);
+
+    removeSkeletons();
+
+  } catch (err) {
+    console.error("❌ Dashboard init failed:", err);
+  }
 });
 
 /* ===============================
@@ -133,19 +161,66 @@ async function loadClients(){
     setText("inactiveClients", inactive);
 
     // invoices
-    const invRes = await fetch("/invoices", {
-      headers: getJSONHeaders()
-    });
 
-    const invData = await invRes.json();
+// =============================
+// FETCH INVOICES FIRST
+// =============================
 
-    if (!invRes.ok) {
-      console.error("Invoices fetch failed:", invData);
-      stopKPISkeleton();
-      return;
-    }
+// =============================
+// FETCH INVOICES
+// =============================
+const invRes = await fetch("/invoices", {
+  headers: getJSONHeaders()
+});
 
-    const invoices = invData.data || invData || [];
+if (!invRes.ok) {
+  console.error("Invoices fetch failed");
+  stopKPISkeleton();
+  return;
+}
+
+const invData = await invRes.json();
+
+const invoices = Array.isArray(invData)
+  ? invData
+  : invData.data || [];
+
+invoicesGlobal = invoices;
+
+// =============================
+// RESET ARRAYS
+// =============================
+monthlyClients.fill(0);
+monthlyRevenue.fill(0);
+monthlyOutstanding.fill(0);
+
+// =============================
+// CLIENTS MONTHLY
+// =============================
+rawClients.forEach(c => {
+  const d = new Date(c.created_at || c.createdAt || 0);
+  if (!isNaN(d)) {
+    monthlyClients[d.getMonth()]++;
+  }
+});
+
+// =============================
+// INVOICES MONTHLY
+// =============================
+invoices.forEach(inv => {
+  const d = new Date(inv.issue_date || inv.created_at || 0);
+  if (isNaN(d)) return;
+
+  const m = d.getMonth();
+
+  monthlyRevenue[m] += Number(inv.total || 0);
+
+  if ((inv.status || "").toLowerCase() !== "paid") {
+    monthlyOutstanding[m] += Number(inv.balance || 0);
+  }
+});
+
+
 
     updateClientKPIs(rawClients, invoices);
 
@@ -445,10 +520,23 @@ if (avatar) {
     // =============================
     // 🔥 SAFE FILTER (USE ID IF EXISTS)
     // =============================
-    const clientInvoices = invoices.filter(inv =>
-      inv.client_id == client.id ||
-      (inv.client_name || "").toLowerCase() === client.name.toLowerCase()
-    );
+
+const clientInvoices = invoices.filter(inv => {
+
+  const invClientId = String(inv.client_id || inv.clientId || "").trim();
+  const clientId = String(client.id || "").trim();
+
+  // ✅ STRICT MATCH FIRST (PRIMARY)
+  if (invClientId && clientId) {
+    return invClientId === clientId;
+  }
+
+  // ✅ FALLBACK ONLY IF ID IS MISSING
+  const invName = (inv.client_name || inv.client || "").toLowerCase().trim();
+  const clientName = (client.name || "").toLowerCase().trim();
+
+  return invName && clientName && invName === clientName;
+});
 
     // =============================
     // CALCULATE STATS
@@ -467,7 +555,6 @@ if (avatar) {
       else pending += amount;
 
     });
-
 
 // =============================
 // 🔥 FIX AVG + LAST ACTIVITY
@@ -536,12 +623,14 @@ if (ctx && typeof Chart !== "undefined") {
     type: "doughnut",
     data: {
       labels: ["Paid", "Pending"],
-      datasets: [{
-        data: [safePaid, safePending],
-        backgroundColor: ["#22c55e", "#f59e0b"],
-        borderWidth: 0,
-        hoverOffset: 8 // 🔥 smoother hover
-      }]
+
+
+datasets: [{
+  data: [safePaid, safePending],
+  backgroundColor: ["#22c55e", "#f59e0b"],
+  borderWidth: 0
+}]
+
     },
     options: {
       cutout: "75%", // 🔥 cleaner center space
@@ -728,10 +817,20 @@ function setText(id, value){
   if(el) el.textContent = value ?? 0;
 }
 
-function calc(current, last){
-  if (last === 0) return current > 0 ? 100 : 0;
-  return ((current - last) / last) * 100;
+
+function calcTrend(arr){
+  if (!Array.isArray(arr) || arr.length < 2) return 0;
+
+  const last = Number(arr[arr.length - 1]) || 0;
+  const prev = Number(arr[arr.length - 2]) || 0;
+
+  if (prev === 0 && last === 0) return 0;
+  if (prev === 0) return 100;
+
+  return ((last - prev) / prev) * 100;
 }
+
+
 
 /* ===============================
 KPI TREND
@@ -739,7 +838,7 @@ KPI TREND
 function setTrend(el, value){
   if (!el) return;
 
-  const v = Math.round(value);
+  const v = Math.round(Number(value) || 0);
 
   if (v > 0){
     el.className = "kpi-trend up";
@@ -754,10 +853,10 @@ function setTrend(el, value){
     el.innerHTML = `<i data-lucide="minus"></i> 0%`;
   }
 
-  // 🔥 re-render icons after update
-  lucide.createIcons();
+  if (typeof lucide !== "undefined") {
+    lucide.createIcons();
+  }
 }
-
 
 /* ===============================
 KPIs (FINAL FIX)
@@ -1092,3 +1191,98 @@ function exportClientReport(){
   alert("Exporting report for " + activeClient.name);
   // you can later generate PDF / CSV here
 }
+
+
+
+
+
+function drawSparkline(canvasId, data){
+
+  if (typeof Chart === "undefined") return;
+
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+
+  if (!data || !data.length) return;
+
+  const ctx = canvas.getContext("2d");
+
+  if (!window.sparkCharts) window.sparkCharts = {};
+
+  if (window.sparkCharts[canvasId]) {
+    window.sparkCharts[canvasId].destroy();
+  }
+
+  // prevent flat zero chart
+  const safeData = data.some(v => v !== 0)
+    ? data
+    : data.map((_, i) => i === data.length - 1 ? 1 : 0);
+
+  window.sparkCharts[canvasId] = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: safeData.map((_, i) => i),
+
+datasets: [{
+  data: [safePaid, safePending],
+  backgroundColor: ["#22c55e", "#f59e0b"],
+  borderWidth: 0
+}]
+
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { display: false },
+        y: { display: false }
+      }
+    }
+  });
+}
+
+
+function renderKPIs(){
+
+  const clients = allClients;
+  const invoices = invoicesGlobal;
+
+  const totalClients = clients.length;
+
+  const activeClients = clients.filter(c =>
+    (c.status || "").toLowerCase() === "active"
+  ).length;
+
+  const totalRevenue = invoices.reduce((s,i)=>
+    s + Number(i.total || 0), 0
+  );
+
+  const outstanding = invoices.reduce((s,i)=>
+    s + Number(i.balance || 0), 0
+  );
+
+  document.getElementById("totalClients").innerText = totalClients;
+  document.getElementById("activeClients").innerText = activeClients;
+  document.getElementById("totalRevenue").innerText = formatMoney(totalRevenue);
+  document.getElementById("outstandingRevenue").innerText = formatMoney(outstanding);
+
+
+  // ✅ Sparklines
+  drawSparkline("clientsSpark", monthlyClients);
+  drawSparkline("activeSpark", monthlyClients);
+  drawSparkline("revenueSpark", monthlyRevenue);
+}
+
+
+function removeSkeletons(){
+  document.querySelectorAll(".skeleton-card").forEach(el=>{
+    el.classList.remove("skeleton-card");
+  });
+
+  document.querySelectorAll(".skeleton-text, .skeleton-box").forEach(el=>{
+    el.classList.remove("skeleton-text","skeleton-box");
+  });
+}
+
+

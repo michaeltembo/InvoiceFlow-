@@ -40,128 +40,119 @@
 
 <button id="menuToggle">☰</button>
 
-<div class="logo company-header">
 
-  <!-- ✅ CLICKABLE PROFILE IMAGE -->
 
-<div id="companyAvatar" onclick="openProfile()" style="cursor:pointer;">
-  <img id="companyHeaderLogo" src="/images/default-avatar.png">
-  <div id="companyInitials" class="avatar-fallback"></div>
+
+<div class="top-bar">
+
+  <!-- LEFT: SEARCH -->
+  <div class="search-container">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        id="globalSearch"
+        placeholder="Search clients, invoices, settings..."
+        class="search-input"
+      />
+    </div>
+    <div id="searchResults" class="search-results"></div>
+  </div>
+
+  <!-- RIGHT: COMPANY -->
+  <div class="logo company-header">
+    <div id="companyAvatar" onclick="openProfile()" style="cursor:pointer;">
+      <img id="companyHeaderLogo" src="/images/default-avatar.png">
+      <div id="companyInitials" class="avatar-fallback"></div>
+    </div>
+
+    <div>
+      <span id="companyNameDisplay">InvoiceFlow</span>
+      <small id="companyCurrency">ZMW</small>
+    </div>
+  </div>
+
 </div>
+</header>
 
-  <!-- TEXT -->
-  <div>
-    <span id="companyNameDisplay">InvoiceFlow</span>
-    <small id="companyCurrency">ZMW</small>
+
+
+<div id="sidebar" class="sidebar">
+
+  <div class="sidebar-logo">
+    <span class="logo-icon">IF</span>
+  </div>
+
+  <a href="dashboard.html" class="sidebar-link">
+    <i data-lucide="layout-dashboard"></i>
+    <span>Dashboard</span>
+  </a>
+
+  <a href="clients.html" class="sidebar-link">
+    <i data-lucide="users"></i>
+    <span>Clients</span>
+  </a>
+
+  <a href="invoices.html" class="sidebar-link">
+    <i data-lucide="file-text"></i>
+    <span>Invoices</span>
+  </a>
+
+  <!-- 🔥 FIXED BROKEN PART -->
+  <a href="/sales.html" class="sidebar-link">
+    <i data-lucide="receipt"></i>
+    <span>Sales Invoices</span>
+  </a>
+
+  <a href="/purchases.html" class="sidebar-link">
+    <i data-lucide="shopping-cart"></i>
+    <span>Purchase Invoices</span>
+  </a>
+
+  <a href="/cashbook.html" class="sidebar-link">
+    <i data-lucide="book-open"></i>
+    <span>Cash Book</span>
+  </a>
+
+  <a href="/customers-suppliers.html" class="sidebar-link">
+    <i data-lucide="users"></i>
+    <span>Customers / Suppliers</span>
+  </a>
+
+  <a href="/projects.html" class="sidebar-link">
+    <i data-lucide="folder"></i>
+    <span>Projects</span>
+  </a>
+
+  <a href="/payments.html" class="sidebar-link">
+    <i data-lucide="credit-card"></i>
+    <span>Payment Methods</span>
+  </a>
+
+  <a href="company-settings.html" class="sidebar-link">
+    <i data-lucide="settings"></i>
+    <span>Settings</span>
+  </a>
+
+  <a href="reports.html" class="sidebar-link">
+    <i data-lucide="bar-chart-3"></i>
+    <span>Reports</span>
+  </a>
+
+  <button onclick="logout()" class="logout-btn">
+    <i data-lucide="log-out"></i>
+    <span>Logout</span>
+  </button>
+
+  <div class="theme-toggle" onclick="toggleTheme()">
+    <span class="icon sun">☀️</span>
+    <span class="icon moon">🌙</span>
+    <div class="toggle-circle"></div>
   </div>
 
 </div>
 
 
-  <!-- ✅ RIGHT: SEARCH -->
-
-<div class="search-wrapper" id="searchWrapper">
-
-  <div class="search-icon" id="searchIcon">🔍</div>
-
-  <input
-    type="text"
-    id="globalSearch"
-    placeholder="Search..."
-  />
-
-  <div id="searchResults"></div>
-
-</div>
-
-
-<div class="nav-menu"></div>
-
-</div>
-
-</div>
-
-<div class="nav-links" id="navLinks">
-
-<div class="nav-highlight"></div>
-
-<a href="/sales.html" data-color="green">
-<i data-lucide="receipt"></i>
-Sales Invoices
-</a>
-
-<a href="/purchases.html" data-color="blue">
-<i data-lucide="shopping-cart"></i>
-Purchase Invoices
-</a>
-
-<a href="/cashbook.html" data-color="orange">
-<i data-lucide="book-open"></i>
-Cash Book
-</a>
-
-<a href="/customers-suppliers.html">
-<i data-lucide="users"></i>
-Customers / Suppliers
-</a>
-
-<a href="/projects.html">
-<i data-lucide="folder"></i>
-Projects
-</a>
-
-<a href="/payments.html">
-<i data-lucide="credit-card"></i>
-Payment Methods
-</a>
-
-
-
-</div>
-
-</header>
-
-<div id="sidebar" class="sidebar">  
-<div class="sidebar-logo">  
-<span class="logo-icon">IF</span>  
-</div>  
-
-
-<a href="dashboard.html" class="sidebar-link">
-  <i data-lucide="layout-dashboard"></i>
-  <span>Dashboard</span>
-</a>
-
-<a href="clients.html" class="sidebar-link">
-  <i data-lucide="users"></i>
-  <span>Clients</span>
-</a>
-
-<a href="invoices.html" class="sidebar-link">
-  <i data-lucide="file-text"></i>
-  <span>Invoices</span>
-</a>
-
-<a href="company-settings.html" class="sidebar-link">
-  <i data-lucide="settings"></i>
-  <span>Settings</span>
-</a>
-<a href="reports.html" class="sidebar-link">
-  <i data-lucide="bar-chart-3"></i>
-  <span>Reports</span>
-</a>
-
-<button onclick="logout()" class="logout-btn">
-  <i data-lucide="log-out"></i>
-  <span>Logout</span>
-</button>
-
-<div class="theme-toggle" onclick="toggleTheme()">
-  <span class="icon sun">☀️</span>
-  <span class="icon moon">🌙</span>
-  <div class="toggle-circle"></div>
-</div>
-</div>
 <!-- MAIN -->
 
 <main class="dashboard">
@@ -169,11 +160,67 @@ Payment Methods
 
 <h2 id="companyTitle"></h2>
 
+<!-- 🔥 OVERLAY -->
 
-<!-- STATS -->
+<div class="ultra-header">
 
-<h1>Dashboard</h1>
+  <!-- LEFT -->
+  <div class="ultra-header-left">
 
+    <p class="page-eyebrow">Overview</p>
+
+    <h1 class="ultra-title">
+      Dashboard
+      <span class="live-dot"></span>
+    </h1>
+
+    <p class="ultra-description">
+      You generated 
+      <span class="kpi-chip success" id="descRevenue"></span>
+      in revenue, with 
+      <span class="kpi-chip danger" id="descOutstanding"></span>
+      outstanding across 
+      <span class="kpi-chip accent" id="descClients"></span>
+      active clients.
+    </p>
+
+    <p class="ultra-meta" id="descMeta"></p>
+
+  </div>
+
+  <!-- RIGHT -->
+  <div class="ultra-header-right">
+
+    <div class="mini-chart">
+      <canvas id="headerSpark"></canvas>
+    </div>
+
+    <div class="header-stats">
+      <div class="stat-pill">
+        <span>Revenue</span>
+        <strong id="headerRevenue"></strong>
+      </div>
+
+      <div class="stat-pill">
+        <span>Outstanding</span>
+        <strong id="headerOutstanding"></strong>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<div class="client-spotlight">
+  <div class="spotlight-image" id="clientSpotlightImage"></div>
+
+  <div class="spotlight-info">
+    <h3 id="clientSpotlightName">Loading...</h3>
+    <p id="clientSpotlightEmail"></p>
+  </div>
+</div>
 
 <div class="card">
 <div class="section-header">
@@ -211,7 +258,7 @@ Payment Methods
 <div class="kpi-card total skeleton-card" id="totalClientsCard">
   <div class="card-top">
     <i data-lucide="users" class="icon skeleton-box"></i>
-    <span class="trend skeleton-text" id="clientsTrend">0%</span>
+    <span class="trend skeleton-text" id="clientsTrend"></span>
   </div>
   <span class="label skeleton-text">Total Clients</span>
   <h2 id="totalClients" class="skeleton-text">0</h2>
@@ -221,7 +268,7 @@ Payment Methods
 <div class="kpi-card active skeleton-card" id="activeClientsCard">
   <div class="card-top">
     <i data-lucide="user-check" class="icon skeleton-box"></i>
-    <span class="trend skeleton-text" id="activeTrend">0%</span>
+    <span class="trend skeleton-text" id="activeTrend"></span>
   </div>
   <span class="label skeleton-text">Active Clients</span>
   <h2 id="activeClients" class="skeleton-text">0</h2>
@@ -231,7 +278,7 @@ Payment Methods
 <div class="kpi-card revenue skeleton-card" id="totalRevenueCard">
   <div class="card-top">
     <i data-lucide="wallet" class="icon skeleton-box"></i>
-    <span class="trend skeleton-text" id="revenueTrend">0%</span>
+    <span class="trend skeleton-text" id="revenueTrend"></span>
   </div>
   <span class="label skeleton-text">Total Revenue</span>
   <h2 id="totalRevenue" class="skeleton-text">0</h2>
@@ -242,20 +289,55 @@ Payment Methods
 <div class="kpi-card outstanding skeleton-card" id="outstandingCard">
   <div class="card-top">
     <i data-lucide="alert-triangle" class="icon skeleton-box"></i>
-    <span class="trend skeleton-text" id="outstandingTrend">0%</span>
+    <span class="trend skeleton-text" id="outstandingTrend"></span>
   </div>
   <span class="label skeleton-text">Outstanding</span>
   <h2 id="outstandingRevenue" class="skeleton-text">0</h2>
   <canvas class="sparkline skeleton-box" id="outstandingSpark"></canvas>
 </div>
 
+<div class="dashboard-bottom">
+
+  <!-- INSIGHTS -->
+  <div class="insights-card">
+    <div class="card-header">
+      <h3>Insights</h3>
+    </div>
+
+    <div class="insights-list">
+      <div class="insight-item" id="insight1"></div>
+      <div class="insight-item" id="insight2"></div>
+    </div>
+  </div>
+
+  <!-- REVENUE BREAKDOWN -->
+  <div class="breakdown-card">
+    <div class="card-header">
+      <h3>Revenue Breakdown</h3>
+    </div>
+
+    <div class="breakdown-list">
+      <div class="breakdown-row">
+        <span class="label">Paid</span>
+        <span class="value success" id="paidRevenue"></span>
+      </div>
+
+      <div class="breakdown-row">
+        <span class="label">Outstanding</span>
+        <span class="value danger" id="outstandingBreakdown"></span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
 <!-- CHART -->
 
 <div class="card skeleton-card" id="revenueChartSection">
 
+  <!-- HEADER -->
   <div style="display:flex; justify-content:space-between; align-items:center;">
     <h2 class="skeleton-text">Revenue Overview</h2>
-
 
     <select id="dateFilter" class="skeleton-box" style="padding:6px 10px; border-radius:6px;">
       <option value="month">This Month</option>
@@ -263,7 +345,11 @@ Payment Methods
     </select>
   </div>
 
-  <canvas id="revenueChart" class="skeleton-box" height="120"></canvas>
+  <!-- CHART WRAPPER -->
+  <div class="chart-container">
+    <canvas id="revenueChart"></canvas>
+  </div>
+
 </div>
 
 <div class="card skeleton-card">
@@ -325,29 +411,33 @@ Payment Methods
 
 <!-- INVOICE TABLE -->
 
-<div class="card skeleton-card" id="recentInvoices">
+<div class="card skeleton-card recent-invoices-card">
 
-<h2 class="skeleton-text">Recent Invoices</h2>
+  <div class="table-header">
+    <h2 class="skeleton-text">Recent Invoices</h2>
+  </div>
 
-<div class="table-wrapper">
-<table>
+  <div class="table-wrapper">
+    <table class="invoice-table">
 
-<thead>
-<tr>
-<th>Invoice</th>
-<th>Client</th>
-<th>Status</th>
-<th>Total</th>
-</tr>
-</thead>
+      <thead>
+        <tr>
+<tr class="invoice-row" title="Click to view invoice details">
+          <th>Invoice</th>
+          <th>Client</th>
+          <th>Status</th>
+          <th class="right">Total</th>
+        </tr>
+      </thead>
 
-<tbody id="invoiceTable" class="skeleton-text"></tbody>
+      <tbody id="invoiceTable" class="skeleton-text"></tbody>
 
-</table>
+    </table>
+  </div>
+
 </div>
 
-</div>
-
+<div id="kpiTooltip" class="kpi-tooltip"></div>
 
 </main>
 <script>
